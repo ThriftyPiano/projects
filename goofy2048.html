@@ -100,6 +100,7 @@ draw = function() {
         text(pow(2, balls[i][2]), balls[i][0], balls[i][1]);
     }
     if(round((6000-frameCount)/30) >= 0 || timed === false) {
+        var a = false;
         for(var i = 0; i < balls.length; i++) {
             for(var j = 0; j < balls.length; j++) {
                 if(dist(balls[i][0], balls[i][1], balls[j][0], balls[j][1]) <= pow(sqrt(2), balls[i][2])*5+pow(sqrt(2), balls[j][2])*5 & balls[i][2] === balls[j][2] & i !== j) {
@@ -107,7 +108,12 @@ draw = function() {
                     balls.push([(balls[i][0]+balls[j][0])/2, (balls[i][1]+balls[j][1])/2, balls[i][2]+1]);
                     balls.splice(j, 1);
                     balls.splice(i, 1);
+                    a = true;
+                    break;
                 }
+            }
+            if (a) {
+                break;
             }
         }
         for(var i = 0; i < balls.length; i++) {
