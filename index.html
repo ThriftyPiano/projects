@@ -36,12 +36,12 @@
       border: 1px solid #00ff00;
       border-radius: 10px;
       background-color: #1a1a1a;
-      padding: 15px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: space-between; /* Spread content evenly */
       align-items: center;
-      height: 150px;
+      height: auto; /* Adjust height based on content */
       text-align: center;
     }
     a {
@@ -54,6 +54,7 @@
       width: 100%; /* Full width */
       text-align: center; /* Center text inside */
       box-sizing: border-box;
+      margin-bottom: 10px; /* Adds space between button and description */
     }
     a:hover {
       background-color: #66ff66;
@@ -62,6 +63,7 @@
       margin: 10px 0 0;
       font-size: 14px;
       color: #00ff00;
+      text-align: left; /* Left-align the text for better readability */
     }
     /* Ensures page scrolls if content overflows */
     body {
