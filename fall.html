@@ -1,0 +1,154 @@
+<html>
+    <head>
+        <title>Fall</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//Leaderboard:
+//1. The Coding Speedster (6432)
+//2. Roronoa_Zoro (5464)
+//3. FakeCxprss (4914)
+
+frameRate(58);
+var l = 5/4;
+var k = pow(l, 0);
+var t = 1;
+var txt = ["Good luck!", ":)", "Have fun!", "", "", "", "",  "Wow, you\nare good!", "Really good.", "Bye. :)"];
+var c = 0;
+var lava = [];
+var lines = [];
+var comb = [[0], [1], [2], [0, 1], [1, 2], [0, 2]];
+var pos = [200, 0];
+var jump = 0;
+var la = false;
+var score = 0;
+var re = 0;
+smooth();
+draw = function() {
+    background(0, 0, 0);
+    stroke(0, 0, 0);
+    colorMode(HSB);
+    fill(re*10%255, 255, 255);
+    triangle(200, 200, 0, 400, 400, 400);
+    colorMode(RGB);
+    fill(0, 0, 0);
+    for(var i = lava.length-1; i > -1; i--) {
+        lava[i][1] *= pow(l, 0.1);
+        if(lava[i][0] === 0) {
+            quad(200-lava[i][1], 200+lava[i][1], 200-lava[i][1]/3, 200+lava[i][1], 200-lava[i][1]*pow(l, 1)/3, 200+lava[i][1]*pow(l, 1), 200-lava[i][1]*pow(l, 1), 200+lava[i][1]*pow(l, 1));
+        }
+        if(lava[i][0] === 1) {
+            quad(200-lava[i][1]/3, 200+lava[i][1], 200+lava[i][1]/3, 200+lava[i][1], 200+lava[i][1]*pow(l, 1)/3, 200+lava[i][1]*pow(l, 1), 200-lava[i][1]*pow(l, 1)/3, 200+lava[i][1]*pow(l, 1));
+        }
+        if(lava[i][0] === 2) {
+            quad(200+lava[i][1]/3, 200+lava[i][1], 200+lava[i][1], 200+lava[i][1], 200+lava[i][1]*pow(l, 1), 200+lava[i][1]*pow(l, 1), 200+lava[i][1]*pow(l, 1)/3, 200+lava[i][1]*pow(l, 1));
+        }
+        if(lava[i][1] <= 200 & lava[i][1] >= 200/pow(l, 1) & pos[1] <= 0 & pos[0] <= lava[i][0]*400/3+400/3 & pos[0] >= lava[i][0]*400/3 & la === false) {
+            la = true;
+            score = frameCount;
+        }
+        if(lava[i][1] >= 200) {
+            lava.splice(i, 1);
+        }
+    }
+    t *= pow(l, 0.1);
+    if(t >= 150) {
+        t = 1;
+        c++;
+    }
+    fill(255, 255, 255);
+    textSize(constrain(t, 0, 50));
+    textAlign(CENTER, CENTER);
+    text(txt[c], 200, 200);
+    if(frameCount % 10 === 0) {
+        lines.push(pow(l, 0.1));
+    }
+    if(frameCount % 20 === 0) {
+        var j = floor(random(0, comb.length));
+        for(var i = 0; i < comb[j].length; i++) {
+            lava.push([comb[j][i], 1]);
+        }
+    }
+    noStroke();
+    fill(255, 255, 255);
+    pos[0] = constrain(pos[0], 200/6, 400-200/6);
+    rect(pos[0]-200/6, 400-200/3-pos[1], 200/3, 200/3);
+    pos[1] -= jump;
+    jump += 1;
+    if(pos[1] <= 0 & la === false) {
+        jump = 0;
+        pos[1] = 0;
+    }
+    if(la === false) {
+        pos[0] = mouseX;
+    }
+    if(mouseIsPressed) {
+        if(pos[1] <= 0 & la === false) {
+            jump = -12.5;
+            re++;
+        }
+    }
+    if(pos[1] <= -200/6) {
+        _clearLogs();
+        println("You lost. You had a score of "+score);
+        background(0, 0, 0);
+    }
+};
+
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

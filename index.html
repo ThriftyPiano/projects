@@ -74,35 +74,111 @@
       border-radius: 0; /* Remove rounded corners */
       font-weight: normal; /* Reset font weight */
     }
+    /* General section styling */
+    .section {
+      padding: 20px;
+      margin-bottom: 40px; /* Space between sections */
+    }
+
+    /* Styling for the heading of each section */
+    .section h2 {
+      color: #00ff00;
+      text-align: center;
+      font-size: 24px;
+      border-bottom: 2px solid #00ff00; /* Green line below the heading */
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
     /* Ensures page scrolls if content overflows */
     body {
       overflow-y: auto;
     }
+    
   </style>
 </head>
 <body>
   <h1>ThriftyPiano's Projects</h1>
   <div class="intro">
-    <p>4 Welcome to my collection of Processing JS projects, which range from simulations to graphics to games and more! Feel free to contact me through Discord (ThriftyPiano #1905 or @thriftypiano) with any feedback or suggestions. Most of these projects are also available
-      <a href="https://www.khanacademy.org/profile/Thriftypiano/projects">on Khanacademy</a>.</p>
+    <p>Welcome to my collection of projects! Feel free to contact me through Discord (ThriftyPiano #1905 or @thriftypiano) with any feedback or suggestions. Most of these projects are also available
+      <a href="https://www.khanacademy.org/profile/Thriftypiano/projects">on Khanacademy</a>. Because of compatibility issues, a lot of programs have poor text formatting (however, that doesn't affect how cool they are).</p>
   </div>
-  <div class="grid-container">
-    <div class="grid-item">
-      <a href="datadefense.html">Data Defense</a>
-      <p>A cyber-themed shooter game where you fend off waves of enemies with over 30 types of guns and drones, power ups, and more. My largest project ever, offering 50+ hours of riveting gameplay. Saving implemented through LocalStorage for people who grind this game.</p>
+  <div class="section" id="games">
+    <h2>Games</h2>
+    <div class="grid-container">
+      <div class="grid-item">
+        <a href="datadefense.html">Data Defense</a>
+        <p>A cyber shooter game with over 30 types of guns and drones, power ups, and more. My largest project ever! 50+ hours of riveting gameplay. I still haven't beat it! Saving implemented through LocalStorage.</p>
+      </div>
+      <div class="grid-item">
+        <a href="clashroyale11.html">Clash Royale v1.1</a>
+        <p>The final version of my Clash Royale replica , a 2-week turned into 2-year long project. Features terrible graphics, champions with no abilities, spells that glitch half the time, and more!</p>
+      </div>
+      <div class="grid-item">
+        <a href="fruitninja.html">Fruit Ninja</a>
+        <p>My replica of fruit ninja that features 4 game modes, 8 swords, and terrible colored-circle fruit graphics. Still has cool particles and gameplay though!</p>
+      </div>
+      <div class="grid-item">
+        <a href="spacegolf.html">Space Golf</a>
+        <p>Ever played Angry Birds Space? This is very similar, with planets that you must putt around. Consists of 15 rage-inducing levels.</p>
+      </div>
+      <div class="grid-item">
+        <a href="blaster.html">BLASTER</a>
+        <p>A nice, short tower-defense game featuring six different turrets that I made in like 2019 (so don't expect it to be high-quality).</p>
+      </div>
+      <div class="grid-item">
+        <a href="donttouchblack.html">Don't Touch Black</a>
+        <p>A small game that isn't as racist as it sounds. Dodge spikes, lasers, and a spikey blob. You're screwed, but you have a shield.</p>
+      </div>
+      <div class="grid-item">
+        <a href="fall.html">Fall</a>
+        <p>A simple 2D version of <a href = "https://www.coolmathgames.com/0-run">Run</a>. Mouse to move, click to jump.</p>
+      </div>
     </div>
-    <div class="grid-item">
-      <a href="clashroyale11.html">Clash Royale v1.1</a>
-      <p>The final version of my replica of Clash Royale, a 2-week long project that turned into a 2-year one. Features terrible graphics, champions with no abilities, spells that glitch half the time, and more!</p>
+  </div>
+  <div class="section" id="simulations">
+    <h2>Simulations</h2>
+    <div class="grid-container">
+      <div class="grid-item">
+        <a href="marblemachine.html">Marble Machine</a>
+        <p>Inspired by <a href="https://www.marblerun.at/">this site,</a> the marble machine allows you to create tracks, marble races, or even computers (it is supposedly Turing complete).</p>
+      </div>
+      <div class="grid-item">
+        <a href="rocketsimulator.html">Rocket Simulator v2.5.7</a>
+        <p>A fun rocket simulator in which you can shoot for the stars! Has many features (including achievements). Can you find the Easter Egg?</p>
+      </div>
+      <div class="grid-item">
+        <a href="cloth.html">Cloth</a>
+        <p>Vertlet integration tearable cloth (left click to drag, right click and drag for scissors). Originally had a picture of Oh Noes plastered on it that was removed due to compatibility issues.</p>
+      </div>
+      <div class="grid-item">
+        <a href="molecules.html">Molecules</a>
+        <p>A satisfying simulator of rainbow molecules bouncing around your screen. Press any key to create molecules and interact with them using your mouse.</p>
+      </div>
+      <div class="grid-item">
+        <a href="waterpark.html">Water Park</a>
+        <p>A water-simulator where you can collect rain and place walls to bounce water around. Unreliable collisions and terribly laggy. Would not recommend.</p>
+      </div>
+      <div class="grid-item">
+        <a href="wave.html">Wave</a>
+        <p>My most successful water simulation featuring Vertlet integration and 6.4k nodes.</p>
+      </div>
     </div>
-    <div class="grid-item">
-      <a href="marblemachine.html">Marble Machine</a>
-      <p>Inspired by <a href="https://www.marblerun.at/">this site,</a> the marble machine allows you to create tracks, marble races, or even computers (it is supposedly Turing complete).</p>
+  </div>
+  <div class="section" id="graphics">
+    <h2>Graphics</h2>
+    <div class="grid-container">
+      <div class="grid-item">
+        <a href="dontsmoke.html">Don't Smoke</a>
+        <p>A clever anti-smoking advertisement I created in 2021.</p>
+      </div>
+      <div class="grid-item">
+        <a href="3ddna.html">3D DNA</a>
+        <p>A 3D model of DNA made in exactly 69 lines of code! I was very mature in 2021.</p>
+      </div>
     </div>
-    <div class="grid-item">
-      <a href="blaster.html">BLASTER</a>
-      <p>A nice, short tower-defense game featuring six different turrets that I made in like 2019 (so don't expect it to be high-quality).</p>
-    </div>
+  </div>
+  <div class="section" id="misc">
+    <h2>Misc.</h2>
   </div>
 </body>
 </html>

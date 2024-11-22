@@ -1,0 +1,517 @@
+<html>
+    <head>
+        <title>Space Golf</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//Simple as golf.
+//Wow! Hotlist 2nd page!
+//And Cents voted up.
+//Speedrun stats added. Now you can see your time, and your clicks.
+//If your computer lags, change this:
+var delag = false;
+//If you want free money, change this to the largest number you can think of.
+var money = 0;
+
+var collide = function(x1, y1, x2, y2, vx, vy, s1, s2) {
+    //_clearLogs();
+    var a = (x1 - x2) / (y1 - y2);
+    var v1x = (a * vy + a * a * vx) / (a * a + 1);
+    var v1y = (vy + a * vx) / (a * a + 1);
+    var v2x = (vx - a * vy) / (a * a + 1);
+    var v2y = (a * a * vy - a * vx) / (a * a + 1);
+    //println(vx + "\n" + vy);
+    //return [vx, vy];
+    return [(-v1x + v2x), (-v1y + v2y)];
+};
+var mode = "menu";
+var ball = [50, 350, 0, 0, 0, 0];
+var p = 0;
+var drawasteroid = function(x, y, s) {
+    stroke(127.5, 127.5, 127.5);
+    strokeWeight(s);
+    ellipse(x, y, 1, 1);
+    strokeWeight(s/3);
+    stroke(100, 100, 100);
+    ellipse(x, y+s/8, 1, 1);
+    strokeWeight(s/4);
+    ellipse(x-s/4, y+s/4, 1, 1);
+    strokeWeight(s/2.5);
+    ellipse(x-s/6, y-s/5, 1, 1);
+    strokeWeight(s/6);
+    ellipse(x+s/4, y-s/4, 1, 1);
+    strokeWeight(s/7);
+    ellipse(x+s/8, y+s/4, 1, 1);
+};
+var glow = function(x, y, s, t) {
+    if(t === 1) {
+        for(var j = s*2; j > 0; j -= 2.5) {
+            stroke(0, 200, 255, (s*2 - j) / s / 4 * 255);
+            strokeWeight(2.5);
+            fill(0, 0, 0, 0);
+            ellipse(x, y, j, j);
+        }
+    }
+    else {
+        for(var j = s*2; j > 0; j -= 2.5) {
+            stroke(255, 0, 0, (s*2 - j) / s / 4 * 255);
+            strokeWeight(2.5);
+            fill(0, 0, 0, 0);
+            ellipse(x, y, j, j);
+        }
+    }
+};
+//In order: X, Y, Size of gravity, size, suction force, bounce force, text, portal?
+var suckers = [
+    [
+        [200, 200, 200, 50, 0.5, 0.5, "This is a planet!", false],
+        [300, 100, 0, 50, 0, 0.5, "This has no gravity.", false],
+        [350, 350, 150, 25, 0.25, 0.5, "Touch me!", true],
+    ],
+    [
+        [200, 200, 200, 50, -2, 0.5, "Some have antigravity.", false],
+        [300, 50, 150, 25, 0.25, 0.5, "This portal is hard to reach.", true]
+    ],
+    [
+        [200, 200, 200, 50, 1, 0, "Was that hard? There is more, you know.\nAlso, I have lots of gravity!\nDon't get stuck here.", false],
+        [300, 50, 150, 25, 0.25, 0.5, "", true]
+    ],
+    [
+        [200, 200, 200, 50, 0.5, 0, "Got past?\nYou are becoming more and more experienced.", false],
+        [300, 300, 150, 25, 0.25, 0.5, "", true],
+        [200, 350, 200, 50, -2, 0.5, "", false]
+    ],
+    [
+        [200, 200, 0, 50, 0, 0.5, "Entering...\nThe asteroid belt.", false],
+        [100, 100, 0, 25, 0, 0.5, "", false],
+        [250, 300, 0, 75, 0, 0.5, "Try bouncing off an asteroid.", false],
+        [100, 150, 0, 50, 0, 0.5, "", false],
+        [300, 200, 0, 50, 0, 0.5, "", false],
+        [50, 50, 0, 75, 0, 0.5, "", false],
+        [300, 350, 0, 25, 0, 0.5, "", false],
+        [350, 50, 150, 25, 0.25, 0.5, "", true],
+    ],
+    [
+        [200, 200, 300, 1, 10, 0.5, "Is this... A BLUE Hole?", false],
+        [100, 100, 0, 25, 0, 0.5, "", false],
+        [300, 350, 0, 50, 0, 0.5, "", false],
+        [350, 50, 150, 25, 0.25, 0.5, "", true],
+    ],
+    [
+        [200, 200, 500, 1, 8, 0.5, "Blast through this!", false],
+        [350, 50, 150, 25, 0.25, 0, "", true],
+    ],
+    [
+        [200, 200, 200, 25, 0.5, 0.5, "What if... The portal had ANTIGRAVITY?", false],
+        [350, 50, 150, 25, -0.5, 0, "", true],
+    ],
+    [
+        [350, 50, 100, 25, 0.25, 0.5, "E-Z P-Z", true],
+    ],
+    [
+        [350, 50, 400, 25, 0.25, 0.5, "Patience.", true],
+        [50, 50, 0, 25, 0.25, 1, "", false],
+        [100, 50, 0, 25, 0.25, 0.5, "", false],
+        [150, 50, 0, 25, 0.25, 0.5, "", false],
+        [200, 50, 0, 25, 0.25, 0.5, "", false],
+        [250, 50, 0, 25, 0.25, 0.5, "", false],
+        [300, 50, 0, 25, 0.25, 0.5, "", false],
+        [50, 100, 0, 25, 0.25, 0.5, "", false],
+        [100, 100, 0, 25, 0.25, 0.5, "", false],
+        [150, 100, 0, 25, 0.25, 0.5, "", false],
+        [200, 100, 0, 25, 0.25, 0.5, "", false],
+        [250, 100, 0, 25, 0.25, 0.5, "", false],
+        [300, 100, 0, 25, 0.25, 0.5, "", false],
+        [50, 150, 0, 25, 0.25, 0.5, "", false],
+        [100, 150, 0, 25, 0.25, 0.5, "", false],
+        [150, 150, 0, 25, 0.25, 0.5, "", false],
+        [200, 150, 0, 25, 0.25, 0.5, "", false],
+        [250, 150, 0, 25, 0.25, 0.5, "", false],
+        [300, 150, 0, 25, 0.25, 0.5, "", false],
+        [50, 200, 0, 25, 0.25, 0.5, "", false],
+        [100, 200, 0, 25, 0.25, 0.5, "", false],
+        [150, 200, 0, 25, 0.25, 0.5, "", false],
+        [200, 200, 0, 25, 0.25, 0.5, "", false],
+        [250, 200, 0, 25, 0.25, 0.5, "", false],
+        [300, 200, 0, 25, 0.25, 0.5, "", false],
+        [50, 250, 0, 25, 0.25, 0.5, "", false],
+        [100, 250, 0, 25, 0.25, 0.5, "", false],
+        [150, 250, 0, 25, 0.25, 0.5, "", false],
+        [200, 250, 0, 25, 0.25, 0.5, "", false],
+        [250, 250, 0, 25, 0.25, 0.5, "", false],
+        [300, 250, 0, 25, 0.25, 0.5, "", false],
+        [50, 300, 0, 25, 0.25, 0.5, "", false],
+        [100, 300, 0, 25, 0.25, 0.5, "", false],
+        [150, 300, 0, 25, 0.25, 0.5, "", false],
+        [200, 300, 0, 25, 0.25, 0.5, "", false],
+        [250, 300, 0, 25, 0.25, 0.5, "", false],
+        //[350, 350, 250, 25, 2, 0.5, "", false]
+    ],
+    [
+        [375, 25, 100, 25, 1, 0.5, "<- Mr. Fat planet", true],
+        [200, 200, 500, 250, 1, 1, "", false],
+    ],
+    [
+        [375, 25, 100, 25, 1, 0.5, "Some\nplanets\nare bouncy.", true],
+        [200, 200, 0, 200, 0, 2, "", false],
+    ],
+    [
+        [375, 25, 100, 25, 1, 0.5, "", true],
+        [50, 50, 200, 50, -1, 0.5, "", false],
+        [350, 350, 200, 50, 1, 0.5, "", false],
+        [300, 100, 150, 25, -1, 0.5, "", false],
+        [100, 300, 150, 25, 1, 0.5, "", false],
+    ],
+    [
+        [375, 25, 200, 25, 1, 0.5, "Cool!", true],
+        [375, 25, 100, 25, -1, 0.5, "", true],
+        [300, 300, 200, 50, 1, 0.5, "", false],
+        [200, 250, 200, 50, 1, 0.5, "", false],
+        [50, 50, 100, 25, 1, 0.5, "", false],
+        [200, 100, 200, 25, -1, 0.5, "", false]
+    ],
+    [
+        [375, 25, 100, 25, 1, 0.5, "Helb me!", true],
+        [200, 200, 200, 25, 5, 0.5, "YOU SHALL NOT PASS", false],
+        [100, 100, 200, 25, -5, 0.5, "YOU SHALL NOT PASS", false],
+        [300, 300, 200, 25, -5, 0.5, "YOU SHALL NOT PASS", false],
+    ],
+    [
+        [200, 200, 300, 100, 2, 0.5, "You win!\nMore coming soon!", false],
+    ],
+];
+var stas = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+var clicks = 0;
+var mono = createFont("monospace");
+var level = 0;
+textFont(mono);
+var star = [];
+for(var i = 0; i < random(100, 200); i++) {
+    star.push([random(0.5, 2.5), random(0, 400), random(0, 400)]);
+}
+var stars = function() {
+    background(0, 0, 0);
+    if(delag === false) {
+        for (var i = 0; i < star.length; i++) {
+            strokeWeight(star[i][0]);
+            stroke(255, 255, 255, random(0, 255));
+            point(star[i][1], star[i][2]);
+        }
+    }
+};
+var draw_ball = function() {
+    fill(255, 255, 0, random(0, 60));
+    stroke(255, 255, 0);
+    strokeWeight(2.5);
+    ellipse(ball[0], ball[1], 12.5, 12.5);
+    ball[0] += ball[2];
+    ball[1] += ball[3];
+    noStroke();
+};
+var pull_back = function() {
+    stroke(0, 255, 0, 200);
+    strokeWeight(5);
+    if (ball[4] !== 0 & ball[5] !== 0) {
+        if (dist(mouseX, mouseY, ball[4], ball[5]) <= 50) {
+            line(mouseX, mouseY, ball[4], ball[5]);
+        } else {
+            pushMatrix();
+            translate(ball[4], ball[5]);
+            rotate(atan2(mouseY - 350, mouseX - 50) - 180);
+            translate(-ball[4], -ball[5]);
+            line(0, 350, ball[4], ball[5]);
+            popMatrix();
+        }
+    }
+};
+var bounce = function() {
+    if (ball[0] >= 400) {
+        ball[0] = 400;
+        ball[2] = -abs(ball[2]) * 0.5;
+    }
+    if (ball[1] >= 400) {
+        ball[1] = 400;
+        ball[3] = -abs(ball[3]) * 0.5;
+    }
+    if (ball[0] <= 0) {
+        ball[0] = 0;
+        ball[2] = abs(ball[2]) * 0.5;
+    }
+    if (ball[1] <= 0) {
+        ball[1] = 0;
+        ball[3] = abs(ball[3]) * 0.5;
+    }
+    ball[2] *= 0.99;
+    ball[3] *= 0.99;
+};
+var draw_suckers = function() {
+    for (var i = 0; i < suckers[level].length; i++) {
+        if(delag === false) {
+            if (suckers[level][i][4] > 0) {
+                glow(suckers[level][i][0], suckers[level][i][1], suckers[level][i][2]/2, 1);
+            }
+            else {
+                glow(suckers[level][i][0], suckers[level][i][1], suckers[level][i][2]/2, 0);
+            }
+        }
+        if(delag === true) {
+            noStroke();
+            if (suckers[level][i][4] > 0) {
+                fill(0, 200, 255, 127.5);
+                
+            } else {
+                fill(255, 0, 0, 127.5);
+            }
+            ellipse(suckers[level][i][0], suckers[level][i][1], suckers[level][i][2], suckers[level][i][2]);
+        }
+        if(suckers[level][i][7] === false) {
+            stroke(127.5, 127.5, 127.5);
+            strokeWeight(suckers[level][i][3]);
+            ellipse(suckers[level][i][0], suckers[level][i][1], 1, 1);
+        }
+        if (suckers[level][i][7] === true) {
+            for(var j = suckers[level][i][3]; j > 0; j--) {
+                stroke(0, 255, 0, 200-j*7);
+                fill(0, 0, 0, 0);
+                strokeWeight(1);
+                ellipse(suckers[level][i][0], suckers[level][i][1], j, j);
+            }
+        }
+        if(suckers[level][i][7] === false) {
+            strokeWeight(suckers[level][i][3]/3);
+            stroke(100, 100, 100);
+            ellipse(suckers[level][i][0]+suckers[level][i][3]/4, suckers[level][i][1]+suckers[level][i][3]/8, 1, 1);
+            strokeWeight(suckers[level][i][3]/4);
+            ellipse(suckers[level][i][0]-suckers[level][i][3]/4, suckers[level][i][1]+suckers[level][i][3]/4, 1, 1);
+            strokeWeight(suckers[level][i][3]/2.5);
+            ellipse(suckers[level][i][0]-suckers[level][i][3]/6, suckers[level][i][1]-suckers[level][i][3]/5, 1, 1);
+            strokeWeight(suckers[level][i][3]/6);
+            ellipse(suckers[level][i][0]+suckers[level][i][3]/4, suckers[level][i][1]-suckers[level][i][3]/4, 1, 1);
+            strokeWeight(suckers[level][i][3]/7);
+            ellipse(suckers[level][i][0]+suckers[level][i][3]/8, suckers[level][i][1]+suckers[level][i][3]/4, 1, 1);
+        }
+        if (dist(ball[0], ball[1], suckers[level][i][0], suckers[level][i][1]) <= suckers[level][i][2] / 2) {
+            ball[2] += (suckers[level][i][0] - ball[0]) / (dist(ball[0], ball[1], suckers[level][i][0], suckers[level][i][1]) ^ 2) * suckers[level][i][4];
+            ball[3] += (suckers[level][i][1] - ball[1]) / (dist(ball[0], ball[1], suckers[level][i][0], suckers[level][i][1]) ^ 2) * suckers[level][i][4];
+        }
+        if (dist(ball[0], ball[1], suckers[level][i][0], suckers[level][i][1]) <= suckers[level][i][3] / 2 + 6.25) {
+            if (suckers[level][i][7] === true & level < suckers.length - 1) {
+                ball = [50, 350, 0, 0, 0, 0];
+                stas[level] = "";
+                var bana = ceil((6-clicks)/2);
+                if(bana <= 1) {
+                    bana = 1;
+                }
+                for(var l = 0; l < bana; l++) {
+                    stas[level] += "*";
+                }
+                clicks = 0;
+                level++;
+                return;
+            }
+            else {
+                ball[2] = collide(ball[0], ball[1], suckers[level][i][0], suckers[level][i][1], ball[2], ball[3], 0, 0)[0];
+                ball[3] = collide(ball[0], ball[1], suckers[level][i][0], suckers[level][i][1], ball[2], ball[3], 0, 0)[1];
+            }
+        }
+        fill(255, 255, 255, random(150, 255));
+        textSize(10);
+        textAlign(CENTER, CENTER);
+        text(suckers[level][i][6], suckers[level][i][0], suckers[level][i][1] + suckers[level][i][3]);
+    }
+};
+var stuff = function() {
+    fill(0, 255, 0, 127.5);
+    noStroke();
+    ellipse(50, 350, 20, 20);
+    fill(0, 255, 0);
+    noStroke();
+    ellipse(50, 350, 10, 10);
+    fill(255, 255, 255);
+    textAlign(LEFT, TOP);
+    text("Level: " + (level + 1)+"\nClicks: "+clicks, 2.5, 2.5);
+};
+var select = function() {
+    textSize(12.5);
+    textAlign(CENTER, CENTER);
+    for(var i = 0; i < suckers.length; i++) {
+        for(var j = 100; j > 0; j -= 2.5) {
+            stroke(0, 200, 255, (50 - j) / 50 / 2 * 255);
+            strokeWeight(2.5);
+            fill(0, 0, 0, 0);
+            ellipse((i-floor(i/8)*8)*50+25, floor(i/8)*50+25, j, j);
+        }
+        stroke(127.5, 127.5, 127.5);
+        strokeWeight(25);
+        ellipse((i-floor(i/8)*8)*50+25, floor(i/8)*50+25, 1, 1);
+        strokeWeight(25/3);
+        stroke(100, 100, 100);
+        ellipse((i-floor(i/8)*8)*50+25/4+25, floor(i/8)*50+25+25/8, 1, 1);
+        strokeWeight(25/4);
+        ellipse((i-floor(i/8)*8)*50-25/4+25, floor(i/8)*50+25+25/4, 1, 1);
+        strokeWeight(25/2.5);
+        ellipse((i-floor(i/8)*8)*50-25/6+25, floor(i/8)*50+25-25/5, 1, 1);
+        strokeWeight(25/6);
+        ellipse((i-floor(i/8)*8)*50+25/4+25, floor(i/8)*50+25-25/4, 1, 1);
+        strokeWeight(25/7);
+        ellipse((i-floor(i/8)*8)*50+25/8+25, floor(i/8)*50+25+25/4, 1, 1);
+        fill(255, 255, 255);
+        textSize(12.5);
+        text((i+1), (i-floor(i/8)*8)*50+25, floor(i/8)*50+25);
+        //fill(127.5, 127.5, 127.5);
+        textSize(25);
+        //text("\n\n"+"***", (i-floor(i/8)*8)*50+25, floor(i/8)*50+25);
+        fill(255, 255, 0);
+        text("\n\n"+stas[i], (i-floor(i/8)*8)*50+25, floor(i/8)*50+25);
+    }
+    textSize(25);
+    fill(255, 255, 255);
+    text("LEVEL SELECT", 200, 375);
+};
+var back = function() {
+    glow(387.5, 387.5, 50, 1);
+    drawasteroid(387.5, 387.5, 25);
+    fill(255, 255, 255);
+    textAlign(CENTER, CENTER);
+    text("||", 387.5, 387.5);
+};
+var evil = function() {
+    glow(387.5, 387.5, 50, 0);
+    drawasteroid(387.5, 387.5, 25, 25);
+    fill(255, 255, 255);
+    textSize(12.5);
+    textAlign(CENTER, CENTER);
+    text("X", 387.5, 387.5);
+};
+var menu = function() {
+    textSize(50);
+    fill(255, 255, 255, random(150, 255));
+    textAlign(CENTER, CENTER);
+    text("Space Golf", 200, 25);
+    glow(200, 200, 100, 1);
+    glow(75, 200, 75, 0);
+    drawasteroid(200, 200, 100);
+    drawasteroid(75, 200, 75);
+    textSize(25);
+    fill(255, 255, 255, random(150, 255));
+    text("Play", 200, 200);
+    textSize(20);
+    text("Select", 75, 200);
+};
+draw = function() {
+    if(mode === "game") {
+        stars();
+        draw_ball();
+        pull_back();
+        bounce();
+        draw_suckers();
+        stuff();
+        back();
+    }
+    else if(mode === "select"){
+        stars();
+        select();
+        evil();
+    }
+    if(mode === "menu") {
+        stars();
+        menu();
+    }
+};
+mousePressed = function() {
+    ball[4] = 50;
+    ball[5] = 350;
+};
+mouseReleased = function() {
+    if(mode === "game") {
+        if(dist(mouseX, mouseY, 387.5, 387.5) <= 12.5) {
+            mode = "select";
+        }
+        else if (dist(ball[4], ball[5], mouseX, mouseY) <= 50) {
+            ball = [ball[4], ball[5], (mouseX-ball[4]) / 2, (mouseY-ball[5]) / 2, 0, 0];
+            clicks++;
+        } else {
+            ball = [ball[4], ball[5], (mouseX-ball[4]) / dist(ball[4], ball[5], mouseX, mouseY) * 25, (mouseY-ball[5]) / dist(ball[4], ball[5], mouseX, mouseY) * 25, 0, 0];
+            clicks++;
+        }
+    }
+    else if(mode === "select") {
+        for(var i = 0; i < suckers.length; i++) {
+            if(dist(mouseX, mouseY, (i-floor(i/8)*8)*50+25, floor(i/8)*50+25) <= 12.5) {
+                level = i;
+                mode = "game";
+                clicks = 0;
+                p++;
+            }
+        }
+        if(dist(mouseX, mouseY, 387.5, 387.5) <= 12.5) {
+            mode = "menu";
+        }
+    }
+    else if(mode === "menu") {
+        if(dist(mouseX, mouseY, 200, 200) <= 50) {
+            mode = "game";
+            clicks = 0;
+        }
+        if(dist(mouseX, mouseY, 75, 200) <= 75/2) {
+            mode = "select";
+        }
+    }
+};
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

@@ -1,0 +1,119 @@
+<html>
+    <head>
+        <title>Don't Smoke</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+smooth();
+var fire = [];
+var places = [[305, 212.5, 30]];
+textFont(createFont("monospace"));
+var spwn = function() {
+    for(var i = 0; i < places.length; i++) {
+        for(var we = 0; we < 5; we++) {
+            var ew = random(10, 30);
+            var r = random(-90-ew, -90+ew);
+            var t = random(1, 3);
+            fire.push([places[i][0], places[i][1], cos(r)*t, sin(r)*t, random(0, places[i][2]), random(200, 255), 100]);
+        }
+    }
+};
+var dc = function() {
+    for(var i = 0; i < 26; i++) {
+        stroke(255, 255, 255);
+        line(100+sin(i*180/25)*5, 200+i, 100-sin(i*180/25)*5, 200+i);
+        stroke(241, 162, 56);
+        line(100+sin(i*180/25)*5, 200+i, 150+sin(i*180/25)*5, 200+i);
+        stroke(255, 255, 255);
+        line(150+sin(i*180/25)*5, 200+i, 300+sin(i*180/25)*5, 200+i);
+    }
+    for(var i = 0; i < 26; i++) {
+        stroke(0, 0, 0, (255-sin(i*180/25)*255)/2);
+        line(100-sin(i*180/25)*5, 200+i, 300+sin(i*180/25)*5, 200+i);
+    }
+};
+draw = function() {
+    background(0, 0, 0);
+    spwn();
+    noStroke();
+    for(var i = 0; i < fire.length; i++) {
+        fill(255, fire[i][5], 0, (fire[i][6]*random(10, 20)/100));
+        ellipse(fire[i][0], fire[i][1], fire[i][4], fire[i][4]);
+        fire[i][0] += fire[i][2];
+        fire[i][1] += fire[i][3];
+        fire[i][5] -= 5;
+        fire[i][6]--;
+        fire[i][4] -= 0.05;
+        if(fire[i][6] <= 0) {
+            fire.splice(i, 1);
+        }
+    }
+    dc();
+    textSize(12.5);
+    textAlign(CENTER, CENTER);
+    fill(0, 255, 0);
+    var j = "";
+    for(var i = 0; i < (frameCount/25)%3; i++) {
+        j += ".";
+    }
+    text("Downloading Cancer"+j, 200, 187.5);
+    text("25%", 200, 212.5);
+};
+
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

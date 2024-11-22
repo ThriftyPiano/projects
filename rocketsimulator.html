@@ -1,0 +1,863 @@
+<html>
+    <head>
+        <title>Rocket Simulator v2.5.7</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+/*
+\__\__\__ \__\__\__ \__\__\__ \__   \__ \__\__\__ \__\__\__
+ \__   \__ \__   \__ \__       \__\__    \__          \__
+  \__\__\__ \__   \__ \__       \__       \__\__\__    \__
+   \__\__    \__   \__ \__       \__\__    \__          \__
+    \__  \__  \__\__\__ \__\__\__ \__  \__  \__\__\__    \__
+
+
+Dev version: https://tinyurl.com/roketsimulatordev
+*/
+//Savecode (Paste it here and click "Spin-off")
+{
+    var show = 0;
+    var mode = "menu";
+    var deathNum = 0;
+    var dev_Pass = false;
+    var rec = false;
+    var rocket_Values = [0, 0, 0, 0, 0, 0, 10000, false, 0.001, true, false, 100, 0];
+    var ship_Log = false;
+    var achievements = [
+        ["Ouch. (Take damage)", false],
+        ["AAAAAAAH! (Fall at over 500 speed)", false],
+        ["I don't want no bananas! (Turn mini map off)", false],
+        ["The sky is NOT the limit (???)", false],
+        ["Boing! (???)", false],
+        ["Well, I hired this terrible ship log guy. (???)", false],
+        ["Daredevil (???)", false],
+        ["Full fuel! (Get to full fuel)", false],
+        ["That was close! (Hint: low health)", false],
+        ["Try again. (Revive yourself)", false],
+        ["Nine lives (???)", false],
+        ["Go to school (???)", false],
+        ["Neil Armstrong (??? Hint: Low fuel)", false],
+        ["Easter egg (??? Hint: 3.141)", false],
+        ["Stealing from the gods (???)", false],
+        ["Flash! (Take a picture)", false]
+    ];
+}
+//The rest of the gunk of code
+{
+    println("Please rate this program at\nhttps://forms.gle/CxDBo4jrDtjRaqc98\nThanks!");
+    var deathScreen = [];
+    var vid = [];
+    var jResume = 0;
+    var flash = 0;
+    cursor("crosshair");
+    var f = createFont("monospace");
+    textFont(f);
+    var menu = function() {
+        background(0, 0, 0);
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(200, 200, 150, 150);
+        ellipse(100, 300, 100, 100);
+        ellipse(300, 300, 100, 100);
+        ellipse(200, 350, 100, 100);
+        ellipse(50, 50, 100, 100);
+        ellipse(350, 50, 100, 100);
+        ellipse(350, 200, 100, 100);
+        ellipse(50, 200, 100, 100);
+        fill(0, 255, 0, random(127.5, 255));
+        textAlign(CENTER, CENTER);
+        textSize(37.5);
+        text("ROCKET\nSIMULATOR", 200, 50);
+        textSize(25);
+        text("Enter the\nSimulator", 200, 200);
+        text("Updates", 100, 300);
+        text("Credits", 300, 300);
+        text("How", 200, 350);
+        text("Ach.", 50, 50);
+        text("Lead.", 350, 50);
+        text("Photos", 350, 200);
+        text("Video", 50, 200);
+    };
+    var how = function() {
+        background(0, 0, 0);
+        fill(0, 255, 0, random(127.5, 255));
+        textAlign(LEFT, TOP);
+        textSize(20);
+        text("Welcome, pilot. I have heard that you have excelled at rocket ship flying. The controls here are simple. Left and right arrow keys to turn, and up arrow key to boost. Right click to turn debug on and off. Press ''L'' to turn the ship log on and off. Don't land upside down or too fast. Water landings are a NO. Also, there is this egg, that is very mysterious. P to take a picture. R to record / turn record off. `/~ for savecode.", 0, 0, 400, 400);
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(350, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Back", 350, 350);
+    };
+    var vide = function() {
+        background(0, 0, 0);
+        fill(0, 255, 0, random(127.5, 255));
+        if (vid.length > 0 & show < vid.length) {
+            image(vid[show], 0, 0, 300, 300);
+        }
+        if (show < vid.length) {
+            show++;
+        } else {
+            show = 0;
+        }
+        textAlign(LEFT, TOP);
+        fill(0, 255, 0);
+        textSize(25);
+        text("This is a recording of your last attempt.", 0, 300, 300, 100);
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(350, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Back", 350, 350);
+    };
+    var credits = function() {
+        background(0, 0, 0);
+        fill(0, 255, 0, random(127.5, 255));
+        textAlign(LEFT, TOP);
+        textSize(20);
+        text("Credits:\n\nAndrew Fu: Helped spot a lot of bugs, and suggested refueling\nThe Coder Legend: Helped draw clouds, and designed fish for me. Also gave me the death screen code.\nKevin: Made the inspirational project which was horrible (Even he thinks so)\nArthur Zhu: 'Why not?'\nStan Shue: Suggested savecode and helped a lot!", 0, 0, 400, 400);
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(350, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Back", 350, 350);
+    };
+    var key_Down = false;
+    var land = [
+        [0, 500],
+        [750, 500],
+        [1500, 250],
+        [2000, 100],
+        [2500, 500],
+        [3500, 250],
+        [4000, 500],
+        [5000, 1000],
+        [6250, 250],
+        [7000, 100],
+        [7500, 250],
+        [8000, 100],
+        [8500, 50],
+        [8900, 100],
+        [9000, 250],
+        [9700, 100]
+    ];
+    var tramp = [50, 850, 1600, 2600, 2800, 3600, 5250, 5600, 7500, 9050];
+    var clouds = [
+        [0, 500, 1],
+        [50, 700, 1],
+        [300, 700, 1],
+        [350, 400, 1],
+        [600, 1000, 1],
+        [400, 400, 1],
+        [500, 200, 1],
+        [700, 550, 1],
+        [750, 600, 1],
+        [800, 500, 1],
+        [800, 800, 1],
+        [950, 900, 1],
+        [850, 700, 1],
+        [850, 550, 1]
+    ];
+    var photos = function() {
+        background(0, 0, 0);
+        for (var i = 0; i < deathScreen.length; i++) {
+            image(deathScreen[i], 100 * i - 400 * round(i / 4 - 0.5), round(i / 4 - 0.5) * 100, 100, 100);
+            if (i > 11) {
+                deathScreen.splice(0, 1);
+            }
+        }
+        textAlign(LEFT, TOP);
+        fill(0, 255, 0);
+        text("Your death photos...", 0, 300);
+        if (deathScreen.length === 0) {
+            text("Appear to be empty!", 0, 325);
+        }
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(350, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Back", 350, 350);
+    };
+    var ach = function() {
+        background(0, 0, 0);
+        textAlign(LEFT, TOP);
+        textSize(15);
+        for (var i = 0; i < achievements.length; i++) {
+            if (achievements[i][1] === true) {
+                fill(0, 255, 0);
+                stroke(0, 255, 0);
+            } else {
+                fill(255, 0, 0);
+                stroke(255, 0, 0);
+            }
+            text(achievements[i][0], 0, 20 * i, 400, 400);
+            line(0, 20 * i + 15, 400, 20 * i + 15);
+        }
+        textSize(25);
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(350, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Back", 350, 350);
+    };
+    var drawCloud = function(cx, cy, cs) {
+        noStroke();
+        fill(255, 255, 255, 237);
+        ellipse(cx, 235 + cy - 222, 35 * cs, 36 * cs);
+        ellipse(216 + cx - 151, 235 - 222 + cy, 35 * cs, 36 * cs);
+        ellipse(185 + cx - 151, 241 - 222 + cy, 94 * cs, 36 * cs);
+        ellipse(181 + cx - 151, +cy, 49 * cs, 36 * cs);
+    };
+    var drawTramp = function(x) {
+        noStroke();
+        fill(100, 0, 200);
+        rect(x + 200 - 25, 212.5 + rocket_Values[1], 50 / 3, 25);
+        fill(100, 0, 227.5);
+        rect(x + 200 - 25 + 50 / 3, 212.5 + rocket_Values[1], 50 / 3, 25);
+        fill(100, 0, 255);
+        rect(x + 200 - 25 + 100 / 3, 212.5 + rocket_Values[1], 50 / 3, 25);
+    };
+    var drawMTramp = function(x) {
+        noStroke();
+        fill(100, 0, 200);
+        rect(350 + x - 5, (237.5 + rocket_Values[1]) / 5 + 2.5 - 5, 30 / 3, 5);
+    };
+    var draw_Rocket = function(r, turning, boosting) {
+        pushMatrix();
+        noStroke();
+        translate(200, 200);
+        rotate(r);
+        translate(-200, -200);
+        fill(127.5, 127.5, 127.5);
+        triangle(180, 237.5, 220, 237.5, 200, 212.5);
+        rect(212.5, 175, 6.25, 12.5);
+        rect(182.25, 175, 6.25, 12.5);
+        fill(255, 0, 0);
+        rect(187.5, 175, 12.5, 50, 0);
+        fill(255, 127.5, 0);
+        rect(200, 175, 12.5, 50, 0);
+        fill(255, 60, 0);
+        triangle(188, 175, 200, 150, 213, 175);
+        if (boosting === true) {
+            fill(255, random(0, 255), 0);
+            triangle(200, random(270, 280), 190, 237.5, 210, 237.5);
+        }
+        if (turning === "left") {
+            fill(255, random(0, 255), 0);
+            triangle(182.25, 175, 182.25, 187.5, random(155, 165), 182.25);
+        }
+        if (turning === "right") {
+            fill(255, random(0, 255), 0);
+            triangle(218, 175, 218, 187.5, random(235, 245), 182.25);
+        }
+        popMatrix();
+        strokeWeight(1);
+        stroke(0, 0, 0);
+    };
+    var check_Turning = function() {
+        if (key_Down === true & rocket_Values[6] > 0) {
+            if (String(key) === "d" || keyCode === RIGHT) {
+                rocket_Values[6] -= 0.5;
+                rocket_Values[5] = rocket_Values[5] + 0.1;
+                return "left";
+            } else if (String(key) === "a" || keyCode === LEFT) {
+                rocket_Values[6] -= 0.5;
+                rocket_Values[5] = rocket_Values[5] - 0.1;
+                return "right";
+            }
+        }
+    };
+    var check_Boosting = function() {
+        if (key_Down === true & rocket_Values[6] > 0) {
+            if (String(key) === "w" || keyCode === UP) {
+                if (rocket_Values[6] >= 10000) {
+                    if (rocket_Values[10] === true) {
+                        println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nWe have ignition!");
+                    }
+                }
+                rocket_Values[6]--;
+                rocket_Values[3] = rocket_Values[3] + sin(rocket_Values[2]);
+                rocket_Values[4] = rocket_Values[4] + cos(rocket_Values[2]);
+                return true;
+            }
+        }
+    };
+    var move_Rocket = function() {
+        rocket_Values[0] = rocket_Values[0] + rocket_Values[3];
+        rocket_Values[1] = rocket_Values[1] + rocket_Values[4];
+        rocket_Values[2] = rocket_Values[2] + rocket_Values[5];
+        rocket_Values[5] = rocket_Values[5] * 0.9;
+        rocket_Values[3] = rocket_Values[3] * 0.9;
+        if (rocket_Values[1] <= 0 & abs(rocket_Values[2]) >= 15) {
+            rocket_Values[2] = rocket_Values[2] * 1.1;
+        } else if (rocket_Values[1] <= 0 & abs(rocket_Values[2]) < 15) {
+            rocket_Values[2] = rocket_Values[2] * -0.9;
+        }
+    };
+    var drawEgg = function(x, y) {
+        noStroke();
+        fill(0, 0, 0);
+        ellipse(x, y + 25, 75, 75);
+        ellipse(x, y, 50, 100);
+        pushMatrix();
+        translate(x + 25, y);
+        rotate(-14);
+        translate(-x - 25, -y);
+        ellipse(x + 25, y, 15, 75);
+        popMatrix();
+        pushMatrix();
+        translate(x - 25, y);
+        rotate(14);
+        translate(-x + 25, -y);
+        ellipse(x - 25, y, 15, 75);
+        popMatrix();
+        textSize(50);
+        fill(0, 255, 0);
+        textAlign(CENTER, CENTER);
+        text("EE", x, y + 25);
+    };
+    var check_Collisions = function() {
+        if (rocket_Values[1] <= 0) {
+            for (var i = 0; i < land.length; i++) {
+                for (var j = -70000; j < 70000; j += 10000) {
+                    if (rocket_Values[0] >= land[i][0] + j & rocket_Values[0] <= land[i][0] + land[i][1] + j) {
+                        if (rocket_Values[4] >= -100 & abs(rocket_Values[2] - round(rocket_Values[2] / 360) * 360) <= 90) {
+                            rocket_Values[1] = 0;
+                            for (var i = 0; i < tramp.length; i++) {
+                                if (rocket_Values[0] >= tramp[i] + j - 25 & rocket_Values[0] <= tramp[i] + j + 25) {
+                                    rocket_Values[4] = abs(rocket_Values[4]);
+                                    if (rocket_Values[10] === true) {
+                                        println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nWe hit a shock absorber (fancy talk for trampoline)");
+                                    }
+                                    achievements[4][1] = true;
+                                    return;
+                                }
+                            }
+                            rocket_Values[4] = abs(rocket_Values[4]) * 0.5;
+                            if (rocket_Values[6] <= 100) {
+                                achievements[12][1] = true;
+                            }
+                            if (rocket_Values[6] <= 9995) {
+                                rocket_Values[6] += 5;
+                                if (rocket_Values[6] > 9995) {
+                                    achievements[7][1] = true;
+                                    if (rocket_Values[10] === true) {
+                                        println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nWe have fully refueled!");
+                                    }
+                                }
+                            }
+                            return;
+                        } else if (abs(rocket_Values[2] - round(rocket_Values[2] / 360) * 360) <= 90) {
+                            if (rocket_Values[10] === true) {
+                                println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nHit the ground hard. Took " + -round(5 * (rocket_Values[4] / 100 - 1)) + " damage.");
+                            }
+                            rocket_Values[11] = rocket_Values[11] + 5 * (rocket_Values[4] / 100 - 1);
+                            achievements[0][1] = true;
+                            if (rocket_Values[11] <= 5 & rocket_Values[11] > 0) {
+                                achievements[8][1] = true;
+                            }
+                            rocket_Values[1] = 0;
+                            rocket_Values[4] = abs(rocket_Values[4]) * 0.5;
+                            return;
+                        }
+                    }
+                }
+            }
+            deathScreen.push(get());
+            rocket_Values[12] = (day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second());
+            rocket_Values[1] = 0;
+            rocket_Values[4] = abs(rocket_Values[4]) * 0.5;
+            rocket_Values[7] = true;
+            deathNum++;
+        }
+    };
+    var dinosaur = function() {
+        if (rocket_Values[1] > 5) {
+            rocket_Values[2] = rocket_Values[2] + random(-0.1, 0.1);
+        }
+        if (rocket_Values[1] > 0) {
+            rocket_Values[4] = rocket_Values[4] - 1;
+        }
+    };
+    var dead = function() {
+        background(0, 0, 0);
+        fill(0, 255, 0, random(127.5, 255));
+        textAlign(LEFT, TOP);
+        textSize(20);
+        text("You would NEVER fly a spaceship. ️Do not land any spaceship upside down or at a fast speed. Also don't land in the water. You crashed at speed " + round(rocket_Values[4]) + " with " + round(rocket_Values[6]) + " fuel left. Comment below in the thread in the Tips and Thanks how you exploded!", 5, 5, 390, 390);
+        if (ship_Log === false) {
+            ship_Log = true;
+            if (rocket_Values[10] === true) {
+                println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nOUR PILOT KILLED US!!! MAYDAY! MAYDAY!");
+            }
+        }
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(350, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Revive", 350, 350);
+        image(deathScreen[deathScreen.length - 1], 50, 250, 150, 150);
+        fill(255, 0, 0);
+        ellipse(60, 260, 12.5, 12.5);
+        textSize(12.5);
+        fill(0, 0, 0);
+        textAlign(LEFT, TOP);
+        text(rocket_Values[12], 75, 253);
+    };
+    var blow_Up = function() {
+        fill(255, random(0, 255), 0);
+        ellipse(200, 200, rocket_Values[8], rocket_Values[8]);
+        rocket_Values[8] = rocket_Values[8] * 2;
+        if (rocket_Values[8] >= 100000) {
+            dead();
+            mode = "dead";
+        }
+    };
+    var deBug = function() {
+        fill(127.5, 127.5, 127.5);
+        rect(0, 0, 400, 100);
+        fill(0, 255 - rocket_Values[1] / 1250, 510 - rocket_Values[1] / 1250);
+        strokeWeight(-5);
+        stroke(0, 0, 0);
+        rect(300, 0, 100, 100);
+        noStroke();
+        fill(255, 0, 0);
+        ellipse(350, 50, 5, 5);
+        for (var i = 0; i < land.length; i++) {
+            for (var j = -70000; j < 70000; j += 10000) {
+                if (100 - (237.5 + rocket_Values[1]) / 5 - 2.5 >= 0) {
+                    fill(60, 60, 60);
+                    rect((land[i][0] - rocket_Values[0] + 200 + j) / 5 + 310, (237.5 + rocket_Values[1]) / 5 + 2.5, land[i][1] / 5, 100 - (237.5 + rocket_Values[1]) / 5 - 2.5);
+                }
+                if (rocket_Values[1] / rocket_Values[4] >= -100 & rocket_Values[1] > 5 & rocket_Values[4] < 0) {
+                    fill(255, 0, 0, 127.5);
+                } else {
+                    fill(127.5, 127.5, 127.5, 127.5);
+                }
+                rect((land[i][0] - rocket_Values[0] + 200 + j) / 5 + 310, 0, land[i][1] / 5, 100);
+            }
+        }
+        for (var i = 0; i < tramp.length; i++) {
+            for (var j = -70000; j < 70000; j += 10000) {
+                if ((tramp[i] + j - rocket_Values[0]) / 5 + 350 - 5 >= 285 & (tramp[i] + j - rocket_Values[0]) / 5 + 350 - 5 <= 400 & 100 - (237.5 + rocket_Values[1]) / 5 - 2.5 >= 5) {
+                    drawMTramp((tramp[i] + j - rocket_Values[0]) / 5);
+                }
+            }
+        }
+        fill(127.5, 127.5, 127.5);
+        rect(0, 0, 300, 100);
+        fill(0, 0, 0);
+        textAlign(LEFT, TOP);
+        text("X-Coordinate: " + round(rocket_Values[0]) + "\nY-Coordinate: " + round(rocket_Values[1]) + "\nRotation degree: " + round(rocket_Values[2] - round(rocket_Values[2] / 360) * 360) + "\nX-Velocity: " + round(rocket_Values[3]) + "\nY-Velocity: " + round(rocket_Values[4]) + "\nAngular Velocity: " + round(rocket_Values[5]), 0, 0);
+        text("Fuel: ", 0, 85);
+        fill(255 - rocket_Values[6] * 255 / 10000, rocket_Values[6] * 255 / 10000, 0);
+        rect(30, 86.25, rocket_Values[6] / 100, 10);
+        stroke(0, 0, 0);
+        strokeWeight(1);
+        fill(255, 255, 255, 67.5);
+        if (rocket_Values[6] <= 0) {
+            fill(255, 0, 0, random(0, 255));
+        } else if (rocket_Values[6] <= 1) {
+            if (rocket_Values[10] === true) {
+                println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nOut of fuel. Our pilot is terrible at fuel efficiency.");
+            }
+        }
+        rect(30, 86.25, 100, 10);
+        fill(0, 0, 0);
+        text("Health: ", 132.5, 85);
+        fill(255 - rocket_Values[11] * 255 / 100, rocket_Values[11] * 255 / 100, 0);
+        rect(172.5, 86.25, rocket_Values[11], 10);
+        fill(255, 255, 255, 67.5);
+        rect(172.5, 86.25, 100, 10);
+    };
+    var drawLand = function() {
+        for (var i = 0; i < land.length; i++) {
+            for (var j = -70000; j < 70000; j += 10000) {
+                noStroke();
+                if (land[i][0] - rocket_Values[0] + 200 + j >= -1000 & land[i][0] - rocket_Values[0] + 200 + j <= 1000) {
+                    fill(60, 60, 60);
+                    rect(land[i][0] - rocket_Values[0] + 200 + j, 237.5 + rocket_Values[1], land[i][1], 200);
+                }
+                strokeWeight(1);
+                stroke(0, 0, 0);
+            }
+        }
+        for (var i = 0; i < tramp.length; i++) {
+            for (var j = -70000; j < 70000; j += 10000) {
+                if (tramp[i] - rocket_Values[0] + 200 + j >= -1000 & tramp[i] - rocket_Values[0] + 200 + j <= 1000) {
+                    drawTramp(tramp[i] + j - rocket_Values[0]);
+                }
+            }
+        }
+    };
+    var lead = function() {
+        background(0, 0, 0);
+        fill(0, 255, 0, random(127.5, 255));
+        textAlign(LEFT, TOP);
+        textSize(25);
+        text("Welcome to the leaderboard. These are people who found the easter egg.\n1. Andrew Fu\n2. Kevin", 0, 0, 400, 400);
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(350, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Back", 350, 350);
+    };
+    var sky = function() {
+        background(0, 255 - rocket_Values[1] / 1250, 510 - rocket_Values[1] / 1250);
+        for (var i = 0; i < clouds.length; i++) {
+            for (var j = -70000; j < 70000; j += 10000) {
+                if (clouds[i][0] + j - rocket_Values[0] + 200 >= -100 & clouds[i][0] + j + rocket_Values[0] + 200 <= 500) {
+                    drawCloud(clouds[i][0] - rocket_Values[0] + 200 + j, -clouds[i][1] + rocket_Values[1] + 200, clouds[i][2]);
+                }
+            }
+        }
+        if (rocket_Values[1] >= 255 * 2000) {
+            achievements[3][1] = true;
+            var f = 0;
+            while (f < 10) {
+                fill(255, 255, 255);
+                f++;
+                noStroke();
+                ellipse(random(0, 400), random(0, 400), 2.5, 2.5);
+            }
+        }
+    };
+    var sea = function() {
+        fill(0, 0, 255);
+        rect(0, 237.5 + rocket_Values[1], 600, 200);
+    };
+    var sim = function() {
+        sky();
+        sea();
+        drawLand();
+        draw_Rocket(rocket_Values[2], false, false);
+        drawEgg(200 - rocket_Values[0] + 3141, 200 + rocket_Values[1] - 3141);
+        textSize(12.5);
+        textAlign(LEFT, TOP);
+        if (rocket_Values[9] === true) {
+            deBug();
+        }
+        if (dev_Pass === true) {
+            if (rocket_Values[11] < 100) {
+                rocket_Values[11]++;
+            }
+        }
+        if (jResume <= 0) {
+            cursor("crosshair");
+            jResume = 0;
+            draw_Rocket(rocket_Values[2], check_Turning(), check_Boosting());
+            if (rocket_Values[4] <= -500) {
+                achievements[1][1] = true;
+                if (abs(rocket_Values[2] - round(rocket_Values[2] / 360) * 360) >= 150) {
+                    achievements[6][1] = true;
+                }
+            }
+            if (rocket_Values[6] < 0) {
+                rocket_Values[6] = 0;
+            }
+            if (rocket_Values[11] <= 0 & dev_Pass === false) {
+                deathScreen.push(get());
+                rocket_Values[12] = (day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second());
+                rocket_Values[7] = true;
+                deathNum++;
+            }
+            if (rocket_Values[7] === false) {
+                move_Rocket();
+                check_Boosting();
+                check_Turning();
+                dinosaur();
+                check_Collisions();
+            } else {
+                blow_Up();
+            }
+            if (deathNum >= 9) {
+                achievements[10][1] = true;
+            }
+            if (dist(200 - rocket_Values[0] + 3141, 200 + rocket_Values[1] - 3141, 200, 200) <= 250) {
+                achievements[13][1] = true;
+            }
+        } else {
+            fill(0, 0, 0, 127.5);
+            rect(0, 0, 400, 400);
+            jResume = jResume - 0.01;
+            fill(0, 255, 0);
+            textSize(50);
+            textAlign(CENTER, CENTER);
+            text("STARTING IN \n" + round(jResume), 200, 200);
+            cursor("wait");
+        }
+        fill(0, 0, 0);
+        ellipse(375, 375, 50, 50);
+        textSize(25);
+        fill(0, 255, 0);
+        textAlign(CENTER, CENTER);
+        text("||", 375, 375);
+        if (rec === true) {
+            vid.push(get());
+        }
+    };
+    var pause = function() {
+        background(0, 0, 0);
+        textAlign(CENTER, TOP);
+        textSize(25);
+        fill(0, 255, 0);
+        text("SIMULATION PAUSED", 200, 0);
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(350, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Menu", 350, 350);
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(50, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Resume", 50, 350);
+        fill(0, 0, 0);
+        stroke(0, 255, 0);
+        ellipse(200, 350, 100, 100);
+        textAlign(CENTER, CENTER);
+        fill(0, 255, 0, random(127.5, 255));
+        text("Restart", 200, 350);
+    };
+    var everything = function() {
+        if (mode === "sim") {
+            sim();
+        } else if (mode === "menu") {
+            menu();
+        } else if (mode === "credits") {
+            credits();
+        } else if (mode === "how") {
+            how();
+        } else if (mode === "dead") {
+            dead();
+        } else if (mode === "ach") {
+            ach();
+        } else if (mode === "pause") {
+            pause();
+        } else if (mode === "lead") {
+            lead();
+        } else if (mode === "photos") {
+            photos();
+        } else if (mode === "vid") {
+            vide();
+        }
+        noStroke();
+        fill(255, 255, 255, flash);
+        rect(0, 0, 400, 400);
+        if (flash > 0) {
+            flash = flash * 0.95;
+        }
+    };
+    draw = function() {
+        everything();
+    };
+    keyPressed = function() {
+        if (rocket_Values[7] === false) {
+            key_Down = true;
+        }
+    };
+    keyReleased = function() {
+        key_Down = false;
+        if (String(key) === "l") {
+            if (rocket_Values[10] === false) {
+                rocket_Values[10] = true;
+                achievements[5][1] = true;
+            } else {
+                rocket_Values[10] = false;
+            }
+        }
+        if (String(key) === "p") {
+            deathScreen.push(get());
+            achievements[15][1] = true;
+            flash = 255;
+        }
+        if (String(key) === "r") {
+            if (rec === false) {
+                rec = true;
+            } else {
+                rec = false;
+            }
+        }
+        if (String(key) === "`") {
+            println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nOkay, we have found a way to freeze time. It is a savecode. Copy this:\n{\nvar show = " + show + ";\nvar mode = '" + mode + "';\nvar jResume = " + jResume + ";\nvar deathNum = " + deathNum + ";\nvar dev_Pass = " + dev_Pass + ";\nvar rec = " + rec + ";\nvar rocket_Values = [" + rocket_Values + "];\nvar ship_Log = " + ship_Log + ";\nvar achievements = [\n['Ouch. (Take damage)', " + achievements[0][1] + "],\n['AAAAAAAH! (Fall at over 500 speed)', " + achievements[1][1] + "],\n['I don/t want no bananas! (Turn mini map off)', " + achievements[2][1] + "],\n['The sky is NOT the limit (???)', " + achievements[3][1] + "],\n['Boing! (???)', " + achievements[4][1] + "],\n['Well, I hired this terrible ship log guy. (???)', " + achievements[5][1] + "],\n['Daredevil (???)', " + achievements[6][1] + "],\n['Full fuel! (Get to full fuel)', " + achievements[7][1] + "],\n['That was close! (Hint: low health)', " + achievements[8][1] + "],\n['Try again. (Revive yourself)', " + achievements[9][1] + "],\n['Nine lives (???)', " + achievements[10][1] + "],\n['Go to school (???)', " + achievements[11][1] + "],\n['Neil Armstrong (??? Hint: Low fuel)', " + achievements[12][1] + "],\n['Easter egg (??? Hint: 3.141)', " + achievements[13][1] + "],\n['Stealing from the gods (???)', " + achievements[14][1] + "],\n['Flash! (Take a picture)', " + achievements[15][1] + "]\n];\n}");
+        }
+    };
+    mouseClicked = function() {
+        if (mode === "sim") {
+            if (mouseButton === RIGHT) {
+                if (rocket_Values[9] === false) {
+                    rocket_Values[9] = true;
+                } else {
+                    rocket_Values[9] = false;
+                    achievements[2][1] = true;
+                }
+            }
+            if (ship_Log === true & dist(mouseX, mouseY, 350, 350) <= 50) {
+                dev_Pass = false;
+                mode = "menu";
+                rocket_Values = [0, 0, 0, 0, 0, 0, 10000, false, 0.001, rocket_Values[9], rocket_Values[10], 100, 0];
+                key_Down = false;
+                ship_Log = false;
+                textSize(12.5);
+                if (rocket_Values[10] === true) {
+                    println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nWe are alive again! How the heck did that happen?");
+                }
+            }
+            if (dist(mouseX, mouseY, 375, 375) <= 25) {
+                mode = "pause";
+            }
+        } else if (mode === "menu") {
+            if (dist(mouseX, mouseY, 0, 400) <= 25) {
+                if (achievements[13][1] === true) {
+                    dev_Pass = true;
+                    achievements[14][1] = true;
+                }
+            }
+            if (dist(mouseX, mouseY, 200, 200) <= 75) {
+                if (rocket_Values[0] === 0) {
+                    for (var i = 0; i < vid.length; i++) {
+                        vid.splice(i);
+                    }
+                }
+                mode = "sim";
+                if (rocket_Values[10] === true) {
+                    println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nWe are ready, captain.");
+                }
+            }
+            if (dist(mouseX, mouseY, 100, 300) <= 50) {
+                println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nI found this website which shows how this ship was made. \ntinyurl.com/roketsimulatorupdates");
+            }
+            if (dist(mouseX, mouseY, 200, 350) <= 50) {
+                mode = "how";
+                achievements[11][1] = true;
+            }
+            if (dist(mouseX, mouseY, 300, 300) <= 50) {
+                mode = "credits";
+                if (rocket_Values[10] === true) {
+                    println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nWe uncovered a document showing who made the rocket.");
+                    println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nWe also found the original rocket that inspired this rocket.\nhttps://www.khanacademy.org/computer-programming/rockets-game/5720895755796480");
+                }
+            }
+            if (dist(mouseX, mouseY, 50, 50) <= 50) {
+                mode = "ach";
+            }
+            if (dist(mouseX, mouseY, 350, 50) <= 50) {
+                mode = "lead";
+            }
+            if (dist(mouseX, mouseY, 350, 200) <= 50) {
+                mode = "photos";
+            }
+            if (dist(mouseX, mouseY, 50, 200) <= 50) {
+                mode = "vid";
+                show = 0;
+            }
+        } else if (mode === "dead") {
+            if (dist(mouseX, mouseY, 350, 350) <= 50) {
+                mode = "menu";
+                rocket_Values = [0, 0, 0, 0, 0, 0, 10000, false, 0.001, rocket_Values[9], rocket_Values[10], 100, 0];
+                key_Down = false;
+                ship_Log = false;
+                textSize(12.5);
+                if (rocket_Values[10] === true) {
+                    println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nWe are alive again! How the heck did that happen?");
+                }
+                achievements[9][1] = true;
+            }
+        } else {
+            if (dist(mouseX, mouseY, 350, 350) <= 50) {
+                mode = "menu";
+                jResume = 3;
+            }
+        }
+        if (mode === "pause") {
+            if (dist(mouseX, mouseY, 50, 350) <= 50) {
+                mode = "sim";
+                jResume = 3;
+                if (rocket_Values[10] === true) {
+                    println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nThe heck? Time froze for a sec.");
+                }
+            }
+            if (dist(mouseX, mouseY, 200, 350) <= 50) {
+                rocket_Values = [0, 0, 0, 0, 0, 0, 10000, false, 0.001, rocket_Values[9], rocket_Values[10], 100, 0];
+                key_Down = false;
+                ship_Log = false;
+                textSize(12.5);
+                if (rocket_Values[10] === true) {
+                    println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nWe are alive again! How the heck did that happen?");
+                }
+                mode = "sim";
+                jResume = 3;
+                if (rocket_Values[10] === true) {
+                    println("Ship Log:\n" + day() + "/" + month() + "/" + year() + " " + hour() + ":" + minute() + ":" + second() + "\nTime just got turned back!");
+                }
+            }
+        }
+    };
+}
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

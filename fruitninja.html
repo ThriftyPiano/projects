@@ -1,0 +1,672 @@
+<html>
+    <head>
+        <title>Fruit Ninja</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(600, 400);
+        angleMode = "degrees";
+/////////////////        
+var mode = "menu";
+var spawnrate = 200;
+var bombrate = 1.2;
+var amount = [2, 7];
+background(255, 255, 255);
+var health = 10;
+var w = width;
+var h = height;
+var soundy = false;
+var coolah = 0;
+var fa = 50;
+var pa = 50;
+var za = 50;
+var fm = 0;
+var pm = 0;
+var zm = 0;
+var la = 50;
+var lm = 0;
+for (var i = 0; i < w + 1; i += 1) {
+    for (var j = 0; j < h + 1; j += 1) {
+        var noiseVal = noise((i) * 0.005, j * 0.005)*2-0.5;
+        stroke(85 * noiseVal * 2, 52 * noiseVal * 2, 43 * noiseVal * 2);
+        point(i, j);
+    }
+}
+var banana = get();
+smooth();
+var colors = [color(255, 0, 0), color(0, 255, 0), color(0, 0, 255), color(255, 255, 0), color(255, 127.5, 0), color(255, 0, 255), color(0, 255, 255), color(0, 0, 0)];
+var particles = [[[w/2, h/2], [0, 0], 64, 0, 0], [[w/2+200, h/2], [0, 0], 64, 0, 1], [[w/2-200, h/2], [0, 0], 64, 0, 2], [[w/2+200, h/2+125], [0, 0], 64, 0, 3]];
+cursor(ARROW);
+var score = 0;
+var l = 0;
+var k = 0;
+var t = 0;
+var txt = "";
+var taxes = [];
+var splats = [];
+var r = 0;
+var shake = 0;
+frameRate(60);
+textFont(createFont("cursive"));
+var stoff = function(i, a) {
+    if(i === 0) {
+        return color(255-a*255/100, 255-a*255/100, 255-a*255/100);
+    }
+    else if(i === 1) {
+        return color(255, a*255/100, 0, 10);
+    }
+    else if(i === 2) {
+        return color(0, a*255/100, 255);
+    }
+    else if(i === 3) {
+        return color(sin(frameCount%100*180/100)*255, a*255/100, 0, 200);
+    }
+    else if(i === 4) {
+        return color(0, 255-a*255/100, sin(frameCount%100*180/100)*255);
+    }
+    else if(i === 5) {
+        return color(255, 255, 255, 2.55);
+    }
+    else if(i === 6) {
+        return color(sin((frameCount%100*4)*180/200+60)*255, sin((frameCount%100*4)*180/200+180)*255, sin((frameCount%100*4)*180/200-45)*255);
+    }
+    else {
+        return color(0, 0, 0);
+    }
+};
+var game = function() {
+    pushMatrix();
+    if(shake > 0) {
+        shake--;
+        translate(random(-25, 25), random(-25*h/w, 25*h/w));
+    }
+    background(0, 0, 0);
+    noFill();
+    image(banana, 0, 0, w, h);
+    noStroke();
+    for (var i = 0; i < splats.length; i++) {
+        fill(colors[splats[i][4]], splats[i][3]);
+        if (health > 0) {
+            splats[i][3]--;
+        }
+        ellipse(splats[i][0], splats[i][1], splats[i][2], splats[i][2]);
+        if (splats[i][3] <= 0) {
+            splats.splice(i, 1);
+        }
+    }
+    for(var i = 0; i < particles.length; i++) {
+        fill(0, 0, 0, 100);
+        arc(particles[i][0][0]-5, particles[i][0][1]-10, 70, 70, atan2(particles[i][1][1], particles[i][1][0]) - particles[i][2] / 128 * 360, atan2(particles[i][1][1], particles[i][1][0]) + particles[i][2] / 128 * 360);
+        if(particles[i][4] === colors.length-1) {
+            pushMatrix();
+            translate(particles[i][0][0]-5, particles[i][0][1]-10);
+            rotate(-atan2(particles[i][1][1], particles[i][1][0]) + 90);
+            translate(-particles[i][0][0]+5, -particles[i][0][1]+10);
+            noFill();
+            stroke(0, 0, 0, 100);
+            strokeWeight(10);
+            arc(particles[i][0][0] + 16-5, particles[i][0][1] - 24-10, 32, 32, -180, -60);
+            popMatrix();
+            noStroke();
+        }
+    }
+    for (var i = 0; i < particles.length; i++) {
+        //ellipse(particles[i][0][0], particles[i][0][1], particles[i][2], particles[i][2]);
+        if (particles[i][4] === colors.length - 1) {
+            pushMatrix();
+            translate(particles[i][0][0], particles[i][0][1]);
+            rotate(-atan2(particles[i][1][1], particles[i][1][0]) + 90);
+            translate(-particles[i][0][0], -particles[i][0][1]);
+            noFill();
+            stroke(200, 160, 0);
+            strokeWeight(10);
+            arc(particles[i][0][0] + 16, particles[i][0][1] - 24, 32, 32, -180, -60);
+            popMatrix();
+            noStroke();
+        }
+        fill(colors[particles[i][4]], 255);
+        arc(particles[i][0][0], particles[i][0][1], 64, 64, atan2(particles[i][1][1], particles[i][1][0]) - particles[i][2] / 128 * 360, atan2(particles[i][1][1], particles[i][1][0]) + particles[i][2] / 128 * 360);
+        if (particles[i][4] === colors.length - 1) {
+            pushMatrix();
+            translate(particles[i][0][0], particles[i][0][1]);
+            rotate(-atan2(particles[i][1][1], particles[i][1][0]) + 90);
+            translate(-particles[i][0][0], -particles[i][0][1]);
+            fill(255, 0, 0);
+            textAlign(CENTER, CENTER);
+            textSize(50);
+            textFont(createFont("cursive"));
+            text("X", particles[i][0][0], particles[i][0][1]);
+            popMatrix();
+            noStroke();
+            textFont(createFont("cursive"));
+        }
+        if (health > 0) {
+            particles[i][0][0] += particles[i][1][0];
+            particles[i][0][1] += particles[i][1][1];
+        }
+        if (particles[i][0][0] >= w) {
+            particles[i][1][0] = -abs(particles[i][1][0]);
+        }
+        if (particles[i][0][0] <= 0) {
+            particles[i][1][0] = abs(particles[i][1][0]);
+        }
+        particles[i][1][1] += 0.1;
+        if (particles[i][3] > 0) {
+            particles[i][3]--;
+        }
+    }
+    if (t === 0 & health > 0) {
+        for (var i = 0; i < random(amount[0], amount[1]); i++) {
+            particles.push([
+                [random(0, w), h + 32],
+                [random(-5, 5), random(-height / 50, -height / 60)],
+                64,
+                0,
+                floor(constrain(random(0, bombrate*colors.length), 0, colors.length-1))
+            ]);
+        }
+        t = spawnrate;
+    }
+    t--;
+    for (var i = particles.length - 1; i >= 0; i--) {
+        var a = true;
+        if (particles[i][3] <= 0 & health > 0) {
+            for (var j = 0; j < 100; j++) {
+                if (a) {
+                    if (dist(particles[i][0][0], particles[i][0][1], mouseX + (pmouseX - mouseX) * j / 100, mouseY + (pmouseY - mouseY) * j / 100) <= 32 & atan2((mouseY + (pmouseY - mouseY) * j / 100) - particles[i][0][1], (mouseX + (pmouseX - mouseX) * j / 100) - particles[i][0][0]) - atan2(particles[i][1][1], particles[i][1][0]) <= particles[i][2] / 128 * 360) {
+                        if (particles[i][4] !== colors.length - 1) {
+                            var b = sqrt(abs(dist(pmouseX, pmouseY, particles[i][0][0] - particles[i][1][0], particles[i][0][1] - particles[i][1][1]) - dist(mouseX, mouseY, particles[i][0][0], particles[i][0][1])));
+                            var g = [
+                                [cos(atan2((mouseY - particles[i][0][1]) - (pmouseY - particles[i][0][1] - particles[i][1][1]), (mouseX - particles[i][0][0]) - (pmouseX - particles[i][0][0] - particles[i][1][0])) + 90), sin(atan2((mouseY - particles[i][0][1]) - (pmouseY - particles[i][0][1] - particles[i][1][1]), (mouseX - particles[i][0][0]) - (pmouseX - particles[i][0][0] - particles[i][1][0])) + 90)],
+                                [cos(atan2((mouseY - particles[i][0][1]) - (pmouseY - particles[i][0][1] - particles[i][1][1]), (mouseX - particles[i][0][0]) - (pmouseX - particles[i][0][0] - particles[i][1][0])) - 90), sin(atan2((mouseY - particles[i][0][1]) - (pmouseY - particles[i][0][1] - particles[i][1][1]), (mouseX - particles[i][0][0]) - (pmouseX - particles[i][0][0] - particles[i][1][0])) - 90)]
+                            ];
+                            particles.push([
+                                [particles[i][0][0], particles[i][0][1]],
+                                [g[0][0] * b, g[0][1] * b], particles[i][2] / 2,
+                                10,
+                                particles[i][4]
+                            ]);
+                            particles.push([
+                                [particles[i][0][0], particles[i][0][1], particles[i]],
+                                [g[1][0] * b, g[1][1] * b], particles[i][2] / 2,
+                                10,
+                                particles[i][4]
+                            ]);
+                            if (b >= 15) {
+                                taxes.push([particles[i][0][0], particles[i][0][1], 50, "CRITICAL! +5"]);
+                                score += 5;
+                                txt = "CRITICAL!\n+5";
+                                r = 100;
+                            } else {
+                                taxes.push([particles[i][0][0], particles[i][0][1], 50, "+1"]);
+                                score++;
+                            }
+                        }
+                        if (particles[i][4] === colors.length - 1) {
+                            for (var q = 0; q < particles[i][2] * 4; q++) {
+                                var an = random(0, 360);
+                                var de = random(3, 25) * particles[i][2] / 16;
+                                splats.push([particles[i][0][0] + cos(an) * de, particles[i][0][1] + sin(an) * de, random(10, 25) * particles[i][2] / 10 / de * 2, 200, floor(random(0, colors.length))]);
+                            }
+                        } else {
+                            for (var q = 0; q < particles[i][2]; q++) {
+                                var an = random(0, 360);
+                                var de = random(5, 25) * particles[i][2] / 32;
+                                splats.push([particles[i][0][0] + cos(an) * de, particles[i][0][1] + sin(an) * de, random(10, 25) * particles[i][2] / 10 / de, 200, particles[i][4]]);
+                            }
+                        }
+                        if (particles[i][4] === colors.length - 1) {
+                            if (soundy) {
+                                playSound(getSound("retro/boom1"));
+                            }
+                            shake = 25;
+                            txt = "That was a Bombegranate.";
+                            r = 100;
+                            health -= 2;
+                        } else {
+                            if (soundy) {
+                                playSound(getSound("rpg/hit-splat"));
+                            }
+                        }
+                        if (l > 0 & particles[i][4] !== colors.length - 1) {
+                            k++;
+                        }
+                        if (particles[i][4] !== colors.length - 1) {
+                            l = 5;
+                        }
+                        particles.splice(i, 1);
+                        a = false;
+                    }
+                }
+            }
+        }
+    }
+    textAlign(CENTER, CENTER);
+    textSize(20);
+    for (var i = 0; i < taxes.length; i++) {
+        fill(255, 215, 0, taxes[i][2] * 255 / 25);
+        taxes[i][2]--;
+        text(taxes[i][3], taxes[i][0], taxes[i][1]);
+    }
+    if (l <= 0) {
+        if (k > 2) {
+            score += (k - 2) * 10;
+            txt = k + " FRUIT COMBO!\n+" + (k - 2) * 10;
+            r = 100;
+        }
+        k = 0;
+    }
+    l--;
+    for (var i = 0; i < particles.length; i++) {
+        if (particles[i][0][1] > h + 32 || particles[i][2] <= 2) {
+            if (particles[i][0][1] > h + 32 & particles[i][2] === 64 & particles[i][4] !== colors.length - 1 & health > 0) {
+                health--;
+                txt = "Uh oh, something got past!";
+                r = 100;
+            }
+            for (var q = 0; q < particles[i][2]; q++) {
+                var an = random(0, 360);
+                var de = random(5, 25) * particles[i][2] / 32;
+                splats.push([particles[i][0][0] - 32 + cos(an) * de, particles[i][0][1] - 32 + sin(an) * de, random(10, 25) * particles[i][2] / 10 / de, 200, particles[i][4]]);
+            }
+            particles.splice(i, 1);
+        }
+    }
+    for (var i = 100; i > 0; i--) {
+        fill(0, 0, 0, 100);
+        rect(mouseX + (pmouseX - mouseX) * i / 100 - (5 - i / 20)-5, mouseY + (pmouseY - mouseY) * i / 100 - (5 - i / 20)-10, 20 - i / 5, 20 - i / 5);
+    }
+    for (var i = 100; i > 0; i--) {
+        fill(stoff(coolah, i));
+        rect(mouseX + (pmouseX - mouseX) * i / 100 - (5 - i / 20), mouseY + (pmouseY - mouseY) * i / 100 - (5 - i / 20), 20 - i / 5, 20 - i / 5);
+    }
+    if (health > 0) {
+        fill(0, 0, 0, 100);
+        textAlign(CENTER, CENTER);
+        textSize(25);
+        text(score, w / 2-5, h / 2-10);
+        stroke(0, 0, 0, 100);
+        strokeWeight(10);
+        noFill();
+        arc(w / 2-5, h / 2-10, 100, 100, -90, -90 + 360 * t / spawnrate);
+        stroke(0, 0, 0, 100);
+        arc(w / 2-5, h / 2-10, 125, 125, -90, -90 + 360 * health / 10);
+        fill(255, 255, 255, 200);
+        textAlign(CENTER, CENTER);
+        textSize(25);
+        text(score, w / 2, h / 2);
+        stroke(0, 255, 0, 150);
+        strokeWeight(10);
+        noFill();
+        arc(w / 2, h / 2, 100, 100, -90, -90 + 360 * t / spawnrate);
+        stroke(255, 0, 0, 150);
+        arc(w / 2, h / 2, 125, 125, -90, -90 + 360 * health / 10);
+    }
+    fill(0, 0, 0, r * 100 / 100);
+    textSize(40);
+    text(txt, w / 2-5, h / 2-10);
+    fill(255, 215, 0, r * 255 / 100);
+    textSize(40);
+    text(txt, w / 2, h / 2);
+    r--;
+    if (health <= 0) {
+        txt = "YOU DEAD BOI.\nYour score was " + score + "\nClick To Restart.";
+        r = 250000;
+    }
+    if(za <= 0) {
+        health -= 0.0025;
+    }
+    if (health <= 0 & mouseIsPressed) {
+        health = 10;
+        particles = [[[w/2, h/2], [0, 0], 64, 0, 0], [[w/2+200, h/2], [0, 0], 64, 0, 1], [[w/2-200, h/2], [0, 0], 64, 0, 2], [[w/2+200, h/2+125], [0, 0], 64, 0, 3]];
+        cursor(ARROW);
+        score = 0;
+        l = 0;
+        k = 0;
+        t = 0;
+        txt = "";
+        taxes = [];
+        splats = [];
+        r = 0;
+        mode = "menu";
+        fa = 50;
+        pa = 50;
+        za = 50;
+        la = 50;
+        fm = 0;
+        pm = 0;
+        zm = 0;
+        lm = 0;
+    }
+};
+var menu = function() {
+    background(0, 0, 0);
+    noFill();
+    image(banana, 0, 0, w, h);
+    for (var i = 0; i < splats.length; i++) {
+        noStroke();
+        fill(colors[splats[i][4]], splats[i][3]);
+        if (health > 0) {
+            splats[i][3]--;
+        }
+        ellipse(splats[i][0], splats[i][1], splats[i][2], splats[i][2]);
+        if (splats[i][3] <= 0) {
+            splats.splice(i, 1);
+        }
+    }
+    for(var i = 0; i < particles.length; i++) {
+        fill(0, 0, 0, 100);
+        arc(particles[i][0][0]-5, particles[i][0][1]-10, 70, 70, atan2(particles[i][1][1], particles[i][1][0]) - particles[i][2] / 128 * 360, atan2(particles[i][1][1], particles[i][1][0]) + particles[i][2] / 128 * 360);
+        if(particles[i][4] === colors.length-1) {
+            pushMatrix();
+            translate(particles[i][0][0]-5, particles[i][0][1]-10);
+            rotate(-atan2(particles[i][1][1], particles[i][1][0]) + 90);
+            translate(-particles[i][0][0]+5, -particles[i][0][1]+10);
+            noFill();
+            stroke(0, 0, 0, 100);
+            strokeWeight(10);
+            arc(particles[i][0][0] + 16-5, particles[i][0][1] - 24-10, 32, 32, -180, -60);
+            popMatrix();
+            noStroke();
+        }
+    }
+    for (var i = 0; i < particles.length; i++) {
+        //ellipse(particles[i][0][0], particles[i][0][1], particles[i][2], particles[i][2]);
+        if (particles[i][4] === colors.length - 1) {
+            pushMatrix();
+            translate(particles[i][0][0], particles[i][0][1]);
+            rotate(-atan2(particles[i][1][1], particles[i][1][0]) + 90);
+            translate(-particles[i][0][0], -particles[i][0][1]);
+            noFill();
+            stroke(200, 160, 0);
+            strokeWeight(10);
+            arc(particles[i][0][0] + 16, particles[i][0][1] - 24, 32, 32, -180, -60);
+            popMatrix();
+            noStroke();
+        }
+        fill(colors[particles[i][4]], 255);
+        arc(particles[i][0][0], particles[i][0][1], 64, 64, atan2(particles[i][1][1], particles[i][1][0]) - particles[i][2] / 128 * 360, atan2(particles[i][1][1], particles[i][1][0]) + particles[i][2] / 128 * 360);
+        if (particles[i][4] === colors.length - 1) {
+            pushMatrix();
+            translate(particles[i][0][0], particles[i][0][1]);
+            rotate(-atan2(particles[i][1][1], particles[i][1][0]) + 90);
+            translate(-particles[i][0][0], -particles[i][0][1]);
+            fill(255, 0, 0);
+            textAlign(CENTER, CENTER);
+            textSize(50);
+            textFont(createFont("cursive"));
+            text("X", particles[i][0][0], particles[i][0][1]);
+            popMatrix();
+            noStroke();
+            textFont(createFont("cursive"));
+        }
+        if (health > 0) {
+            particles[i][0][0] += particles[i][1][0];
+            particles[i][0][1] += particles[i][1][1];
+        }
+        if (particles[i][0][0] >= w) {
+            particles[i][1][0] = -abs(particles[i][1][0]);
+        }
+        if (particles[i][0][0] <= 0) {
+            particles[i][1][0] = abs(particles[i][1][0]);
+        }
+        if(particles[i][2] < 64) {
+            particles[i][1][1] += 0.1;
+        }
+        if (particles[i][3] > 0) {
+            particles[i][3]--;
+        }
+    }
+    pa += pm;
+    fa += fm;
+    za += zm;
+    la += lm;
+    if(pa <= 0) {
+        health = 10;
+        particles = [];
+        cursor(ARROW);
+        score = 0;
+        l = 0;
+        k = 0;
+        t = 0;
+        txt = "";
+        taxes = [];
+        splats = [];
+        r = 0;
+        mode = "game";
+        spawnrate = 200;
+        bombrate = 1.2;
+        amount = [2, 7];
+    }
+    else if(fa <= 0) {
+        health = 10;
+        particles = [];
+        cursor(ARROW);
+        score = 0;
+        l = 0;
+        k = 0;
+        t = 0;
+        txt = "";
+        taxes = [];
+        splats = [];
+        r = 0;
+        mode = "game";
+        spawnrate = 10;
+        bombrate = 1;
+        amount = [1, 1];
+    }
+    else if(za <= 0) {
+        health = 10;
+        particles = [];
+        cursor(ARROW);
+        score = 0;
+        l = 0;
+        k = 0;
+        t = 0;
+        txt = "";
+        taxes = [];
+        splats = [];
+        r = 0;
+        mode = "game";
+        spawnrate = 100;
+        bombrate = 1;
+        amount = [4, 6];
+    }
+    else if(la <= 0) {
+        health = 10;
+        particles = [];
+        cursor(ARROW);
+        score = 0;
+        l = 0;
+        k = 0;
+        t = 0;
+        txt = "";
+        taxes = [];
+        splats = [];
+        r = 0;
+        mode = "game";
+        spawnrate = 25;
+        bombrate = 0.87;
+        amount = [8, 10];
+    }
+    for (var i = particles.length - 1; i >= 0; i--) {
+        var a = true;
+        if (particles[i][3] <= 0 & health > 0) {
+            for (var j = 0; j < 100; j++) {
+                if (a) {
+                    if (dist(particles[i][0][0], particles[i][0][1], mouseX + (pmouseX - mouseX) * j / 100, mouseY + (pmouseY - mouseY) * j / 100) <= 32 & atan2((mouseY + (pmouseY - mouseY) * j / 100) - particles[i][0][1], (mouseX + (pmouseX - mouseX) * j / 100) - particles[i][0][0]) - atan2(particles[i][1][1], particles[i][1][0]) <= particles[i][2] / 128 * 360) {
+                        if (particles[i][4] !== colors.length - 1) {
+                            if(particles[i][4] === 0) {
+                                pm = -1;
+                                r = 100;
+                                txt = "Ah, classic.";
+                            }
+                            if(particles[i][4] === 1) {
+                                zm = -1;
+                                r = 100;
+                                txt = "WATCH OUT!";
+                            }
+                            if(particles[i][4] === 2) {
+                                r = 100;
+                                txt = "BOMB!";
+                                fm = -1;
+                            }
+                            if(particles[i][4] === 3) {
+                                r = 100;
+                                txt = "You asked for it.";
+                                lm = -1;
+                            }
+                            var b = sqrt(abs(dist(pmouseX, pmouseY, particles[i][0][0] - particles[i][1][0], particles[i][0][1] - particles[i][1][1]) - dist(mouseX, mouseY, particles[i][0][0], particles[i][0][1])));
+                            var g = [
+                                [cos(atan2((mouseY - particles[i][0][1]) - (pmouseY - particles[i][0][1] - particles[i][1][1]), (mouseX - particles[i][0][0]) - (pmouseX - particles[i][0][0] - particles[i][1][0])) + 90), sin(atan2((mouseY - particles[i][0][1]) - (pmouseY - particles[i][0][1] - particles[i][1][1]), (mouseX - particles[i][0][0]) - (pmouseX - particles[i][0][0] - particles[i][1][0])) + 90)],
+                                [cos(atan2((mouseY - particles[i][0][1]) - (pmouseY - particles[i][0][1] - particles[i][1][1]), (mouseX - particles[i][0][0]) - (pmouseX - particles[i][0][0] - particles[i][1][0])) - 90), sin(atan2((mouseY - particles[i][0][1]) - (pmouseY - particles[i][0][1] - particles[i][1][1]), (mouseX - particles[i][0][0]) - (pmouseX - particles[i][0][0] - particles[i][1][0])) - 90)]
+                            ];
+                            particles.push([
+                                [particles[i][0][0], particles[i][0][1]],
+                                [g[0][0] * b, g[0][1] * b], particles[i][2] / 2,
+                                10,
+                                particles[i][4]
+                            ]);
+                            particles.push([
+                                [particles[i][0][0], particles[i][0][1], particles[i]],
+                                [g[1][0] * b, g[1][1] * b], particles[i][2] / 2,
+                                10,
+                                particles[i][4]
+                            ]);
+                        }
+                        for (var q = 0; q < particles[i][2]; q++) {
+                            var an = random(0, 360);
+                            var de = random(5, 25) * particles[i][2] / 32;
+                                splats.push([particles[i][0][0] + cos(an) * de, particles[i][0][1] + sin(an) * de, random(10, 25) * particles[i][2] / 10 / de, 200, particles[i][4]]);
+                        }
+                        if (soundy) {
+                            playSound(getSound("rpg/hit-splat"));
+                        }
+                        particles.splice(i, 1);
+                        a = false;
+                    }
+                }
+            }
+        }
+    }
+    noStroke();
+    textSize(75);
+    fill(255, 215, 0);
+    textAlign(CENTER, CENTER);
+    text("FRUIT NINJA", w/2, 50);
+    textSize(25);
+    text("Normal", w/2, h/2+64);
+    text("Tense", w/2+200, h/2+64);
+    text("Frenzy!", w/2-200, h/2+64);
+    text("Lag", w/2+200, h/2+125+60);
+    noFill();
+    stroke(255, 0, 255);
+    strokeWeight(10);
+    ellipse(w/2, h/2, 90, 90);
+    stroke(0, 255, 255);
+    ellipse(w/2-200, h/2, 90, 90);
+    stroke(255, 255, 0);
+    ellipse(w/2+200, h/2, 90, 90);
+    stroke(255, 127.5, 0);
+    ellipse(w/2+200, h/2+125, 90, 90);
+    noStroke();
+    noStroke();
+    fill(0, 0, 0, r * 100 / 100);
+    textSize(40);
+    text(txt, w / 2-5, h / 2-10);
+    fill(255, 215, 0, r * 255 / 100);
+    textSize(40);
+    text(txt, w / 2, h / 2);
+    r--;
+    for(var i = 0; i < 8; i++) {
+        fill(stoff(i, 0));
+        rect(i*50+12.5, h-37.5, 25, 25);
+        noFill();
+        stroke(255, 255, 255);
+        strokeWeight(2.5);
+        if(i === coolah) {
+            strokeWeight(5);
+        }
+        rect(i*50+12.5-5, h-37.5-5, 35, 35);
+        noStroke();
+    }
+    for (var i = 100; i > 0; i--) {
+        fill(0, 0, 0, 100);
+        rect(mouseX + (pmouseX - mouseX) * i / 100 - (5 - i / 20)-5, mouseY + (pmouseY - mouseY) * i / 100 - (5 - i / 20)-10, 20 - i / 5, 20 - i / 5);
+    }
+    for (var i = 100; i > 0; i--) {
+        fill(stoff(coolah, i));
+        rect(mouseX + (pmouseX - mouseX) * i / 100 - (5 - i / 20), mouseY + (pmouseY - mouseY) * i / 100 - (5 - i / 20), 20 - i / 5, 20 - i / 5);
+    }
+};
+draw = function() {
+    if(mode === "game") {
+        game();
+    }
+    else if(mode === "menu") {
+        menu();
+    }
+};
+mouseClicked = function() {
+    cursor("none");
+    if(mode === "menu") {
+        for(var i = 0; i < 8; i++) {
+            if(mouseX > i*50+12.5-5 & mouseX < i*50+12.5-5+35 & mouseY > h-37.5-5 & mouseY < h-37.5-5+35) {
+                coolah = i;
+            }
+        }
+    }
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

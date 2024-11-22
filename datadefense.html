@@ -14,7 +14,24 @@ body {
   align-items: center;
   justify-content: center;
 }
-
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
 div {
   width: 100vw;
   height: 100vh;
@@ -6455,5 +6472,6 @@ mouseOver = function() {
     }
 });
         </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page (REMEMBER TO SAVE)</button>
     </body>
 </html>

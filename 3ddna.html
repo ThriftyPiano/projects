@@ -1,0 +1,131 @@
+<html>
+    <head>
+        <title>3D DNA</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//69 lines of code! :)
+//Added perspective, while mantaining 69!
+//Added mousedragged while sacrificing some neatness... :)
+var rotX = function(r, c) {
+        var x = c[0],
+            y = c[1],
+            z = c[2];
+        return [x, cos(r) * y - sin(r) * z, cos(r) * z + sin(r) * y, c[3]];
+    },
+    rotY = function(r, c) {
+        var x = c[0],
+            y = c[1],
+            z = c[2];
+        return [cos(r) * x + sin(r) * z, y, cos(r) * z - sin(r) * x, c[3]];
+    },
+    rotZ = function(r, c) {
+        var x = c[0],
+            y = c[1],
+            z = c[2];
+        return [cos(r) * x - sin(r) * y, cos(r) * y + sin(r) * x, z, c[3]];
+    },
+    conv = function(r, c) {
+        c = rotX(r[0], c);
+        c = rotY(r[1], c);
+        c = rotZ(r[2], c);
+        return c;
+    },
+    cartopo = function(q, w) {
+        var ree = atan2(w, q),
+            kee = sqrt(w * w + q * q);
+        return [ree, kee];
+    },
+    potocart = function(rer, ker) {
+        return [cos(rer) * ker, sin(rer) * ker];
+    },
+    rot = function(xer, yer) {
+        var pol = cartopo(xer, yer);
+        return potocart(pol[0] + 1, pol[1]);
+    },
+    p = [],
+    amt = [0, 0, 0];
+for (var j = -400; j < 400; j += 2) {
+    p.push([cos((j + 200) * 360 / 400 * 1) * 50, sin((j + 200) * 360 / 400 * 1) * 50, j, color(0, 255, 255)], [cos((j + 200) * 360 / 400 * 1 + 180) * 50, sin((j + 200) * 360 / 400 * 1 + 180) * 50, j, color(0, 255, 255)]);
+    if (j % 25 === 0) {
+        var clers = [[color(255, 127.5, 0), color(0, 0, 255)], [color(0, 0, 255), color(255, 127.5, 0)], [color(255, 0, 0), color(0, 255, 0)], [color(0, 255, 0), color(255, 0, 0)]],
+            cool = clers[floor(random(0, 4))];
+        for (var l = -50; l < 50; l += 2) {
+            p.push([cos((j + 200) * 360 / 400 * 1) * l, sin((j + 200) * 360 / 400 * 1) * l, j, cool[round(-(l - abs(l)) / 2 / abs(l))]]);
+        }
+    }
+}
+draw = function() {
+    background(0, 0, 0); 
+    smooth();
+    for (var i = 0; i < p.length; i++) {
+        var dp = conv(amt, p[i]), 
+        res = rot(p[i][0], p[i][1]), 
+        k = 400 / (dp[2] + 400);
+        stroke(p[i][3], 255);
+        strokeWeight(2*k);
+        point(200 + dp[0]*k, 200 + dp[1]*k);
+        p[i][0] = res[0];
+        p[i][1] = res[1];
+    }
+};
+mouseDragged = function() {
+    amt[1] -= (mouseX - pmouseX) * 180 / 400;
+    amt[0] += (mouseY - pmouseY) * 180 / 400;
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>
