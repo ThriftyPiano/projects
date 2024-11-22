@@ -1,0 +1,371 @@
+<html>
+    <head>
+        <title>Natural Selection</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(600, 600);
+        angleMode = "degrees";
+/////////////////        
+//Click to add fish. Right click to add plants. Self explanatory. Grey fish are sharks. Have fun!
+frameRate(0);
+noStroke();
+var organisms = [];
+var plants = [];
+var nextplantspawn = [random(0, 400), random(0, 400)];
+var oceancolor = [0, 100, 200];
+var nearest = [200, 200];
+var nearestfish = [200, 200];
+var predators = [];
+var gunk = millis();
+var orgcount = [];
+var rocks = [];
+var darkness = [0, 1];
+var averagefish = [
+    [random(0, 255), random(0, 255), random(0, 255)], mouseX, mouseY, random(-5, 5), random(-5, 5), random(5, 12.5), random(5, 12.5), round(random(0, 1)), random(0.625, 1), 0, 0, round(random(1, 10)), round(random(1, 30))
+];
+var afg = [];
+var findnearestplant = function(x, y) {
+    for (var j = 0; j < plants.length; j++) {
+        if (dist(plants[j][0], plants[j][1], x, y) <= dist(nearest[0], nearest[1], x, y)) {
+            nearest = [plants[j][0], plants[j][1]];
+        }
+    }
+    return nearest;
+};
+var findnearestfish = function(x, y, g) {
+    if (g !== false) {
+        for (var j = 0; j < organisms.length; j++) {
+            if (dist(organisms[j][1], organisms[j][2], x, y) <= dist(nearest[0], nearest[1], x, y) & dist(organisms[j][1], organisms[j][2], x, y) > 0 & organisms[j][5] / organisms[j][6] >= 5 & organisms[j][7] + g === 1) {
+                for (var k = 0; k < rocks.length; k++) {
+                    if (dist(rocks[k][0], rocks[k][1], organisms[j][1], organisms[j][2]) <= rocks[k][2] / 2 + 2.5) {
+                        break;
+                    }
+                }
+                nearestfish = [organisms[j][1], organisms[j][2]];
+            }
+        }
+    } else {
+        for (var j = 0; j < organisms.length; j++) {
+            if (dist(organisms[j][1], organisms[j][2], x, y) <= dist(nearest[0], nearest[1], x, y) & dist(organisms[j][1], organisms[j][2], x, y) > 0) {
+                nearestfish = [organisms[j][1], organisms[j][2]];
+            }
+        }
+    }
+    return nearestfish;
+};
+var findaveragefish = function() {
+    averagefish = [
+        [0, 0, 0], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ];
+    for (var k = 1; k < averagefish.length; k++) {
+        for (var i = 0; i < organisms.length; i++) {
+            averagefish[k] += organisms[i][k];
+        }
+    }
+    for (var k = 0; k < 3; k++) {
+        for (var i = 0; i < organisms.length; i++) {
+            averagefish[0][k] += organisms[i][0][k];
+        }
+    }
+};
+var checkifunderrock = function(i) {
+    for (var k = 0; k < rocks.length; k++) {
+        if (dist(rocks[k][0], rocks[k][1], organisms[i][1], organisms[i][2]) <= rocks[k][2] / 2 + 2.5) {
+            return false;
+        }
+    }
+    return true;
+};
+var move = function() {
+    for (var i = 0; i < organisms.length; i++) {
+        if (round(random(0, 25)) === 1) {
+            if (organisms[i][9] <= 25) {
+                if (checkifunderrock(i)) {
+                    organisms[i][3] += random(-2, 2);
+                    organisms[i][4] += random(-2, 2);
+                }
+            } else {
+                if (dist(organisms[i][1], organisms[i][2], findnearestplant(organisms[i][1], organisms[i][2])[0], findnearestplant(organisms[i][1], organisms[i][2])[1]) <= 15) {} else if (checkifunderrock(i)) {
+                    organisms[i][3] += random(-2, 2);
+                    organisms[i][4] += random(-2, 2);
+                } else {
+                    if (1 === round(random(1, organisms[i][12]))) {
+                        organisms[i][3] += random(-2, 2);
+                        organisms[i][4] += random(-2, 2);
+                    }
+                }
+            }
+        }
+    }
+};
+draw = function() {
+    orgcount.push([frameCount, organisms.length]);
+    background(oceancolor[0], oceancolor[1], oceancolor[2]);
+    strokeWeight(1);
+    stroke(0, 0, 0);
+    darkness[0] += darkness[1];
+    if (darkness[0] >= 255 * 3) {
+        darkness[1] = -1;
+    }
+    if (darkness <= -255 * 3) {
+        darkness[1] = 1;
+    }
+    fill(0, 0, 0, darkness[0]);
+    rect(0, 0, 400, 400);
+    noStroke();
+    if (plants.length < 1000) {
+        for (var plantcount = 0; plantcount < random(15, 25); plantcount++) {
+            plants.push([nextplantspawn[0] + random(-10, 10), nextplantspawn[1] + random(-10, 10), random(2.5, 10)]);
+        }
+        nextplantspawn = [random(0, 400), random(0, 400)];
+    }
+    if (predators.length < 3) {
+        predators.push([random(0, 400), random(0, 400), random(-5, 5), random(-5, 5)]);
+    }
+    if (rocks.length < 25) {
+        for (var rockcount = 0; rockcount < random(1, 5); rockcount++) {
+            rocks.push([nextplantspawn[0] + random(-10, 10), nextplantspawn[1] + random(-10, 10), random(20, 40)]);
+        }
+        nextplantspawn = [random(0, 400), random(0, 400)];
+    }
+    for (var i = 0; i < organisms.length; i++) {
+        if (organisms[i][9] >= 100) {
+            organisms.splice(i, 1);
+            break;
+        }
+    }
+    for (var i = 0; i < organisms.length; i++) {
+        fill(organisms[i][0][0], organisms[i][0][1], organisms[i][0][2]);
+        ellipse(organisms[i][1], organisms[i][2], organisms[i][5] / 5, organisms[i][5] / 5);
+        pushMatrix();
+        translate(organisms[i][1], organisms[i][2]);
+        rotate(atan2(organisms[i][4], organisms[i][3]) - 180);
+        translate(-organisms[i][1], -organisms[i][2]);
+        triangle(organisms[i][1], organisms[i][2], organisms[i][1] + organisms[i][8] * organisms[i][5] / 5, organisms[i][2] - organisms[i][8] * organisms[i][5] / 10, organisms[i][1] + organisms[i][8] * organisms[i][5] / 5, organisms[i][2] + organisms[i][8] * organisms[i][5] / 10);
+        popMatrix();
+        organisms[i][1] += organisms[i][3] * organisms[i][8];
+        organisms[i][2] += organisms[i][4] * organisms[i][8];
+        organisms[i][3] *= 0.95;
+        organisms[i][4] *= 0.95;
+        move();
+        for (var j = 0; j < predators.length; j++) {
+            if (dist(organisms[i][1], organisms[i][2], predators[j][0], predators[j][1]) <= 50) {
+                if (round(random(1, organisms[i][11])) === 1 & checkifunderrock(i)) {
+                    organisms[i][3] = (organisms[i][1] - predators[j][0]) / dist(organisms[i][1], organisms[i][2], predators[j][0], predators[j][1]) * 2;
+                    organisms[i][4] = (organisms[i][2] - predators[j][1]) / dist(organisms[i][1], organisms[i][2], predators[j][0], predators[j][1]) * 2;
+                }
+            }
+        }
+        if (organisms[i][1] > 400) {
+            organisms[i][1] = 0;
+        }
+        if (organisms[i][2] > 400) {
+            organisms[i][2] = 0;
+        }
+        if (organisms[i][1] < 0) {
+            organisms[i][1] = 400;
+        }
+        if (organisms[i][2] < 0) {
+            organisms[i][2] = 400;
+        }
+        if (organisms[i][5] / organisms[i][6] < 5) {
+            organisms[i][5] += 0.01;
+        }
+        organisms[i][9] += organisms[i][5] / 250;
+        if (organisms[i][9] >= 50) {
+            organisms[i][3] = (findnearestplant(organisms[i][1], organisms[i][2])[0] - organisms[i][1]) / dist(organisms[i][1], organisms[i][2], findnearestplant(organisms[i][1], organisms[i][2])[0], findnearestplant(organisms[i][1], organisms[i][2])[1]) * organisms[i][9] / 25;
+            organisms[i][4] = (findnearestplant(organisms[i][1], organisms[i][2])[1] - organisms[i][2]) / dist(organisms[i][1], organisms[i][2], findnearestplant(organisms[i][1], organisms[i][2])[0], findnearestplant(organisms[i][1], organisms[i][2])[1]) * organisms[i][9] / 25;
+        }
+        for (var j = 0; j < plants.length; j++) {
+            if (dist(plants[j][0], plants[j][1], organisms[i][1], organisms[i][2]) <= 10 & organisms[i][9] > 5) {
+                organisms[i][9] -= 0.1 * organisms[i][5] / 10;
+                plants[j][2] -= 0.01 * organisms[i][5] / 10;
+            }
+        }
+        if (organisms[i][5] / organisms[i][6] >= 5 & organisms[i][9] < 50 & organisms[i][10] === 0) {
+            organisms[i][3] = (findnearestfish(organisms[i][1], organisms[i][2], organisms[i][7])[0] - organisms[i][1]) / dist(organisms[i][1], organisms[i][2], findnearestfish(organisms[i][1], organisms[i][2], organisms[i][7])[0], findnearestfish(organisms[i][1], organisms[i][2], organisms[i][7])[1]) * organisms[i][9] / 25;
+            organisms[i][4] = (findnearestfish(organisms[i][1], organisms[i][2], organisms[i][7])[1] - organisms[i][2], organisms[i][7]) / dist(organisms[i][1], organisms[i][2], findnearestfish(organisms[i][1], organisms[i][2], organisms[i][7])[0], findnearestfish(organisms[i][1], organisms[i][2], organisms[i][7])[1]) * organisms[i][9] / 25;
+        }
+        for (var j = 0; j < organisms.length; j++) {
+            if (i !== j) {
+                if (organisms[i][5] / organisms[i][6] >= 5 & organisms[j][5] / organisms[j][6] >= 5 & organisms[i][10] === 0 & organisms[j][10] === 0 & organisms[i][7] === 0 & organisms[j][7] === 1 & dist(organisms[i][1], organisms[i][2], organisms[j][1], organisms[j][2]) <= 12.5) {
+                    for (var k = 0; k < round(random(2, 5)); k++) {
+                        if (round(random(1, 10)) === 1) {
+                            organisms.push([
+                                [random(0, 255), random(0, 255), random(0, 255)], organisms[j][1], organisms[j][2], 0, 0, random(5, 12.5), random(5, 12.5), round(random(0, 1)), random(0.625, 1), 0, 0, round(random(1, 10)), round(random(1, 30))
+                            ]);
+                        } else {
+                            organisms.push([
+                                [(organisms[i][0][0] + organisms[j][0][0]) / 2, (organisms[i][0][1] + organisms[j][0][1]) / 2, (organisms[i][0][1] + organisms[j][0][1]) / 2], organisms[j][1], organisms[j][2], 0, 0, (organisms[i][6] + organisms[j][6]) / 2, (organisms[i][6] + organisms[j][6]) / 2, round(random(0, 1)), (organisms[i][8] + organisms[j][8]) / 2, 0, 0, (organisms[i][11] + organisms[j][11]) / 2, (organisms[i][12] + organisms[j][12]) / 2
+                            ]);
+                        }
+                    }
+                    organisms[i][10] = 1;
+                    organisms[j][10] = 1;
+                }
+            }
+        }
+        for (var j = 0; j < predators.length; j++) {
+            if (dist(predators[j][0], predators[j][1], organisms[i][1], organisms[i][2]) <= 10) {
+                if (checkifunderrock(i)) {
+                    organisms.splice(i, 1);
+                }
+                break;
+            }
+        }
+    }
+    for (var i = 0; i < plants.length; i++) {
+        fill(0, 80, 0, 60);
+        ellipse(plants[i][0], plants[i][1], plants[i][2] * 2, plants[i][2] * 2);
+        fill(60, 0, 0, 70);
+        ellipse(plants[i][0], plants[i][1], plants[i][2] / 3, plants[i][2] / 3);
+        if (plants[i][2] <= 0.1) {
+            plants.splice(i, 1);
+        }
+    }
+    for (var i = 0; i < rocks.length; i++) {
+        fill(60, 60, 60);
+        ellipse(rocks[i][0], rocks[i][1], rocks[i][2] / 2, rocks[i][2] / 2);
+    }
+    for (var i = 0; i < predators.length; i++) {
+        pushMatrix();
+        translate(predators[i][0], predators[i][1]);
+        rotate(atan2(predators[i][3], predators[i][2]) - 180);
+        translate(-predators[i][0], -predators[i][1]);
+        fill(127.5, 127.5, 127.5);
+        ellipse(predators[i][0], predators[i][1], 25, 12.5);
+        triangle(predators[i][0], predators[i][1], predators[i][0] + 20, predators[i][1] - 10, predators[i][0] + 20, predators[i][1] + 10);
+        fill(255, 0, 0);
+        ellipse(predators[i][0] - 5, predators[i][1], 5, 5);
+        popMatrix();
+        predators[i][0] += predators[i][2];
+        predators[i][1] += predators[i][3];
+        predators[i][2] *= 0.95;
+        predators[i][3] *= 0.95;
+        predators[i][2] = (findnearestfish(predators[i][0], predators[i][1], false)[0] - predators[i][0]) / dist(predators[i][0], predators[i][1], findnearestfish(predators[i][0], predators[i][1], false)[0], findnearestfish(predators[i][0], predators[i][1], false)[1]);
+        predators[i][3] = (findnearestfish(predators[i][0], predators[i][1], false)[1] - predators[i][1]) / dist(predators[i][0], predators[i][1], findnearestfish(predators[i][0], predators[i][1], false)[0], findnearestfish(predators[i][0], predators[i][1], false)[1]);
+        predators[i][0] = constrain(predators[i][0], 0, 400);
+        predators[i][1] = constrain(predators[i][1], 0, 400);
+    }
+    //_clearLogs();
+    //println("Organism count: "+organisms.length);
+    fill(127.5, 127.5, 127.5);
+    rect(0, 400, 400, 200);
+    /*
+    for(var i = 0; i < orgcount.length; i++) {
+        if(i > 0) {
+            stroke(255, 0, 0);
+            strokeWeight(1);
+            line(orgcount[i][0]/100, 600-orgcount[i][1], orgcount[i-1][0]/100, 600-orgcount[i-1][1]);
+            noStroke();
+        }
+    }
+    */
+    stroke(255, 255, 255);
+    strokeWeight(2.5);
+    fill(oceancolor[0], oceancolor[1], oceancolor[2]);
+    rect(0, 400, 100, 100);
+    fill(60, 60, 60);
+    textSize(12.5);
+    textAlign(LEFT, TOP);
+    text("Fig 1: The average fish", 2.5, 402.5, 95, 95);
+    text("Average Fish Stats: \nGender: " + round(averagefish[7] / organisms.length * 100) / 100 + ", where 0 is female, and 1 is male.\nPotential Size: " + round(averagefish[6] / organisms.length * 100 * 5) / 100 + "\nAverage size: " + round(averagefish[5] / organisms.length * 100) / 100 + "\nHUNGER: " + round(averagefish[9] / organisms.length * 100) / 100 + ", where 100 is where they die. Right click to spawn plants.\nTotal amount of fish: " + organisms.length + "\nTotal plants: " + plants.length + "\nAverage tail size: " + round(averagefish[8] / organisms.length * 100) / 100 + "\nCourage (How often they stand up to sharks, also known as stupidity.): " + (10 - round(averagefish[11] / organisms.length * 100) / 100) + "\nCowardice (Tendency to hide under rocks, also known as smarts): " + (30 - round(averagefish[12] / organisms.length * 100) / 100) + "\nMarried percentage: " + round(averagefish[10] * 100) / 100 + ", where 1 is all married.", 102.5, 402.5, 295, 2000);
+    noStroke();
+    findaveragefish();
+    fill(averagefish[0][0] / organisms.length, averagefish[0][1] / organisms.length, averagefish[0][2] / organisms.length);
+    ellipse(50, 450, averagefish[6] / organisms.length, averagefish[6] / organisms.length);
+    pushMatrix();
+    translate(50, 450);
+    rotate(atan2(averagefish[4] / organisms.length, averagefish[3] / organisms.length) - 180);
+    translate(-50, -450);
+    triangle(50, 450, 50 + averagefish[8] / organisms.length * averagefish[5] / organisms.length / 2.5, 450 - averagefish[8] / organisms.length * averagefish[5] / organisms.length / 5, 50 + averagefish[8] / organisms.length * averagefish[5] / organisms.length / 2.5, 450 + averagefish[8] / organisms.length * averagefish[5] / organisms.length / 5);
+    popMatrix();
+    fill(127.5, 127.5, 127.5);
+    noStroke();
+    rect(400, 0, 200, 600);
+    smooth();
+    stroke(0, 0, 0);
+    strokeWeight(2);
+    rect(400, 0, 200, 222.5);
+    stroke(0, 255, 0);
+    strokeWeight(200/afg.length);
+    afg.push(averagefish[11] / organisms.length * 10);
+    for (var i = 0; i < afg.length; i++) {
+        if (i > 0) {
+            line(400 + i / afg.length*200, 200 - (afg[i]), 400 + (i - 1) / afg.length * 200, 200 - (afg[i - 1]));
+        }
+    }
+    fill(60, 60, 60);
+    text("Fig 2: Average courage graph", 402.5, 202.5);
+};
+mouseClicked = function() {
+    if (mouseButton === LEFT) {
+        organisms.push([
+            [random(0, 255), random(0, 255), random(0, 255)], mouseX, mouseY, random(-5, 5), random(-5, 5), random(5, 12.5), random(5, 12.5), round(random(0, 1)), random(0.625, 1), 0, 0, round(random(1, 10)), round(random(1, 30))
+        ]);
+    }
+    if (mouseButton === RIGHT) {
+        for (var plantcount = 0; plantcount < random(15, 25); plantcount++) {
+            plants.push([mouseX + random(-10, 10), mouseY + random(-10, 10), random(2.5, 10)]);
+        }
+    }
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

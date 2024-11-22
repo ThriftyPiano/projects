@@ -1,0 +1,280 @@
+<html>
+    <head>
+        <title>Ocean</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+
+
+//For nearestplant
+var nearest = [-100000000000000, -10000000000000000];
+//Quality of the background
+var increment = 2;
+//Background variable
+var ocean;
+frameRate(0);
+//This first draws the background, then, I use "get()" to get it. This way, it doesn't cause lag.
+var loadbackground = function() {
+    for (var i = 0; i < 401; i += increment) {
+        for (var j = 0; j < 401; j += increment) {
+            var noisy = noise((i) * 0.01, (j) * 0.01) * 200 - 100;
+            strokeWeight(increment * 2);
+            var g = i + noisy;
+            stroke(0, 255 - 255 * g / 200 + random(-2.5, 2.5), 255 - g * 255 / 400 + random(-2.5, 2.5), 255);
+            point(j, i);
+        }
+    }
+    ocean = get();
+};
+loadbackground();
+//Self explanatory.
+var draw_ocean = function() {
+    background(0, 0, 0);
+    image(ocean, 0, 0, 400, 400);
+};
+//This is a function for drawing a light. It uses a for loop to draw coinciding ellipses with different transparecies of yellow.
+var draw_light = function(x, y, s) {
+    noStroke();
+    for(var i = s; i > 0; i--) {
+        fill(255, 255, 0, (s-i)/s*62.75);
+        ellipse(x, y, i, i);
+    }
+};
+//Lights array
+var light = [];
+//Creates all the lights at the beginning by pushing elements into an array through a for loop.
+for(var i = 0; i < 25; i++) {
+    light.push([random(0, 400), random(350, 400), random(10, 25)]);
+}
+//This draws the lights by iterating through a for loop.
+var draw_lights = function() {
+    for(var i = 0; i < light.length; i++) {
+        draw_light(light[i][0], light[i][1], light[i][2]);
+        //Random-walker movement (Inspired by KA's random walker)
+        light[i][0] += random(-1, 1);
+        light[i][1] += random(-1, 1);
+        //Constrains the lights within their "Dark zone"
+        light[i][0] = constrain(light[i][0], 0, 400);
+        light[i][1] = constrain(light[i][1], 350, 400);
+    }
+};
+//Fish array.
+var fish = [];
+//Spawns fish using a for loop. There are two batches. The small fish and the big fish.
+//In order: [x, y, Size, random variable (Joke), x-velocity, y-velocity, colors for r, color for g, color for b, hunger]
+for(var i = 0; i < random(50, 100); i++) {
+    fish.push([random(0, 400), random(0, 100), random(2, 5), random(-100000, 100000), 0, 0, random(0, 255), random(0, 255), random(0, 255), 25]);
+}
+for(var i = 0; i < random(50, 100); i++) {
+    fish.push([random(0, 400), random(150, 250), random(5, 10), random(-100000, 100000), 0, 0, random(0, 255), random(0, 255), random(0, 255), 25]);
+}
+//Draws a fish!
+var draw_fish = function(x, y, s) {
+    noStroke();
+    ellipse(x-s/2, y-s/2, s, s/4);
+    ellipse(x, y-s/2, s/2, s/2);
+};
+//Draws the fishies.
+var draw_fishies = function() {
+    for(var i = 0; i < fish.length; i++) {
+        fill(fish[i][6], fish[i][7], fish[i][8], 70);
+        pushMatrix();
+        //Rotates it according to its velocity and direction.
+        translate(fish[i][0], fish[i][1]);
+        rotate(atan2(fish[i][5], fish[i][4]));
+        translate(-fish[i][0], -fish[i][1]);
+        draw_fish(fish[i][0], fish[i][1], fish[i][2]);
+        popMatrix();
+        //Makes it become hungry.
+        fish[i][9] += 1;
+    }
+};
+//Draws a plant
+var draw_plant = function(x, y, s) {
+    fill(0, 50, 0, 50);
+    noStroke();
+    ellipse(x, y, s, s);
+};
+//Plants array!
+var plants = [];
+//This makes it spawn in clumps. 
+for(var i = 0; i < random(10, 25); i++) {
+    //Variable for where the next clump will be
+    var bob = [random(0, 400), random(100, 150)];
+    for(var j = 0; j < random(10, 25); j++) {
+        //Degree it is from the center of the clump.
+        //This way, it will spawn in a circle around the center with some variances (random(-5, 5)).
+        var billy = random(0, 360);
+        plants.push([bob[0]+cos(billy)*5+random(-5, 5), bob[1]+sin(billy)*5+random(-5, 5), random(5, 10)]);
+    }
+}
+//Draws the plants.
+var draw_plants = function() {
+    for(var i = 0; i < plants.length; i++) {
+        draw_plant(plants[i][0], plants[i][1], plants[i][2]);
+    }
+};
+//A findnearest plant function. It starts with a very far off place, but when it finds a closer place, it lables that place as closer.
+var findnearestplant = function(x, y) {
+    nearest = [-10000000000, -100000000];
+    for (var j = 0; j < plants.length; j++) {
+        if (dist(plants[j][0], plants[j][1], x, y) <= dist(nearest[0], nearest[1], x, y)) {
+            nearest = [plants[j][0], plants[j][1]];
+        }
+    }
+    return nearest;
+};
+var move_fish = function() {
+    for(var i = 0; i < fish.length; i++) {
+        //Moves then according to their increments/velocity
+        fish[i][0] += fish[i][4];
+        fish[i][1] += fish[i][5];
+        //Water drag so they slow down
+        fish[i][4] *= 0.99;
+        fish[i][5] *= 0.99;
+        //Finds the nearest plant.
+        var nearestplant = findnearestplant(fish[i][0], fish[i][1]);
+        //Random movement. A fish will randomly swim to a place if it isn't hungry.
+        if(round(random(0, 25)) === 1 & fish[i][9] < 50) {
+            fish[i][4] += random(-1, 1);
+            fish[i][5] += random(-1, 1);
+        }
+        //If it goes past its "Scary limit", then it will be scared and rush back.
+        if(fish[i][1] > fish[i][2]/5*400) {
+            fish[i][5] -= 1;
+        }
+        //Constrains the fish.
+        if(fish[i][0] > 400) {
+            fish[i][0] = 0;
+        }
+        if(fish[i][0] < 0) {
+            fish[i][0] = 400;
+        }
+        if(fish[i][1] < 0) {
+            fish[i][1] = 0;
+            fish[i][5] = abs(fish[i][5]);
+        }
+        if(fish[i][1] > 400) {
+            fish[i][1] = 400;
+            fish[i][5] = -abs(fish[i][5]);
+        }
+        //Makes them go towards plant if hungry.
+        if(fish[i][9] >= random(40, 60)) {
+            fish[i][4] += (nearestplant[0]-fish[i][0])/dist(nearestplant[0], nearestplant[1], fish[i][0], fish[i][1])/10;
+            fish[i][5] += (nearestplant[1]-fish[i][1])/dist(nearestplant[0], nearestplant[1], fish[i][0], fish[i][1])/10;
+        }
+        //Makes speed drag if too quick.
+        if(abs(sqrt(fish[i][4]^2+fish[i][5]^2)) > 10) {
+            fish[i][4] *= 0.9;
+            fish[i][5] *= 0.9;
+        }
+    }
+};
+//Makes the plants shrink when eaten and the fish hunger decrease.
+var eatplant = function() {
+    for(var i = 0; i < fish.length; i++) {
+        for(var j = 0; j < plants.length; j++) {
+            if(dist(fish[i][0], fish[i][1], plants[j][0], plants[j][1]) <= plants[j][2]/2+fish[i][2]/2) {
+                plants[j][2] -= 0.1;
+                //I made this so they swarm the plants. Make it 0.5 if desired.
+                fish[i][9] -= 0.1;
+            }
+        }
+    }
+    //If it is too small, splice it.
+    for(var j = 0; j < plants.length; j++) {
+        if(plants[j][2] < 2.5) {
+            plants.splice(j, 1);
+        }
+    }
+    //Spawns new plants if there aren't 1000 of them.
+    if(plants.length < 1000) {
+        var bob = [random(0, 400), random(100, 150)];
+        for(var j = 0; j < random(10, 25); j++) {
+            var billy = random(0, 360);
+            plants.push([bob[0]+cos(billy)*5+random(-5, 5), bob[1]+sin(billy)*5+random(-5, 5), random(5, 10)]);
+        }
+    }
+};
+//Waves function made using noise.
+var blur = function() {
+    strokeWeight(1);
+    for(var i = 0; i < 400; i++) {
+        //So it changes with the frameCount.
+        var noiseVal = noise((frameCount+i)*0.05, frameCount*0.05);
+        stroke(0, 0, 0, noiseVal*50);
+        line(i, 0, i, 400);
+    }
+};
+//Draw function.
+draw = function() {
+    draw_ocean();
+    draw_lights();
+    draw_fishies();
+    draw_plants();
+    move_fish();
+    eatplant();
+    blur();
+};
+enableContextMenu();
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

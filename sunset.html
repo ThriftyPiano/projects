@@ -1,0 +1,100 @@
+<html>
+    <head>
+        <title>Sunset</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+{
+    scale(width/400);
+    for(var x = 0; x < 400; x += 1) {
+        for(var y = 0; y < 400; y += 1) {
+            stroke(255-dist(x, y, 190, 355)*255/400, 255-dist(x, y, 190, 355)*2, dist(x, y, 190, 355)*255/500);
+            point(x, y);
+        }
+    }
+    stroke(255, 255, 255);
+    for(var i = 0; i < 25; i++) {
+        point(random(0, 400), random(0, 100));
+    }
+    noStroke();
+    fill(255, 255, 200);
+    ellipse(190, 355, 25, 25);
+    fill(0, 0, 0);
+    triangle(-50, 400, 25, 300, 75, 400);
+    triangle(25, 400, 65, 305, 125, 400);
+    triangle(40, 400, 130, 250, 195, 400);
+    triangle(180, 400, 210, 320, 254, 400);
+    triangle(220, 400, 245, 290, 290, 400);
+    triangle(250, 400, 295, 310, 340, 400);
+    triangle(320, 400, 375, 330, 440, 400);
+    fill(0, 0, 0, 0);
+    stroke(0, 0, 0);
+    strokeWeight(2.5);
+    arc(200, 180, 25, 25, -160, -30);
+    arc(175, 180, 25, 25, -150, -20);
+    arc(120, 240, 25, 25, -160, -30);
+    arc(95, 240, 25, 25, -150, -20);
+    arc(300, 270, 25, 25, -160, -30);
+    arc(275, 270, 25, 25, -150, -20);
+}
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>
