@@ -1,0 +1,374 @@
+<html>
+    <head>
+        <title>BLASTER</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+/////////////////        
+var money = 0;
+noStroke();
+// Draw tanks {
+var basic = function(x, y, s, r, t) {
+    if(t === "tank") {
+        noStroke();
+        fill(0, 0, 0);
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        rect(x, y-s/4, s, s/2, s/4);
+        fill(50, 50, 50);
+        rect(x+s/3, y-s/8, s/2, s/4, s/8);
+        popMatrix();
+        fill(0, 0, 0);
+        ellipse(x, y, s, s);
+        fill(50, 50, 50);
+        ellipse(x, y, s/2, s/2);
+    }
+    if(t === "bullet") {
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        fill(0, 0, 0);
+        ellipse(x, y, s, s);
+        fill(50, 50, 50);
+        ellipse(x, y, s/2, s/2);
+        popMatrix();
+    }
+};
+var machine = function(x, y, s, r, t) {
+    if(t === "tank") {
+        noStroke();
+        fill(50, 50, 50);
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        rect(x, y-s/4, s, s/2, s/4);
+        fill(255, 200, 0);
+        rect(x+s/3, y-s/32, s/2, s/8, s/8);
+        popMatrix();
+        fill(50, 50, 50);
+        ellipse(x, y, s, s);
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        fill(255, 215, 0);
+        rect(x-s/4, y-s/4, s/2, s/2, s/16);
+        popMatrix();
+    }
+    if(t === "bullet") {
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        fill(255, 215, 0);
+        rect(x, y-s/4, s, s/2);
+        popMatrix();
+    }
+};
+var sniper = function(x, y, s, r, t) {
+    if(t === "tank") {
+        noStroke();
+        fill(50, 50, 50);
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        rect(x, y-s/4, s*5/4, s/2, s/4);
+        fill(255, 10, 0);
+        rect(x+s/3, y-s/32, s*4/5, s/8, s/8);
+        popMatrix();
+        fill(0, 0, 0);
+        ellipse(x, y, s, s);
+        fill(255, 10, 0);
+        ellipse(x, y, s/4, s/4);
+    }
+    if(t === "bullet") {
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        fill(255, 10, 0);
+        rect(x, y-s/4, s, s/2);
+        popMatrix();
+    }
+};
+var electro = function(x, y, s, r, t) {
+    if(t === "tank") {
+        fill(0, 255, 255);
+        ellipse(x, y, s*3/4, s*3/4);
+        fill(0, 0, 0);
+        ellipse(x, y, s*2/3, s*2/3);
+        fill(0, sin(frameCount%100*180/100)*255, 255);
+        ellipse(x, y, s/4, s/4);
+    }
+    if(t === "bullet") {
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        fill(0, sin(frameCount%100*180/100)*255, 255);
+        rect(x, y-s/4, s/2, s/8);
+        popMatrix();
+    }
+};
+var sprayer = function(x, y, s, r, t) {
+    if(t === "tank") {
+        pushMatrix();
+        fill(255, sin(frameCount%100*180/100)*127.5, 0);
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        arc(x, y, s*2, s*2, -15, 15);
+        popMatrix();
+        fill(255, sin(frameCount%100*180/100)*127.5, 0);
+        ellipse(x, y, s, s);
+        fill(255, 127.5, 0);
+        ellipse(x, y, s/2, s/2);
+    }
+    if(t === "bullet") {
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        fill(255, sin(frameCount%100*180/100)*127.5, 0);
+        ellipse(x, y, s/2, s/2);
+        popMatrix();
+    }
+};
+var cannon = function(x, y, s, r, t) {
+    if(t === "tank") {
+        pushMatrix();
+        fill(0, 0, 0);
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        rect(x, y-s*3/8, s*3/2, s*3/4, s/4);
+        popMatrix();
+        fill(0, 0, 0);
+        ellipse(x, y, s*3/2, s*3/2);
+        fill(50, 50, 50);
+        ellipse(x, y, s*3/4, s*3/4);
+    }
+    if(t === "bullet") {
+        pushMatrix();
+        translate(x, y);
+        rotate(r);
+        translate(-x, -y);
+        fill(0, 0, 0);
+        ellipse(x, y, s*2, s*2);
+        fill(50, 50, 50);
+        ellipse(x, y, s, s);
+        popMatrix();
+    }
+};
+//}
+// Draw enemies {
+    var normy = function(x, y, s, h, m) {
+        fill(0, 0, 0);
+        ellipse(x, y, s, s);
+        fill(255, 0, 0);
+        ellipse(x+s/4, y+s/4, s/8, s/8);
+        ellipse(x-s/4, y+s/4, s/8, s/8);
+        fill(0, 0, 0);
+        rect(x-s/2, y+s, s, 2.5, 1);
+        fill(0, 255, 0);
+        rect(x-s/2, y+s, s*h/m, 2.5, 1);
+    };
+    var chungus = function(x, y, s, h, m) {
+        fill(0, 0, 0);
+        ellipse(x, y, s*2, s*2);
+        fill(255, 0, 0);
+        ellipse(x+s/2, y+s/2, s/4, s/4);
+        ellipse(x-s/2, y+s/2, s/4, s/4);
+        fill(0, 0, 0);
+        rect(x-s, y+s*2, s*2, 2.5, 1);
+        fill(0, 255, 0);
+        rect(x-s, y+s*2, s*2*h/m, 2.5, 1);
+    };
+    var spood = function(x, y, s, h, m) {
+        fill(0, 0, 0);
+        ellipse(x, y, s/2, s/2);
+        fill(255, 0, 0);
+        ellipse(x+s/8, y+s/8, s/16, s/16);
+        ellipse(x-s/8, y+s/8, s/16, s/16);
+        fill(0, 0, 0);
+        rect(x-s/4, y+s/2, s/2, 2.5, 1);
+        fill(0, 255, 0);
+        rect(x-s/4, y+s/2, s/2*h/m, 2.5, 1);
+    };
+    var boos = function(x, y, s, h, m) {
+        fill(0, 0, 0);
+        ellipse(x, y, s*2, s*2);
+        fill(255, sin(frameCount%100*180/100)*127.5, 0);
+        ellipse(x+s/2, y+s/2, s/2, s/2);
+        ellipse(x-s/2, y+s/2, s/2, s/2);
+        fill(0, 0, 0);
+        rect(x-s, y+s*2, s*2, 2.5, 1);
+        fill(0, 255, 0);
+        rect(x-s, y+s*2, s*2*h/m, 2.5, 1);
+    };
+//}
+frameRate(60);
+//In order: type, damage, reload, bullet speed, range, spread, cost
+var tower = [[basic, 20, 20, 5, 80, 10, 50], [machine, 7.5, 5, 4, 100, 20, 75], [sniper, 100, 50, 10, 200, 1, 100], [electro, 10, 1, 2, 50, 360, 100], [sprayer, 3, 1, 3, 125, 25, 150], [cannon, 75, 20, 4, 150, 20, 250]];
+var towers = [];
+var bullets = [];
+//In order: type, health, speed, spawn
+var enemy = [[normy, 100, 1, 50], [chungus, 500, 0.25, 250], [spood, 50, 2.5, 100], [boos, 10000, 0.5, 1000]];
+var enemies = [];
+// Nearest enemy {
+var nearestenemy = function(x, y) {
+    var nearest = [-1000, -1000];
+    for(var i = 0; i < enemies.length; i++) {
+        if(dist(nearest[0], nearest[1], x, y) >= dist(x, y, enemies[i][2], enemies[i][3])) {
+            nearest = [enemies[i][2], enemies[i][3]];
+        }
+    }
+    return nearest;
+};
+//}
+var selected = 0;
+var moolah = 1000;
+var hp = 100;
+smooth();
+draw = function() {
+    background(255, 255, 255);
+    for(var i = 0; i < towers.length; i++) {
+        fill(0, 0, 255, 10);
+        stroke(0, 0, 0);
+        strokeWeight(2);
+        ellipse(towers[i][1], towers[i][2], towers[i][0][4]*2, towers[i][0][4]*2);
+    }
+    noStroke();
+    for(var i = 0; i < bullets.length; i++) {
+        bullets[i][0][0](bullets[i][1], bullets[i][2], 10, atan2(bullets[i][4], bullets[i][3]), "bullet");
+        bullets[i][1] += bullets[i][3]*bullets[i][0][3];
+        bullets[i][2] += bullets[i][4]*bullets[i][0][3];
+        if(dist(bullets[i][1], bullets[i][2], bullets[i][5], bullets[i][6]) >= bullets[i][7]) {
+            bullets.splice(i, 1);
+        }
+    }
+    for(var i = 0; i < towers.length; i++) {
+        towers[i][4] = nearestenemy(towers[i][1], towers[i][2]);
+        towers[i][3] = atan2(towers[i][4][1]-towers[i][2], towers[i][4][0]-towers[i][1]);
+        towers[i][0][0](towers[i][1], towers[i][2], 25, towers[i][3], "tank");
+        if(frameCount%towers[i][0][2] === 0 & dist(towers[i][4][0], towers[i][4][1], towers[i][1], towers[i][2]) <= towers[i][0][4]) {
+            var g = random(-towers[i][0][5]/2, towers[i][0][5]/2);
+            bullets.push([towers[i][0], towers[i][1], towers[i][2], cos(towers[i][3]+g), sin(towers[i][3]+g), towers[i][1], towers[i][2], towers[i][0][4]]);
+        }
+    }
+    for(var i = 0; i < enemy.length; i++) {
+        if(round(random(0, enemy[i][3])) === 1) {
+            enemies.push([enemy[i][0], enemy[i][1], round(random(0, 350)/50)*50+25, -600, enemy[i][2], enemy[i][1]]);
+        }
+    }
+    for(var i = 0; i < enemies.length; i++) {
+        enemies[i][0](enemies[i][2], enemies[i][3], 25, enemies[i][1], enemies[i][5]);
+        enemies[i][3] += enemies[i][4];
+        for(var j = 0; j < bullets.length; j++) {
+            if(dist(enemies[i][2], enemies[i][3], bullets[j][1], bullets[j][2]) <= 12.5) {
+                enemies[i][1] -= bullets[j][0][1];
+                bullets.splice(j, 1);
+            }
+        }
+        if(enemies[i][1] <= 0) {
+            moolah += enemies[i][5]/10;
+            enemies.splice(i, 1);
+        }
+    }
+    for(var i = 0; i < enemies.length; i++) {
+        if(enemies[i][3] >= 350) {
+            enemies.splice(i, 1);
+            hp--;
+        }
+    }
+    fill(255, 215, 0);
+    textAlign(LEFT, TOP);
+    textSize(25);
+    text("$"+moolah, 2.5, 2.5);
+    fill(0, 255, 0);
+    text("+: "+hp, 2.5, 27.5);
+    fill(100, 100, 100);
+    rect(0, 350, 400, 50);
+    for(var i = 0; i < tower.length; i++) {
+        tower[i][0](i*50+25, 375, 25, atan2(mouseY-375, mouseX-i*50-25), "tank");
+        if(selected === i) {
+            fill(0, 0, 0, 0);
+            stroke(0, 255, 0);
+            if(tower[i][6] > moolah) {
+                stroke(255, 0, 0);
+            }
+            strokeWeight(5);
+            rect(i*50, 350, 50, 50);
+            noStroke();
+        }
+    }
+    for(var i = 0; i < tower.length; i++) {
+        if(mouseX > i*50 & mouseY > 350 & mouseX < i*50+50) {
+            textAlign(LEFT, BOTTOM);
+            textSize(20);
+            fill(255, 0, 255);
+            text("$"+tower[i][6], mouseX, mouseY);
+        }
+    }
+};
+mouseClicked = function() {
+    if(mouseButton === LEFT) {
+        if(mouseY < 350 & moolah >= tower[selected][6]) {
+            towers.push([tower[selected], round(mouseX/50)*50, round(mouseY/50)*50, 0, [0, 0]]);
+            moolah -= tower[selected][6];
+        }
+        for(var i = 0; i < tower.length; i++) {
+            if(mouseX > i*50 & mouseY > 350 & mouseX < i*50+50) {
+                selected = i;
+            }
+        }
+    }
+    if(mouseButton === RIGHT) {
+        for(var i = 0; i < towers.length; i++) {
+            if(dist(mouseX, mouseY, towers[i][1], towers[i][2]) <= 12.5) {
+                towers.splice(i, 1);
+            }
+        }
+    }
+};        
+/////////////////
+    }
+});
+        </script>
+    </body>
+</html>
