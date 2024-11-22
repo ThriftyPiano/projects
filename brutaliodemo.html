@@ -1,0 +1,274 @@
+<html>
+    <head>
+        <title>Brutal.io Demo</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(600, 600);
+        angleMode = "degrees";
+/////////////////        
+/*
+the code is so messy even i cant understand it
+it could be 1000 times more neater but honestly, who cares?
+*/
+smooth();
+var string = [
+    [mouseX, mouseY, 0, 0, 10]
+];
+var stf = 0.4;
+var bs = 10;
+rectMode(CENTER);
+var connect = false;
+var tap = false;
+var tim = 0;
+var ball = [0, 0, 0, 0];
+var dots = [];
+colorMode(HSB);
+var ray = random(0, 255);
+var capacity = 0;
+draw = function() {
+    background(0, 0, 0);
+    strokeWeight(1);
+    stroke(ray, 255, 255);
+    //player stuff {
+    while (string.length < 5) {
+        string.push([mouseX, mouseY, 0, 0, 10]);
+    }
+    for (var i = 1; i < string.length; i++) {
+        line(string[i][0], string[i][1], string[i - 1][0], string[i - 1][1]);
+    }
+    pushMatrix();
+    var r = atan2(string[0][1] - ball[1], string[0][0] - ball[0]) + 180;
+    if (connect) {
+        translate(ball[0], ball[1]);
+        rotate(r);
+        translate(-ball[0], -ball[1]);
+    }
+    fill(ray, 255, 255);
+    var dif = 360 / pow(bs, 0.75);
+    for (var r = 0; r < 360; r += dif) {
+        triangle(ball[0] + cos(r) * (bs * 3 / 4 + sqrt(bs)), ball[1] + sin(r) * (bs * 3 / 4 + sqrt(bs)), ball[0] + cos(r - dif / 2) * bs * 3 / 4, ball[1] + sin(r - dif / 2) * bs * 3 / 4, ball[0] + cos(r + dif / 2) * bs * 3 / 4, ball[1] + sin(r + dif / 2) * bs * 3 / 4);
+    }
+    fill(ray, 225, 225);
+    noStroke();
+    ellipse(ball[0], ball[1], bs * 3 / 2, bs * 3 / 2);
+    popMatrix();
+    if (!connect) {
+        noFill();
+        stroke(ray, 255, 255, 100);
+        strokeWeight(1);
+        rect(ball[0], ball[1], bs * 2, bs * 2);
+    }
+    pushMatrix();
+    translate(string[0][0], string[0][1]);
+    rotate(atan2(string[0][1] - mouseY, string[0][0] - mouseX) + 180);
+    translate(-string[0][0], -string[0][1]);
+    fill(ray, 0, 255);
+    stroke(ray, 255, 255, 150);
+    strokeWeight(5);
+    rect(string[0][0] + 12.5, string[0][1], 25, 10, 5);
+    fill(ray, 225, 225);
+    noStroke();
+    rect(string[0][0] + 12.5, string[0][1], 10, 5, 2);
+    popMatrix();
+    for (var i = 1; i < string.length; i++) {
+        var r = atan2(string[i - 1][1] - string[i][1], string[i - 1][0] - string[i][0]);
+        var d = constrain(dist(string[i][0], string[i][1], string[i - 1][0], string[i - 1][1]) - string[i][4], -32, 32);
+        string[i][2] += cos(r) * d * stf;
+        string[i][3] += sin(r) * d * stf;
+        string[i - 1][2] -= cos(r) * d * stf;
+        string[i - 1][3] -= sin(r) * d * stf;
+
+    }
+    for (var i = 1; i < string.length; i++) {
+        string[i][0] += string[i][2];
+        string[i][1] += string[i][3];
+        string[i][2] *= 0.95;
+        string[i][3] *= 0.95;
+    }
+    var r = atan2(mouseY - string[0][1], mouseX - string[0][0]);
+    var d = dist(mouseX, mouseY, string[0][0], string[0][1]);
+    string[0][0] += cos(r) * d / 25;
+    string[0][1] += sin(r) * d / 25;
+    if (mouseIsPressed & !connect) {
+        var r = atan2(string[string.length - 1][1] - ball[1], string[string.length - 1][0] - ball[0]);
+        ball[2] += cos(r) / 4;
+        ball[3] += sin(r) / 4;
+        fill(ray, 255, 255);
+        ellipse(string[string.length - 1][0], string[string.length - 1][1], 10, 10);
+        noFill();
+        stroke(ray, 255, 255, 150);
+        ellipse(string[string.length - 1][0], string[string.length - 1][1], 15, 15);
+        ellipse(string[string.length - 1][0], string[string.length - 1][1], 20, 20);
+    }
+    if (!connect & dist(ball[0], ball[1], string[string.length - 1][0], string[string.length - 1][1]) <= bs * 3 / 2 & mouseIsPressed & tim <= 0) {
+        connect = true;
+        tap = true;
+    }
+    tim--;
+    ball[0] += ball[2];
+    ball[1] += ball[3];
+    ball[2] *= 0.99;
+    ball[3] *= 0.99;
+    if (connect) {
+        var r = atan2(string[string.length - 1][1] - ball[1], string[string.length - 1][0] - ball[0]) + 180;
+        ball[0] = string[string.length - 1][0] + cos(r) * bs * 3 / 4;
+        ball[1] = string[string.length - 1][1] + sin(r) * bs * 3 / 4;
+    }
+    if (dist(string[0][0], string[0][1], ball[0], ball[1]) <= bs * 3 / 4 + 25) {
+        var r = atan2(string[0][1] - ball[1], string[0][0] - ball[0]) + 180;
+        if (connect) {
+            string[string.length - 1][2] += cos(r) * 2;
+            string[string.length - 1][3] += sin(r) * 2;
+            while (dist(string[0][0], string[0][1], ball[0], ball[1]) <= bs * 3 / 4 + 25) {
+                ball[0] += cos(r);
+                ball[1] += sin(r);
+                string[0][0] -= cos(r);
+                string[0][0] -= sin(r);
+            }
+        } else {
+            while (dist(string[0][0], string[0][1], ball[0], ball[1]) <= bs * 3 / 4 + 25) {
+                ball[0] += cos(r);
+                ball[1] += sin(r);
+                string[0][0] -= cos(r);
+                string[0][0] -= sin(r);
+            }
+            ball[2] += cos(r) / 4;
+            ball[3] += sin(r) / 4;
+        }
+    }
+    if (ball[0] <= bs * 3 / 4) {
+        ball[0] = bs * 3 / 4;
+    }
+    if (ball[1] <= bs * 3 / 4) {
+        ball[1] = bs * 3 / 4;
+    }
+    if (ball[0] >= 600 - bs * 3 / 4) {
+        ball[0] = 600 - bs * 3 / 4;
+    }
+    if (ball[1] >= 600 - bs * 3 / 4) {
+        ball[1] = 600 - bs * 3 / 4;
+    }
+    //}
+    //dots stuff {
+    if (round(random(0, 10)) === 0) {
+        dots.push([random(0, 600), random(0, 600), color(random(0, 255), 255, 255), 0]);
+    }
+    for (var i = 0; i < dots.length; i++) {
+        pushMatrix();
+        stroke(dots[i][2]);
+        strokeWeight(2);
+        fill(dots[i][2], 150);
+        translate(dots[i][0], dots[i][1]);
+        rotate(dots[i][3]);
+        translate(-dots[i][0], -dots[i][1]);
+        ellipse(dots[i][0], dots[i][1], 5 + sin(dots[i][3]) * 2 * 100 / dist(dots[i][0], dots[i][1], ball[0], ball[1]), 5 + cos(dots[i][3]) * 2 * 100 / dist(dots[i][0], dots[i][1], ball[0], ball[1]));
+        popMatrix();
+        dots[i][3] += 5;
+    }
+    for (var i = 0; i < dots.length; i++) {
+        if (dist(ball[0], ball[1], dots[i][0], dots[i][1]) <= bs * 3 / 4 + 5) {
+            dots.splice(i, 1);
+            bs += 10 / bs;
+        } else if (connect & dist(string[0][0], string[0][1], dots[i][0], dots[i][1]) <= 25) {
+            dots.splice(i, 1);
+            bs += 10 / bs;
+        } else if (!connect & dist(string[0][0], string[0][1], dots[i][0], dots[i][1]) <= 25) {
+            dots.splice(i, 1);
+            capacity++;
+        }
+    }
+    //}
+    //capacity {
+    if (capacity > 0) {
+        capacity = constrain(capacity, 0, 100);
+        noFill();
+        stroke(127.5, 255, 255);
+        strokeWeight(2);
+        rect(300, 550, 300, 10, 10);
+        textSize(15);
+        textAlign(CENTER, CENTER);
+        fill(127.5, 255, 255);
+        text("CAPACITY", 300, 530);
+        fill(127.5, 255, 255);
+        rect(300 - 150 + capacity / 100 * 300 / 2, 550, capacity / 100 * 300, 6, 10);
+    }
+    if (connect) {
+        if (capacity > 0) {
+            for (var i = 0; i < 2; i++) {
+                capacity -= 1;
+                bs += 10 / bs;
+            }
+        }
+    }
+    //}
+    //background(255, 255, 255);
+};
+mouseReleased = function() {
+    if (connect & !tap) {
+        connect = false;
+        var r = atan2(string[string.length - 1][1] - ball[1], string[string.length - 1][0] - ball[0]);
+        ball[2] -= cos(r);
+        ball[3] -= sin(r);
+        tim = 5;
+    }
+    tap = false;
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

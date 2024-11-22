@@ -1,0 +1,142 @@
+<html>
+    <head>
+        <title>Squiggly Arms</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//https://bilimneguzellan.net/en/purrier-series-meow-and-making-images-speak/
+//Integral of sin(x) = −cos(x)
+//Integral of cos(x) = sin(x)
+//r, d, s
+var computer_goodness = 25;
+//Saw, tringle, or square
+var type = "square";
+
+var g = computer_goodness;
+var beg = [50, 200];
+var pi = 3.1415926535;
+var joints = [];
+if(type === "square") {
+    for(var i = 1; i < g; i += 2) {
+        joints.push([0, 4/(i*pi)*50, i*pi]);
+    }
+}
+if(type === "saw") {
+    for(var i = 1; i < g/2; i ++) {
+        joints.push([0, 4/(i*pi)*50, i*pi]);
+    }
+}
+if(type === "tringle") {
+    for(var i = 1; i < g; i += 2) {
+        joints.push([0, pow(-1, (i-1)/2)/(i*i)*50, i*pi]);
+    }
+}
+var points = [];
+var f = function(x) {
+    return x+1;
+};
+var next = function() {
+    for(var i = 0; i < joints.length; i++) {
+        joints[i][0] += joints[i][2];
+    }
+};
+var getcoord = function(i) {
+    if(i === -1) {
+        return beg;
+    }
+    if(i === 0) {
+        return [beg[0]+cos(joints[i][0])*joints[i][1], beg[1]+sin(joints[i][0])*joints[i][1]];
+    }
+    else {
+        return [getcoord(i-1)[0]+cos(joints[i][0])*joints[i][1], getcoord(i-1)[1]+sin(joints[i][0])*joints[i][1]];
+    }
+};
+var display = function() {
+    noFill();
+    for(var i = 0; i < joints.length; i++) {
+        ellipse(getcoord(i-1)[0], getcoord(i-1)[1], joints[i][1]*2, joints[i][1]*2);
+        line(getcoord(i-1)[0], getcoord(i-1)[1], getcoord(i)[0], getcoord(i)[1]);
+    }
+    stroke(255, 0, 0);
+    line(beg[0]+200, getcoord(joints.length-1)[1], getcoord(joints.length-1)[0], getcoord(joints.length-1)[1]);
+    stroke(0, 0, 0);
+    if(frameCount%1 === 0) {
+        points.push([beg[0]+200, getcoord(joints.length-1)[1]]);
+    }
+    for(var i = 1; i < points.length; i++) {
+        line(points[i][0], points[i][1], points[i-1][0], points[i-1][1]);
+    }
+    for(var i = points.length-1; i >= 0; i--) {
+        points[i][0]++;
+        if(points[i][0] > 400) {
+            points.splice(i, 1);
+        }
+    }
+};
+draw = function() {
+    background(255, 255, 255);
+    next();
+    display();
+};
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

@@ -1,0 +1,137 @@
+<html>
+    <head>
+        <title>3D Sphere</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//smh accidentally made in 69 lines of code again.
+var rotX = function(r, c) {
+        var x = c[0],
+            y = c[1],
+            z = c[2];
+        return [x, cos(r) * y - sin(r) * z, cos(r) * z + sin(r) * y, c[3]];
+    },
+    rotY = function(r, c) {
+        var x = c[0],
+            y = c[1],
+            z = c[2];
+        return [cos(r) * x + sin(r) * z, y, cos(r) * z - sin(r) * x, c[3]];
+    },
+    rotZ = function(r, c) {
+        var x = c[0],
+            y = c[1],
+            z = c[2];
+        return [cos(r) * x - sin(r) * y, cos(r) * y + sin(r) * x, z, c[3]];
+    },
+    conv = function(r, c) {
+        c = rotX(r[0], c);
+        c = rotY(r[1], c);
+        c = rotZ(r[2], c);
+        return c;
+    },
+    amt = [0, 0, 0];
+colorMode(HSB);
+var points = [];
+for(var i = 0; i < 360; i += 8) {
+    points.push([]);
+    for(var j = 0; j < 360; j += 8) {
+        //noise(i/180, j/180)*300
+        points[points.length-1].push([cos(i)*cos(j)*(1-1+1)*100, sin(i)*cos(j)*(1-1+1)*100, sin(j)*(1-1+1)*100, color(constrain(j*255/360, 0, 255), 255, 255)]);
+    }
+}
+draw = function() {
+    background(0, 0, 0);
+    colorMode(HSB);
+    for (var i = 0; i < points.length; i++) {
+        for(var j = 0; j < points[i].length; j++) {
+            var dp = conv(amt, points[i][j]);
+            var dp2 = conv(amt, points[(i+1)%points.length][j]);
+            var dp3 = conv(amt, points[i][(j+1)%points[i].length]);
+            var dp4 = conv(amt, points[(i+1)%points.length][(j+1)%points[i].length]);
+            var k = 400 / (dp[2] + 400);
+            var k2 = 400 / (dp2[2] + 400);
+            var k3 = 400 / (dp3[2] + 400);
+            var k4 = 400 / (dp4[2] + 400);
+            noFill();
+            noStroke();
+            if((k+k2+k3+k4) >= 4.2) {
+                fill(points[i][j][3]);
+                stroke(0, 0, 0);
+                strokeWeight((k+k2+k3+k4)/10);
+            }
+            quad(200 + dp[0]*k, 200 + dp[1]*k, 200 + dp2[0]*k2, 200 + dp2[1]*k2, 200 + dp4[0]*k4, 200 + dp4[1]*k4, 200 + dp3[0]*k3, 200 + dp3[1]*k3);
+            noFill();
+            noStroke();
+            if((k+k2+k3+k4) >= 4.2) {
+                fill(0, 0, 0, constrain(((dp[0]+dp2[0]+dp3[0]+dp4[0])+400)/800, 0, 1)*255);
+            }
+            quad(200 + dp[0]*k, 200 + dp[1]*k, 200 + dp2[0]*k2, 200 + dp2[1]*k2, 200 + dp4[0]*k4, 200 + dp4[1]*k4, 200 + dp3[0]*k3, 200 + dp3[1]*k3);
+        }
+    }
+    colorMode(RGB);
+};
+mouseDragged = function() {
+    amt[1] -= (mouseX - pmouseX) * 180 / 400;
+    amt[0] += (mouseY - pmouseY) * 180 / 400;
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

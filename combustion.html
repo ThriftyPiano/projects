@@ -1,0 +1,124 @@
+<html>
+    <head>
+        <title>Combustion</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//Click to set it on fire!
+//Terms of service:
+var fire = [];
+var places = [];
+var s = [];
+smooth();
+strokeCap(PROJECT);
+var tree = [
+172,184,11.478292236570269,177,335,179,181,10.407571501564234,189,333,192,175,13.002960979938507,199,328,204,179,10.537555372575298,210,328,208,186,12.193004011642188,217,324,165,374,13.06751231662929,172,332,162,383,12.696906774071977,170,388,186,329,11.148420769022778,184,384,185,378,10.850899768993258,192,386,195,332,14.984992840327322,189,375,206,330,14.839254163671285,218,365,229,353,14.995591369224712,241,374,221,325,14.14020724943839,229,352,225,329,10.660578628303483,272,353,165,330,12.318625506013632,139,359,161,337,10.697805475210771,144,371,238,351,12.700335183180869,262,359,187,184,11.734673276077956,189,271,164,180,13.658247728599235,139,143,211,178,11.65393861476332,232,149,180,171,10.09818354039453,164,133,176,174,13.11001208028756,160,131,189,173,12.539699379121885,207,111,199,172,10.920012483838946,213,114,214,169,11.152679643128067,259,141,218,175,12.797115148277953,264,136,247,149,11.219497508136556,283,176,237,169,14.62351922178641,247,194,264,168,11.466800131602213,265,196,239,180,11.929507162421942,233,203,225,192,11.547180470079184,224,191,267,184,13.228267930680886,275,194,267,158,10.148974178591743,287,148,282,154,12.458306691842154,289,158,240,143,14.764607076067477,276,83,262,117,12.29017302626744,289,102,243,102,10.96231069532223,247,80,242,119,11.395464378874749,241,100,151,173,11.478292236570269,76,109,115,154,10.407571501564234,72,151,94,161,13.002960979938507,77,176,99,145,10.537555372575298,78,132,87,171,12.193004011642188,88,187,184,171,13.06751231662929,146,73,174,129,12.696906774071977,193,63,151,117,11.148420769022778,123,102,141,114,10.850899768993258,117,116,186,96,14.984992840327322,209,64,155,97,14.839254163671285,170,55,211,135,14.995591369224712,241,42,243,70,14.14020724943839,262,45,219,88,10.660578628303483,212,36,139,84,12.318625506013632,114,71,123,74,10.697805475210771,81,78,127,68,12.700335183180869,131,50,138,101,11.734673276077956,133,77,261,137,13.658247728599235,319,107,298,124,11.65393861476332,312,124,287,115,10.09818354039453,312,80,265,86,13.11001208028756,272,76,295,60,12.539699379121885,267,84,278,65,10.920012483838946,271,52,282,72,11.152679643128067,312,63,164,217,12.797115148277953,120,175,136,199,11.219497508136556,96,205,111,211,14.62351922178641,107,214,128,206,11.466800131602213,124,244,112,233,11.929507162421942,97,250,129,220,11.547180470079184,137,246,112,227,13.228267930680886,124,214,9,395,11.478292236570269
+];
+draw = function() {
+    background(0);
+    for(var i = 0; i < places.length; i++) {
+        for(var we = 0; we < 5; we++) {
+            var ew = random(10, 30);
+            var r = random(-90+-ew, -90+ew);
+            var t = random(1, 3);
+            fire.push([places[i][0], places[i][1], cos(r)*t, sin(r)*t, random(0, places[i][2]), random(200, 255), 100]);
+        }
+        places[i][2] -= 0.1;
+        s.push([places[i][0]+random(-5, 5), places[i][1]+random(-5, 5), (places[i][3]-places[i][2])/2]);
+        if(places[i][2] <= 0) {
+            places.splice(i, 1);
+        }
+    }
+    for(var i = 0; i < tree.length; i += 5) {
+        var k = (tree[i]+tree[i+3])/2;
+        stroke(lerpColor(color(0, 0, 0), color(118, 92, 72), constrain((400-abs(k-mouseX))/400, 0, 1)));
+        strokeWeight(tree[i+2]);
+        line(tree[i+0], tree[i+1], tree[i+3], tree[i+4]);
+    }
+    noStroke();
+    fill(0, 0, 0, 255/50);
+    for(var i = 0; i < s.length; i++) {
+        ellipse(s[i][0], s[i][1], s[i][2], s[i][2]);
+    }
+    noStroke();
+    for(var i = 0; i < fire.length; i++) {
+        fill(255, fire[i][5], 0, (fire[i][6]*random(10, 20)/100));
+        ellipse(fire[i][0], fire[i][1], fire[i][4], fire[i][4]);
+        fire[i][0] += fire[i][2];
+        fire[i][1] += fire[i][3];
+        fire[i][2] += (fire[i][0]-mouseX)/dist(fire[i][0], fire[i][1], mouseX, mouseY)/10;
+        fire[i][3] += (fire[i][1]-mouseY)/dist(fire[i][0], fire[i][1], mouseX, mouseY)/10;
+        fire[i][5] -= 5;
+        fire[i][6]--;
+        fire[i][4] -= 0.05;
+        if(fire[i][6] <= 0) {
+            fire.splice(i, 1);
+        }
+    }
+    //filter(BLUR, 1.5);
+};
+mouseClicked = function() {
+    var g = random(20, 30);
+    places.push([mouseX, mouseY, g, g]);
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

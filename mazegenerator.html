@@ -1,0 +1,199 @@
+<html>
+    <head>
+        <title>Maze Generator</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//Be patient.
+var blockSize = 5;
+var maze = [];
+for (var i = 0; i < 401; i += blockSize) {
+    maze.push([]);
+}
+for (var i = 0; i < maze.length; i++) {
+    for (var j = 0; j < 401; j += blockSize) {
+        maze[i].push([1, 1, false, false]);
+    }
+}
+var block = [round(200 / blockSize), round(200 / blockSize)];
+maze[block[0]][block[1]][2] = true;
+frameRate(Infinity);
+smooth();
+strokeCap(SQUARE);
+var nextBlock = function(bx, by) {
+    var r = round(random(0, 360) / 90) * 90;
+    for (var i = 0; i < 4; i++) {
+        if (maze[block[0] + round(cos(r))][block[1] + round(sin(r))][2] === false) {
+            maze[block[0] + round(cos(r))][block[1] + round(sin(r))][2] = true;
+            if (round(cos(r)) === 1 & round(sin(r)) === 0) {
+                maze[block[0] + round(cos(r))][block[1] + round(sin(r))][1] = 0;
+            }
+            if (round(cos(r)) === -1 & round(sin(r)) === 0) {
+                maze[block[0]][block[1]][1] = 0;
+            }
+            if (round(cos(r)) === 0 & round(sin(r)) === 1) {
+                maze[block[0] + round(cos(r))][block[1] + round(sin(r))][0] = 0;
+            }
+            if (round(cos(r)) === 0 & round(sin(r)) === -1) {
+                maze[block[0]][block[1]][0] = 0;
+            }
+            block[0] += round(cos(r));
+            block[1] += round(sin(r));
+            if (block[0] >= round(400 / blockSize) - 1) {
+                block[0] = 1;
+            }
+            if (block[1] >= round(400 / blockSize) - 1) {
+                block[1] = 1;
+            }
+            if (block[0] <= 0) {
+                block[0] = round(400 / blockSize) - 2;
+            }
+            if (block[1] <= 0) {
+                block[1] = round(400 / blockSize) - 2;
+            }
+            return;
+        }
+        r += 90;
+    }
+    maze[block[0] + round(cos(r))][block[1] + round(sin(r))][2] = true;
+    block[0] = round(random(0, 400) / blockSize);
+    block[1] = round(random(0, 400) / blockSize);
+    while (maze[block[0]][block[1]][2] === true) {
+        block[0] = round(random(0, 400) / blockSize);
+        block[1] = round(random(0, 400) / blockSize);
+    }
+    if (block[0] >= round(400 / blockSize) - 1) {
+        block[0] = 1;
+    }
+    if (block[1] >= round(400 / blockSize) - 1) {
+        block[1] = 1;
+    }
+    if (block[0] <= 0) {
+        block[0] = round(400 / blockSize) - 2;
+    }
+    if (block[1] <= 0) {
+        block[1] = round(400 / blockSize) - 2;
+    }
+};
+draw = function() {
+    background(0, 0, 0);
+    stroke(255, 255, 255);
+    strokeWeight(blockSize/5);
+    strokeCap(SQUARE);
+    if (frameCount > maze.length * maze.length) {
+        for (var i = 1; i < maze.length-2; i++) {
+            for (var j = 1; j < maze[i].length-2; j++) {
+                stroke(255, 255, 0, 300-dist(j*blockSize, i*blockSize, block[1]*blockSize, block[0]*blockSize));
+                if (maze[i][j][0] === 1) {
+                    line(j * blockSize, i * blockSize, j * blockSize, i * blockSize + blockSize);
+                }
+                if (maze[i][j][1] === 1) {
+                    line(j * blockSize, i * blockSize, j * blockSize + blockSize, i * blockSize);
+                }
+            }
+        }
+        if (block[0] >= round(400 / blockSize) - 1) {
+            block[0] = 1;
+        }
+        if (block[1] >= round(400 / blockSize) - 1) {
+            block[1] = 1;
+        }
+        if (block[0] <= 0) {
+            block[0] = round(400 / blockSize) - 2;
+        }
+        if (block[1] <= 0) {
+            block[1] = round(400 / blockSize) - 2;
+        }
+    }
+    noStroke();
+    fill(255, 0, 0);
+    rect(block[1] * blockSize, block[0] * blockSize, blockSize, blockSize);
+    if (frameCount <= (maze.length+1) * (maze.length+1)) {
+        nextBlock();
+        fill(255, 255, 255);
+        textSize(25);
+        textAlign(CENTER, CENTER);
+        text((pow((maze.length+1), 2) - frameCount) + " frames left.", 200, 200);
+        if(frameCount%100 === 0) {
+            // _clearLogs();
+            // println((pow((maze.length+1), 2) - frameCount) + " frames to go.");
+        }
+    }
+};
+keyReleased = function() {
+    if (frameCount > maze.length * maze.length) {
+        if (String(key) === "w" & maze[block[0]][block[1]][1] === 0) {
+            block[0]--;
+        }
+        if (String(key) === "a" & maze[block[0]][block[1]][0] === 0) {
+            block[1]--;
+        }
+        if (String(key) === "d" & maze[block[0]][block[1] + 1][0] === 0) {
+            block[1]++;
+        }
+        if (String(key) === "s" & maze[block[0] + 1][block[1]][1] === 0) {
+            block[0]++;
+        }
+    }
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

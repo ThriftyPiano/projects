@@ -1,0 +1,267 @@
+<html>
+    <head>
+        <title>GAME!</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(600, 400);
+        angleMode = "degrees";
+/////////////////        
+smooth();
+var pressed = {};
+var missilelauncher = [200, 0, 0];
+var missiles = [];
+var player = [100, 200, 0, 100];
+var explosions = [];
+var laser = [0, 0, 0];
+var mines = [];
+frameRate(58);
+var drawbackground = function() {
+    noStroke();
+    for(var i = -(frameCount*5)%25; i < 600; i += 25) {
+        for(var j = 0; j < 400; j += 12.5) {
+            fill(0, noise(i/100+frameCount*5/100, j/50)*255, 0);
+            rect(i, j, 25, 25);
+        }
+    }
+};
+var drawmissile = function(x, y) {
+    noStroke();
+    fill(0, 0, 255);
+    ellipse(x, y, 50, 20);
+    triangle(x+10, y, x+30, y-10, x+30, y+10);
+    fill(0, 255, 255);
+    rect(x-10, y-9, 10, 18);
+    fill(255, random(0, 255), 0);
+    triangle(x+30, y-8, x+30, y+8, x+random(40, 50), y);
+};
+var drawmissilelauncher = function() {
+    noStroke();
+    fill(9, 0, 255);
+    rect(575, missilelauncher[0]-25, 25, 50);
+    fill(0, 0, 0);
+    rect(575-50, missilelauncher[0]-12.5, 50, 25);
+    triangle(575-25, missilelauncher[0], 575, missilelauncher[0]-25, 575, missilelauncher[0]+25);
+};
+var drawmissiles = function() {
+    for(var i = 0; i < missiles.length; i++) {
+        drawmissile(missiles[i][0], missiles[i][1]);
+        missiles[i][0] += missiles[i][2];
+        missiles[i][2] -= 0.2;
+        if(missiles[i][0] <= -50) {
+            missiles.splice(i, 1);
+        }
+        else if(missiles[i][0] >= player[0]-12.5-25 & missiles[i][0] <= player[0]+12.5+25 & missiles[i][1] > player[1]-12.5 & missiles[i][1] < player[1]+75) {
+            player[3] -= 10;
+            explosions.push([missiles[i][0], missiles[i][1], 25]);
+            missiles.splice(i, 1);
+        }
+    }
+};
+var spawnmissiles = function() {
+    if(missilelauncher[1] >= 25) {
+        missiles.push([500, missilelauncher[0], 0]);
+        missilelauncher[1] = 0;
+    }
+    else {
+        missilelauncher[1]++;
+    }
+    missilelauncher[0] += missilelauncher[2];
+    missilelauncher[2] = constrain(missilelauncher[2], -6, 6);
+    missilelauncher[2] += player[1]+50 > missilelauncher[0] ? 0.5 : -0.5;
+    missilelauncher[0] = constrain(missilelauncher[0], 25, 400-25);
+};
+var drawlaser = function(y) {
+    if(laser[1] >= 50 & laser[1] <= 100) {
+        fill(255, 0, 0);
+        textSize(50);
+        text("!", 75, laser[0]+12.5);
+    }
+    if(laser[1] >= 100) {
+        var k = false;
+        if(player[1]-12.5 < laser[0] & player[1]+75 > laser[0]) {
+            k = true;
+        }
+        fill(255, 0, 0);
+        rect(0, y-8, !k ? 600 : player[0], 16);
+        fill(255, 255, 255);
+        rect(0, y-3, !k ? 600 : player[0], 6);
+        if(k) {
+            explosions.push([100, laser[0], 10]);
+            player[3] -= 0.5;
+        }
+    }
+    if(laser[1] >= 150) {
+        laser[1] = 0;
+    }
+    laser[1]++;
+    fill(255, 0, 0);
+    rect(0, y-25, 25, 50);
+    fill(0, 0, 0);
+    rect(25, y-10, 25, 20);
+    if(laser[1] <= 50) {
+        laser[0] += laser[2];
+        laser[2] += 200 > laser[0] ? 1 : -1;
+        laser[0] = constrain(laser[0], 25, 400-25);
+    }
+};
+var drawmines = function() {
+    if(frameCount % 25 === 0) {
+        mines.push([600, random(0, 400)]);
+    }
+    for(var i = 0; i < mines.length; i++) {
+        fill(0, 255, 0);
+        rect(mines[i][0]-10, mines[i][1]-5, 20, 10);
+        fill(255, 0, 0);
+        rect(mines[i][0]-5, mines[i][1]-2.5, 10, 5);
+        mines[i][0] -= 5;
+        if(dist(mines[i][0], mines[i][1], player[0], player[1]+50) <= 25) {
+            player[3] -= 10;
+            explosions.push([mines[i][0], mines[i][1], 10]);
+            mines.splice(i, 1);
+        }
+    }
+};
+var drawplayer = function() {
+    noStroke();
+    fill(0, 0, 0);
+    ellipse(player[0], player[1], 25, 25);
+    stroke(0, 0, 0);
+    strokeWeight(5);
+    line(player[0], player[1], player[0], player[1]+50);
+    line(player[0], player[1]+50, player[0]+25*cos(sin(frameCount*5)*60+90), player[1]+50+25*sin(sin(frameCount*5)*60+90));
+    line(player[0], player[1]+50, player[0]+25*cos(sin(frameCount*5+180)*60+90), player[1]+50+25*sin(sin(frameCount*5+180)*60+90));
+    line(player[0], player[1]+25, player[0]+25*cos(sin(frameCount*5+180)*45+90), player[1]+25+25*sin(sin(frameCount*5+180)*45+90));
+    line(player[0], player[1]+25, player[0]+25*cos(sin(frameCount*5)*45+90), player[1]+25+25*sin(sin(frameCount*5)*45+90));
+    noStroke();
+    fill(255, 0, 0);
+    rect(player[0]-30, player[1]-25, 5, 50);
+    fill(0, 255, 0);
+    rect(player[0]-30, player[1]-25, 5, player[3]/100*50);
+    player[3] = constrain(player[3], 0, 100);
+};
+var moveplayer = function() {
+    if(pressed.w) {
+        player[2] -= 0.5;
+    }
+    if(pressed.s) {
+        player[2] += 0.5;
+    }
+    player[1] += player[2];
+    player[2] *= 0.9;
+    player[2] = constrain(player[2], -5, 5);
+    player[1] = constrain(player[1], 12.5, 400-75);
+    if(player[3] <= 0) {
+        frameRate(0.1);
+    }
+    else {
+        player[3] += 0.025;
+    }
+};
+var drawexplosions = function() {
+    for(var i = 0; i < explosions.length; i++) {
+        noStroke();
+        fill(255, random(0, 255), 0);
+        ellipse(explosions[i][0], explosions[i][1], explosions[i][2], explosions[i][2]);
+        explosions[i][2] *= 1.1;
+        if(explosions[i][2] >= 50) {
+            explosions.splice(i, 1);
+        }
+    }
+};
+var drawfinishline = function() {
+    var g = 10000;
+    for(var k = g-frameCount*5; k < g+250-frameCount*5; k += 25) {
+        for(var j = 0; j < 400; j += 25) {
+            fill(255*((((k+frameCount*5)+j)/25)%2 === 0 ? 1 : 0));
+            rect(k, j, 25, 25);
+        }
+    }
+    if(frameCount <= g/5) {
+        textSize(25);
+        fill(255, 255, 255);
+        text("Distance to finish line: "+(g/5-frameCount), 2.5, 22.5);
+    }
+    else {
+        textSize(25);
+        fill(255, 255, 255);
+        text("You win!"+(g/5-frameCount), 2.5, 22.5);
+    }
+};
+draw = function() {
+    drawbackground();
+    drawfinishline();
+    drawmines();
+    drawmissiles();
+    drawmissilelauncher();
+    spawnmissiles();
+    drawplayer();
+    moveplayer();
+    drawlaser(laser[0]);
+    drawexplosions();
+};
+keyPressed = function() {
+    pressed[String(key)] = true;
+};
+keyReleased = function() {
+    pressed[String(key)] = !true;
+};
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

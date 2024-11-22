@@ -1,0 +1,530 @@
+<html>
+    <head>
+        <title>Low Quality Meme</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+
+//should i enter this into the new perspectives contest?
+background(200, 255, 255);
+line(0, 200, 400, 200);
+line(200, 0, 200, 400);
+function drawguy(x, y) {
+    ellipse(50+x, 50+y, 50, 50);
+    line(25+x, 200+y, 50+x, 150+y);
+    line(75+x, 200+y, 50+x, 150+y);
+    line(50+x, 75+y, 50+x, 150+y);
+    line(50+x, 100+y, 25+x, 150+y);
+    line(50+x, 100+y, 75+x, 150+y);
+    ellipse(37.5+x, 50+y, 5, 5);
+    ellipse(62.5+x, 50+y, 5, 5);
+}
+drawguy(100, 0);
+line(75, 75, 100, 100);
+fill(0, 0, 0);
+text("Ever heard of new perspectives?", 75, 100, 75, 100);
+fill(255, 255, 255, 255);
+drawguy(0, 0);
+
+drawguy(300, 0);
+line(325, 75, 300, 100);
+fill(0, 0, 0);
+text("Yeah, what about it?", 270, 100, 75, 100);
+fill(255, 255, 255, 255);
+drawguy(200, 0);
+
+drawguy(100, 200);
+line(75, 275, 100, 300);
+fill(0, 0, 0);
+text("I can help you see the world differently.", 75, 300, 75, 100);
+fill(255, 255, 255, 255);
+drawguy(0, 200);
+
+drawguy(300, 200);
+line(275, 275, 300, 300);
+fill(0, 0, 0);
+text("Just stick a scissor in your eye!\njust kidding don't actually do it", 275, 300, 75, 100);
+fill(255, 255, 255, 255);
+drawguy(200, 200);
+
+/**
+Cartesian coordinates: [x, y, z]
+Polar coordinates: [a, b, r], where a is xy-plane angle, and b is raised angle.
+Sphere: [center, radius, emitter?, [color, reflectiveness] OR [emission color, emission strength?]]
+Reflectiveness is the probability that specular lighting is used instead of diffuse lighting.
+Camera at [0, 0, 0] onto rectangular plane with center [cos(a)*cos(b), sin(a)*cos(b), sin(b)].
+Camera is initially facing in the z-direction.
+ViewDirection: [x-axis rotation, y-axis rotation, z-axis rotation].
+Collision data: [collided?, collision position].
+**/
+
+//Variables {
+//Misc {
+angleMode = "degrees";
+smooth();
+frameRate(0);
+loadPixels();
+var infinity = 100000000000000;
+//}
+//Camera {
+var still = true;
+//Plane distance from camera
+var cameraDist = 1;
+var cameraPos = [0, -0.5, 2.5];
+//Degrees
+var fieldOfView = 90;
+//Pixels in one dimension
+var resolution = width;
+//This is [x-axis rotation, y-axis rotation, z-axis rotation]. For pos/neg, first is: down/up, second is left/right, third is 
+var viewDirection = [0, 180, 0];
+//}
+//Tracing {
+//Maximum amount of times it will reflect
+var maxReflections = 10;
+//How much it bounces to avoid hitting the same sphere twice in a row.
+var bounceShift = 0;
+//}
+//Rendering {
+//Which layer are we on?
+var layer = 0;
+var totalLayers = width+1;
+var raysPerPixel = 4;
+//Render speed
+var speed = 1;
+//Images
+var saved = [];
+var totalSaved = 120;
+var positionColors = [];
+//}
+//}
+//Vector functions {
+function addV(a, b) {
+    return [a[0]+b[0], a[1]+b[1], a[2]+b[2]];
+}
+function subtractV(a, b) {
+    return [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+}
+function dotV(a, b) {
+    return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+}
+function magnitudeV(a) {
+    return sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
+}
+function scaleV(a, s) {
+    return [a[0]*s, a[1]*s, a[2]*s];
+}
+function normalizeV(a) {
+    var magnitude = magnitudeV(a);
+    if (magnitude === 0) {
+        return [0, 0, 0];
+    }
+    else {
+        return scaleV(a, 1/magnitude);
+    }
+}
+function polarToCartesianV(a) {
+    return scaleV([cos(a[0])*cos(a[1]), sin(a[0])*cos(a[1]), sin(a[1])], a[2]);
+}
+function cartesianToPolarV(a) {
+    var magnitude = magnitudeV(a);
+    a = normalizeV(a);
+    return [atan2(a[1], a[0]), asin(a[2]), magnitude];
+}
+function angleV(a, b) {
+    return acos(dotV(a, b)/magnitudeV(a)/magnitudeV(b));
+}
+function distV(a, b) {
+    return magnitudeV(subtractV(a, b));
+}
+function crossV(a, b) {
+    
+}
+function projectV(a, b) {
+    return scaleV(b, dotV(a, b)/magnitudeV(b)/magnitudeV(b));
+}
+function rotateV(a, r) {
+    //Rotate about x-axis
+    var newA = [a[0], cos(r[0]) * a[1] - sin(r[0]) * a[2], cos(r[0]) * a[2] + sin(r[0]) * a[1]];
+    //Rotate about y-axis
+    newA = [cos(r[1]) * newA[0] + sin(r[1]) * newA[2], newA[1], cos(r[1]) * newA[2] - sin(r[1]) * newA[0]];
+    //Rotate about z-axis
+    newA = [cos(r[2]) * newA[0] - sin(r[2]) * newA[1], cos(r[2]) * newA[1] + sin(r[2]) * newA[0], newA[2]];
+    return newA;
+}
+function sphereDist(sphere, vector) {
+    return distV(vector, sphere[0])-sphere[1];
+}
+function normalVector(sphere, vector) {
+    return normalizeV(subtractV(sphere[0], vector));
+}
+//Decomposes a vector into a reference vector and the perpendicular vector.
+function decomposeVector(reference, vector) {
+    var parallel = projectV(vector, reference);
+    return [parallel, subtractV(vector, parallel)];
+}
+//Reflects a (movement) vector about an axis. In the case of the spheres, this is the normal vector.
+function reflectVector(axis, vector) {
+    //Reflect relative x-movement.
+    var decomposed = decomposeVector(axis, vector);
+    return scaleV(subtractV(decomposed[0], decomposed[1]), -1);
+}
+//Used for specular lighting (vector is the position it hits the sphere at, which is used to determine the sphere normal).
+function reflectSphereSpecular(sphere, vector, movement) {
+    //reflectVector(normalVector(sphere, vector), movement)
+    return reflectVector(normalVector(sphere, vector), movement);
+}
+function reflectSphereDiffuse(sphere, vector, movement) {
+    var reflected = polarToCartesianV([random(0, 360), random(-90, 90), magnitudeV(movement)]);
+    var inSphere = dotV(reflected, normalVector(sphere, vector)) > 0;
+    return inSphere ? scaleV(reflected, -1) : reflected;
+    
+    //return reflectVector(normalVector(sphere, vector), movement);
+}
+function multV(a, b) {
+    return [a[0]*b[0], a[1]*b[1], a[2]*b[2]];
+}
+function colorV(a) {
+    return color(a[0], a[1], a[2]);
+}
+function colorToVector(a) {
+    return [red(a), green(a), blue(a)];
+}
+//}
+//Miscellaneous math {
+//Solves a quadratic.
+function solveQuadratic(a, b, c) {
+    var discriminant = b * b - 4 * a * c;
+    if (discriminant < 0) {
+        return [];
+    }
+    else if (discriminant === 0) {
+        return [-1/2 * b / a];
+    }
+    else if (discriminant > 0) {
+        return [(-b + sqrt(discriminant))/2/a, (-b - sqrt(discriminant))/2/a];
+    }
+}
+//Used to find the nearest (good) intersection point.
+function getSol(sols) {
+    var newSols = [];
+    for (var i = 0; i < sols.length; i++) {
+        if (sols[i] >= 0) {
+            newSols.push(sols[i]);
+        }
+    }
+    switch (newSols.length) {
+        case 0:
+            return [false, infinity];
+        case 1:
+            return [true, newSols[0]];
+        case 2:
+            return [true, min(newSols[0], newSols[1])];
+    }
+}
+//}
+//Colors {
+var imageTexture = [];
+var imageResolution = 100;
+function createTexture() {
+    image(getImage("avatars/avatar-team"), 0, 0, imageResolution, imageResolution);
+    for(var i = 0; i < imageResolution; i += 1) {
+        imageTexture.push([]);
+        for(var j = 0; j < imageResolution; j += 1) {
+            imageTexture[imageTexture.length-1].push(get(i, j));
+        }
+    }
+}
+//createTexture();
+function getTextureAngle(vector, sphere) {
+    var relativeVector = subtractV(vector, sphere[0]);
+    return cartesianToPolarV(relativeVector);
+}
+var colors = {
+    'red': function(angle) {
+        return [1, 0, 0];
+    },
+    'green': function(angle) {
+        return [0, 1, 0];
+    },
+    'blue': function(angle) {
+        return [0, 0, 1];
+    },
+    'yellow': function(angle) {
+        return [1, 1, 0];
+    },
+    'cyan': function(angle) {
+        return [0, 1, 1];
+    },
+    'magenta': function(angle) {
+        return [1, 0, 1];
+    },
+    'gold': function(angle) {
+        return [1, 0.863, 0];
+    },
+    'white': function(angle) {
+        return [1, 1, 1];
+    },
+    'black': function(angle) {
+        return [0, 0, 0];
+    },
+    'image': function(angle) {
+        var newAngle = [constrain(abs(angle[0]), 0, imageTexture.length-1), constrain(abs(angle[1]), 0, imageTexture.length-1)];
+        return colorToVector(imageTexture[floor(newAngle[0])][floor(newAngle[1])]);
+    },
+    'checkerboard': function(angle) {
+        var whiteOrBlack = (floor(angle[0]*angle[2]/15) + floor(angle[1]*angle[2]/15)) % 2;
+        return whiteOrBlack === 0 ? [0, 0, 0] : [1, 1, 1];
+    },
+    'noisy': function(angle) {
+        var brightness = noise((angle[0]*angle[2]/30), (angle[1]*angle[2]/30))*2-0.5;
+        return [brightness, 0, 1-brightness];
+    },
+    'grey': function(angle) {
+        return [0.3, 0.3, 0.3];
+    },
+    'light grey': function(angle) {
+        return [0.6, 0.6, 0.6];
+    },
+};
+//}
+//Objects {
+var spheres = [];
+spheres.push([[0, -1, 0], 1, false, ['gold', 0.7]]);
+spheres.push([[1.5, -2, 0], 0.5, false, ['cyan', 0]]);
+spheres.push([[1.25, -0.5, 0], 0.5, false, ['checkerboard', 0]]);
+spheres.push([[-1, -0.5, 1], 0.5, false, ['noisy', 0]]);
+spheres.push([[-10, -10, 1], 10, true, ['white', 0]]);
+spheres.push([[0, 50, 0], 50, false, ['light grey', 0]]);
+var skyColor = 'grey';
+//}
+//Collision functions {
+function rayToSphere (start, direction, sphere) {
+    var startToSphere = subtractV(start, sphere[0]);
+    var startToSphereMagnitude = magnitudeV(startToSphere);
+    var directionMagnitude = magnitudeV(direction);
+    
+    var a = directionMagnitude * directionMagnitude;
+    var b = 2 * dotV(direction, startToSphere);
+    var c = startToSphereMagnitude * startToSphereMagnitude - sphere[1] * sphere[1];
+    
+    return getSol(solveQuadratic(a, b, c));
+}
+//Returns index of the first sphere hit.
+function closestHit (start, direction, spheres) {
+    var closest = [-1, infinity];
+    for (var i = 0; i < spheres.length; i++) {
+        var t = rayToSphere(start, direction, spheres[i]);
+        if (t[0]) {
+            if (t[1] > 0 & t[1] <= closest[1]) {
+                closest = [i, t[1]];
+            }
+        }
+    }
+    return closest;
+}
+//}
+//Raytracing {
+//View plane {
+function calculatePlaneSize(cameraDist, fieldOfView) {
+    return 2*cameraDist*tan(fieldOfView/2);
+}
+function calculateSpacing(planeSize, resolution) {
+    return planeSize/resolution;
+}
+function planePos(coords, planeSize, spacing) {
+    var planeTopLeft = [-planeSize/2, -planeSize/2, cameraDist];
+    return addV(scaleV(coords, spacing), planeTopLeft);
+}
+//}
+//Camera {
+//ViewDirection needs special treatment for obtuse raised angles.
+function addViewDirection(a, viewDirection) {
+    var newA = polarToCartesianV(a);
+    newA = rotateV(newA, viewDirection);
+    return cartesianToPolarV(newA);
+}
+//}
+//Pixels {
+function setPositionColors() {
+    positionColors = [];
+    for (var i = 0; i < resolution; i++) {
+        positionColors.push([]);
+        for(var j = 0; j < resolution; j++) {
+            positionColors[positionColors.length-1].push([0, [0, 0, 0]]);
+        }
+    }
+}
+setPositionColors();
+//}
+//Ray direction {
+function calculateBaseAngle(coords, planeSize, spacing) {
+    return cartesianToPolarV(normalizeV(planePos(coords, planeSize, spacing)));
+}
+function calculateRayDirection(viewDirection, coords, planeSize, spacing) {
+    var baseAngle = calculateBaseAngle(coords, planeSize, spacing);
+    return polarToCartesianV(addViewDirection(baseAngle, viewDirection));
+}
+//}
+//Tracing {
+function traceRay(start, direction, spheres, reflectionCount, curColor) {
+    if (reflectionCount > maxReflections) {
+        return [0, 0, 0];
+    }
+    var shiftedStart = addV(start, scaleV(direction, bounceShift));
+    var hit = closestHit(start, direction, spheres);
+    if (hit[0] === -1) {
+        return colors[skyColor]();
+    }
+    else if (spheres[hit[0]][2]) {
+        var hitPos = addV(start, scaleV(direction, hit[1]));
+        return multV(curColor, colors[spheres[hit[0]][3][0]](getTextureAngle(hitPos, spheres[hit[0]])));
+    }
+    else {
+        var hitPos = addV(start, scaleV(direction, hit[1]));
+        //Randomness to check if it spreads or reflects
+        if (random(1) < spheres[hit[0]][3][1]) {
+            return traceRay(hitPos, reflectSphereSpecular(spheres[hit[0]], hitPos, direction), spheres, reflectionCount+1, curColor);
+        }
+        else {
+            return multV(colors[spheres[hit[0]][3][0]](getTextureAngle(hitPos, spheres[hit[0]])), traceRay(hitPos, reflectSphereDiffuse(spheres[hit[0]], hitPos, direction), spheres, reflectionCount+1, curColor));
+        }
+    }
+}
+function getAverageColor(colors) {
+    var finalColor = [0, 0, 0];
+    for (var i = 0; i < colors.length; i++) {
+        finalColor = addV(finalColor, scaleV(colors[i], 255/colors.length));
+    }
+    return colorV(finalColor);
+}
+function setPixels(x, y, w, h, color) {
+    for (var i = x; i <= x+w; i++) {
+        for (var j = y; j <= y+h; j++) {
+            set(i, j, color);
+        }
+    }
+}
+function trace(percent) {
+    var planeSize = calculatePlaneSize(cameraDist, fieldOfView);
+    var spacing = calculateSpacing(planeSize, resolution);
+    for (var i = floor(percent*resolution); i < floor(percent*resolution)+1; i++) {
+        for(var j = 0; j < resolution; j++) {
+            for (var k = 0; k < raysPerPixel; k++) {
+                var rayDirection = calculateRayDirection(viewDirection, [i+random(1), j+random(1), 0], planeSize, spacing);
+                positionColors[i][j][0] += 1;
+                positionColors[i][j][1] = scaleV(addV(scaleV(positionColors[i][j][1], (positionColors[i][j][0]-1)/255), traceRay(cameraPos, rayDirection, spheres, 0, [1, 1, 1])), 255/positionColors[i][j][0]);
+            }
+            var positionColor = colorV(positionColors[i][j][1]);
+            setPixels(i*width/resolution, j*height/resolution, width/resolution, height/resolution, positionColor);
+        }
+    }
+    updatePixels();
+}
+function traceLayers() {
+    for (var i = 0; i < speed; i++) {
+        if (layer < totalLayers) {
+            trace(layer/totalLayers);
+            layer += 1;
+        }
+    }
+}
+function checkFinish() {
+    return saved.length >= totalSaved;
+}
+//}
+//Images {
+function nextScene() {
+    if (!still) {
+        var imageToSave = get(0, 0, width, height);
+        saved.push(imageToSave);
+        cameraPos = rotateV(cameraPos, [0, 360/totalSaved, 0]);
+        viewDirection[1] += 360/totalSaved;
+    }
+    setPositionColors();
+    layer = 0;
+}
+function showLoad() {
+    stroke(255, 0, 0);
+    line(layer/totalLayers*width, 0, layer/totalLayers*width, height);
+    line(0, saved.length/totalSaved*height, width, saved.length/totalSaved*height);
+}
+function showImages() {
+    image(saved[floor((frameCount/10)%totalSaved)], 0, 0, width, height);
+}
+//}
+//}
+draw = function() {
+    if (!checkFinish() || still) {
+        if (layer < totalLayers) {
+            traceLayers();
+        }
+        else {
+            nextScene();
+        }
+        showLoad();
+    }
+    else {
+        showImages();
+    }
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>
