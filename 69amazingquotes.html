@@ -1,0 +1,154 @@
+<html>
+    <head>
+        <title>69 Amazing Quotes</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+// Number of quotes not specifically chosen. I just had writer's block. Let me know if you recognize any of the original quotes for some of these!
+
+smooth();
+frameRate(58);
+textFont(createFont('monospace'));
+random();
+
+// Quotes {
+var quotes = ["", "In ~240 BC, Eratosthenes calculated the circumference of the Earth. He found it to be exactly what he calculated.", "If you give a man a fish, he will have a fish. But give a man a fishing pole, and he will have a fishing pole. And a fish.", "A man once spent 7 days and 7 nights sitting in silence, without eating or sleeping. However, before his mediation ended, he died of hunger.", "If the moon disappears, all the tides on Earth will vanish. But if the Earth disappears, all the tides on Earth will also vanish.", "If you put a book on a shelf, the shelf will hold the book. But if you take the book off the shelf, the shelf will no longer hold the book.", "Birds can fly because they have wings. Without wings, birds would not fly.", "Wealthy people are rich because they have money. Poor people are poor because they aren't wealthy.", "An apple a day results in 365 apples in a non-leap year.", "An apple a day results in 366 apples in a leap year.", "If you take an apple from an enemy, you will have an apple. But take an apple from a friend, you will have two apples.", "A clock tells time by moving its hands. If the hands don't move, the clock doesn't tell time.", "The previous quote does not apply to digital clocks, but implied that it referred to analog ones.", "If you dig a hole, you have a hole. If you fill it back up, you no longer have a hole.", "Throw a rock into the air, and it will come down. But throw a rock as hard as you can, and believe it won't come down, it will still come down.", "You shouldn't try to fly if you can't fly. In general, don't try things you can't do. It's futile.", "If you light a candle, it will come alight. If you extinguish it by pinching the flame with your finger, it will hurt.", "To climb a mountain, you must start at the bottom. If you start at the top, it is because you are hiking back down.", "A journey of a thousand miles begins with a single step. A journey of one step begins and ends with one step.", "A map shows you the way. Without it, you do not have a map.", "I think, therefore I am thinking.", "Some say time is money. Time is not money because money is a currency and not an intangible concept.", "The early bird usually does not get the worm because most birds don't actually eat worms.", "You actually miss none of the shots you don't take because you didn't take them, so how can you miss?", "Everyone who lives on Venus has an IQ that is 50 points higher than people who inhabit Earth. This is because of vacuous truth.", "The only things that change from time to time are those that do not remain constant.", "One small step for a man can only become a metaphorical step (let alone leap) for mankind. This is because most people did not go to the moon.", "When we have acquired the capabiilty to destroy ourselves, it can be concluded, among other things, the conclusion.", "A mindless man has no mind. Whether or not they have a mind, they probably do not mind because you require a mind to mind things.", "The best economic system is obviously the one that is better than all the others.", "Four score and seven years ago was 87 years ago. However, modern humans prefer to use the term \"eight decades\" as opposed to \"four score.", "If you look up into the night sky, you may or may not see a thousand stars. This is because of light pollution.", "He who reads usually understands... the language the text is written in.", "In every group of people, there is a tallest and a shortest, a smartest and a dumbest. This is because of the well-ordering principle.", "The grass cannot always be greener on the other side. Otherwise, if you are on the other side, the grass where you were must be less green, a contradiction.", "You should, in fact, judge a book by its cover. That's what covers are for: giving someone a quick overview of the contents. However, you shouldn't jump to conclusions.", "While most regard the blue whale to be the largest animal, there are some who don't, including babies, who have no knowledge of the creature.", "If you took your large intestine and laid it end to end from one side of a football field to the other, you would probably die.", "Different people have different perspectives on what happens after you die. However, most people agree that after you die, you are dead.", "When in Rome, you probably shouldn't act as the Romans did, because the Roman empire ended a long time ago.", "The key to becoming famous is getting people to know you.", "When writing a story, always start from the beginning. In fact, it is impossible to not start where you start.", "If all currency, all money, all coins suddenly lost their value and became pieces of paper, metal, with no intrinsic value, some people would get mad.", "I once decided to do something. That is called making a decision.", "More people on Earth than any other planet exist. This is because nobody lives on other planets.", "If you decide to procrastinate on your homework, you have made a decision. That is because making a decision means deciding to do something.", "If you fall asleep on the edge of a cliff, with hungry wolves surrounding you, you will no longer be awake.", "You can have your cake and eat it too. This is because you can eat part of it and still have the rest.", "You can have someone else's cake. This is because \"have\" can also mean \"to eat\".", "You can lead a horse to water if you have the ability to lead a horse to water. You can't make it drink if you don't have the ability to make it drink.", "If you cut a stick in half, you either have two sticks or one broken stick, depending on how you look at it.", "I don't care what most people think of this statement, but most people are actually existing.", "Five days of doing what you love is less than a week of doing what you love. This is because five days are less than a week.", "A nice tip for doing well in school, work, and life is nice.", "At least two things are infinite: aleph 0 and aleph 1. This is because those are different types of infinity.", "If you count from 1 to 60, you will have counted exactly zero 61's. This is because 60 < 61.", "He who never smiles will never, under no circumstances whatsoever, ever smile.", "It may or may not possible to draw a perfect circle depending on your definition of \"perfect\". However, in most cases, it is impossible.", "The only nonnegative integer smaller than one is zero.", "A penny saved is not actually a penny earned, because pennies usually retain their value regardless of whose possession they are under.", "Every hour, sixty minutes pass. Every minute, sixty seconds usually pass unless there is a leap second, which is used for clock calibration.", "Turning around when there is nobody behind you will in fact change your body's orientation.", "If a tree falls and nobody is around to hear it, the tree usually can't right itself.", "Out of all creatures, humans are the only creatures that humans call humans.", "8^2 is equal to 64. However, 7^2 is not equal to 64 because that is not how exponentiation works.", "Every time you sing a song, you make sounds.", "If you end a sentence with a comma, the sentence will have ended with a comma.", "Turning on a light will illuminate a room. That is, unless the light doesn't work.", "A chair is a place to sit. If nobody sits in the chair, the chair remains a chair. Identities usually do not depend on whether purpose is fulfilled.", "He who controls the past controls the past. He who controls the future controls the future. He who controls the present controls the present."];
+
+quotes[0] = "Here are " + (quotes.length - 1) + " amazing quotes that will not change your life! Press mouse and drag to scroll. WARNING: Reading these will waste your time. Credit to ChatGPT for some of the quotes.";
+
+quotes.push("This is the end! I hope your life improve because of something other than these terrible quotes. Post \"My life has not improved!\" in the T&T if you liked these quotes.");
+
+// End quotes}
+
+// Maximum size of a quote box
+var quoteSize = 125;
+
+// Cumulative scroll amount
+var scroll = 0;
+// How much you have scrolled in the current mouse press
+var curScroll = 0;
+// Where you first pressed the mouse on the screen
+var grabY = 0;
+
+// mouseIsPressed variable has some delays, this doesn't.
+var mPressed = false;
+
+function displayQuotes() {
+    pushMatrix();
+    translate(0, scroll + curScroll);
+    
+    textAlign(LEFT, TOP);
+    textSize(15);
+    fill(255, 255, 255);
+    
+    stroke(255, 255, 255);
+    
+    for (var i = 0; i < quotes.length; i++) {
+        // Logic operator to remove quotes from first box.
+        text((i === 0 || i === quotes.length - 1) ? quotes[i] : i + ". \"" + quotes[i] + "\"", 25, 25 + i * quoteSize + 10, width - 50, quoteSize);
+        
+        line(25, 25 + i * quoteSize, width - 25, 25 + i * quoteSize);
+        line(25, 25 + i * quoteSize + quoteSize, width - 25, 25 + i * quoteSize + quoteSize);
+    }
+    popMatrix();
+    
+    // Side lines drawn using rectangle.
+    
+    stroke(255, 255, 255);
+    noFill();
+    rect(12.5, -12.5, width-25, height + 25);
+}
+
+function scrollQuotes() {
+    if (mPressed) {
+        curScroll = (mouseY-grabY);
+    }
+    else {
+        // Reset scroll
+        curScroll = 0;
+    }
+    
+    // Limit scrolling
+    scroll = constrain(scroll, -(quotes.length * quoteSize - height + 50), 0);
+    
+}
+
+draw = function() {
+    background(0, 0, 0);
+    
+    scrollQuotes();
+    
+    displayQuotes();
+};
+
+mousePressed = function() {
+    grabY = mouseY;
+    mPressed = true;
+}
+
+mouseReleased = function() {
+    scroll += curScroll;
+    mPressed = false;
+}
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

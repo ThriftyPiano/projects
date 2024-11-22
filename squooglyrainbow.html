@@ -1,0 +1,110 @@
+<html>
+    <head>
+        <title>Squoogly Rainbow</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+with (proc) {
+processingJS = proc;
+var canvas = document.getElementById('div');
+    size(canvas.clientWidth, canvas.clientHeight);
+    angleMode = "degrees";
+/////////////////        
+//Left click to place a point, Right click to animate.
+var joints = [[]];
+var start = false;
+draw = function() {
+    background(0, 0, 0);
+    for(var i = 0; i < joints.length; i++) {
+        for(var j = 0; j < joints[i].length; j++) {
+            var a = j;
+            if (a < joints[i].length/6) {
+                stroke(255, a * 255 / (joints[i].length/6), 0);
+            } else if (a < joints[i].length/6*2) {
+                stroke((joints[i].length/6*2 - a) / (joints[i].length/6) * 255, 255, 0);
+            } else if (a < joints[i].length/6*3) {
+                stroke(0, 255, 255 - ((joints[i].length/6*3) - a) / (joints[i].length/6) * 255);
+            } else if (a < joints[i].length/6*4) {
+                stroke(0, ((joints[i].length/6*4) - a) / (joints[i].length/6) * 255, 255);
+            } else if (a < joints[i].length/6*5) {
+                stroke(255 - ((joints[i].length/6*5) - a) / (joints[i].length/6) * 255, 0, 255);
+            } else if (a < joints[i].length/6*6) {
+                stroke(255, 0, ((joints[i].length/6*6) - a) / (joints[i].length/6) * 255);
+            }
+            line(joints[i][j][0], joints[i][j][1], joints[i][(j+1)%joints[i].length][0], joints[i][(j+1)%joints[i].length][1]);
+        }
+    }
+    if(start === true) {
+        joints.push([]);
+        for(var i = 0; i < joints[joints.length-2].length; i++) {
+            joints[joints.length-1].push([(joints[joints.length-2][i][0]+joints[joints.length-2][(i+1)%joints[joints.length-2].length][0])/2, (joints[joints.length-2][i][1]+joints[joints.length-2][(i+1)%joints[joints.length-2].length][1])/2]);
+        }
+    }
+};
+mouseClicked = function() {
+    if(start === false) {
+        if(mouseButton === LEFT) {
+            joints[0].push([mouseX, mouseY]);
+        }
+        else {
+            start = true;
+        }
+    }
+};
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

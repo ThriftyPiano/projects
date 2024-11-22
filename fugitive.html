@@ -1,0 +1,455 @@
+<html>
+    <head>
+        <title>Fugitive</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+/*
+Instructions:
+A and D or arrow keys to move, S, Space, or Down arrow key to place mines.
+Avoid getting surrounded by the cops.
+
+Have fun!
+*/
+
+var car = [200, 200, 0, 0, random(0, 360), 0];
+var police = [];
+var blockSize = 25;
+var dead = false;
+var poli;
+var polj;
+var g;
+var h;
+var d = 0;
+var score = 0;
+var touched = 0;
+var txts = ["ARRESTED", "SURROUNDED", "OOF", "CAPTURED", "DONE", "TRAPPED", "BLEUSH"];
+var txt = txts[floor(random(0, txts.length))];
+var ppA;
+var back = 0;
+var nm = random(0, 1);
+var tracks = [];
+var mines = [];
+var smoke = [];
+var exc = [];
+var cm;
+var exm = function() {
+    background(255, 255, 255);
+    fill(255, 0, 0);
+    textAlign(CENTER, CENTER);
+    textFont(createFont("fantasy"));
+    textSize(25);
+    text("!", 12.5, 12.5);
+    cm = get(0, 0, 25, 25);
+};
+var mamt = 3;
+var cooldown = 0;
+var drawBack = function() {
+    if (back === 0) {
+        background(255, 255, 255);
+        noStroke();
+        for (var x = 0; x < 400; x += 5) {
+            for (var y = 0; y < 400; y += 1) {
+                fill(noise(x / 200 + y / 200, nm) * 255);
+                rect(x, y, 5, 1);
+            }
+        }
+        back = get();
+    } else {
+        image(back, 0, 0, 400, 400);
+    }
+};
+var drawTracks = function() {
+    strokeWeight(blockSize / 25);
+    for (var i = 0; i < tracks.length; i++) {
+        var track = tracks[i];
+        stroke(0, 0, 0, track[3] / 10 * 255);
+        pushMatrix();
+        translate(track[0], track[1]);
+        rotate(track[2]);
+        translate(-track[0], -track[1]);
+        line(track[0], track[1] - blockSize / 8 - blockSize / 32, track[0], track[1] - blockSize / 8 + blockSize / 32);
+        line(track[0], track[1] + blockSize / 8 - blockSize / 32, track[0], track[1] + blockSize / 8 + blockSize / 32);
+        popMatrix();
+        track[3] -= 0.25;
+        if (track[3] <= 0) {
+            tracks.splice(i, 1);
+        }
+    }
+};
+var drawMines = function() {
+    noStroke();
+    for (var i = 0; i < mines.length; i++) {
+        var mine = mines[i];
+        pushMatrix();
+        translate(mine[0], mine[1]);
+        rotate(mine[2]);
+        translate(-mine[0], -mine[1]);
+        fill(0, 255, 0);
+        rect(mine[0] - blockSize / 5, mine[1] - blockSize / 5, blockSize / 5 * 2, blockSize / 5 * 2);
+        if (((frameCount + i * 10) / 10) % 2 >= 1) {
+            fill(255, 0, 0);
+        } else if (((frameCount + i * 10) / 10) % 2 <= 1) {
+            fill(255, 0, 0, 100);
+        }
+        rect(mine[0] - blockSize / 5 / 2, mine[1] - blockSize / 5 / 2, blockSize / 5, blockSize / 5);
+        popMatrix();
+    }
+};
+var boom = function(m) {
+    var mine = mines[m];
+    for (var pok = 0; pok < police.length; pok++) {
+        polj = police[pok];
+        if (dist(polj[0], polj[1], mine[0], mine[1]) <= blockSize * 4) {
+            var am = atan2(polj[1] - mine[1], polj[0] - mine[0]);
+            var d = dist(polj[0], polj[1], mine[0], mine[1]);
+            polj[2] += cos(am) * blockSize / 5 * blockSize * 4 / d;
+            polj[3] += sin(am) * blockSize / 5 * blockSize * 4 / d;
+            polj[4] = am;
+        }
+    }
+};
+var explodeMines = function() {
+    for (var i = 0; i < mines.length; i++) {
+        var mine = mines[i];
+        inner:
+            for (var j = 0; j < police.length; j++) {
+                polj = police[j];
+                if (dist(polj[0], polj[1], mine[0], mine[1]) <= blockSize / 5) {
+                    boom(i);
+                    smoke.push([mine[0], mine[1], 25 * blockSize / 25, 1]);
+                    mines.splice(i, 1);
+                    break inner;
+                }
+            }
+    }
+};
+var awardMines = function() {
+    if (frameCount % (20 * 60) === 0) {
+        mamt++;
+    }
+};
+var drawCar = function() {
+    pushMatrix();
+    translate(car[0], car[1]);
+    rotate(car[4]);
+    translate(-car[0], -car[1]);
+    noStroke();
+    fill(0, 0, 0);
+    rect(car[0] - 7.5 * blockSize / 50, car[1] - 7.5 * blockSize / 50, 5 * blockSize / 50, 5 * blockSize / 50);
+    rect(car[0] - 7.5 * blockSize / 50, car[1] - 7.5 * blockSize / 50 + 10 * blockSize / 50, 5 * blockSize / 50, 5 * blockSize / 50);
+    rect(car[0] - 7.5 * blockSize / 50 + 10 * blockSize / 50, car[1] - 7.5 * blockSize / 50, 5 * blockSize / 50, 5 * blockSize / 50);
+    rect(car[0] - 7.5 * blockSize / 50 + 10 * blockSize / 50, car[1] - 7.5 * blockSize / 50 + 10 * blockSize / 50, 5 * blockSize / 50, 5 * blockSize / 50);
+    fill(0, 255, 0);
+    rect(car[0] - 10 * blockSize / 50, car[1] - 5 * blockSize / 50, 20 * blockSize / 50, 10 * blockSize / 50);
+    strokeWeight(10 * blockSize / 50);
+    popMatrix();
+};
+var move = function() {
+    car[0] = constrain(car[0], 0, 400);
+    car[1] = constrain(car[1], 0, 400);
+    car[4] += car[5];
+    car[5] *= 0.95;
+    car[0] += car[2];
+    car[1] += car[3];
+    car[2] *= 0.8;
+    car[3] *= 0.8;
+    car[2] += cos(car[4]) * 0.4 * blockSize / 25;
+    car[3] += sin(car[4]) * 0.4 * blockSize / 25;
+    cooldown--;
+    if (keyIsPressed) {
+        if (String(key) === "d" || keyCode === RIGHT) {
+            car[5] += 0.4;
+        }
+        if (String(key) === "a" || keyCode === LEFT) {
+            car[5] -= 0.4;
+        }
+        if (String(key) === " " || keyCode === DOWN || String(key) === "s") {
+            if (cooldown <= 0 & mamt > 0) {
+                cooldown = 25;
+                mamt--;
+                mines.push([car[0], car[1], car[4]]);
+                car[2] = 0;
+                car[3] = 0;
+            }
+        }
+    }
+    if (frameCount % 2 === 0) {
+        tracks.push([car[0], car[1], car[4], 10]);
+    }
+};
+var drawSmoke = function() {
+    for (var i = 0; i < smoke.length; i++) {
+        if (smoke[i][2] <= blockSize * 4) {
+            smoke[i][2] *= 1.1;
+        } else {
+            smoke[i][3] *= 0.95;
+        }
+        fill(255, 200, 0, smoke[i][3] * 255);
+        ellipse(smoke[i][0], smoke[i][1], smoke[i][2], smoke[i][2]);
+    }
+};
+var drawP = function() {
+    for (var i = 0; i < police.length; i++) {
+        poli = police[i];
+        pushMatrix();
+        translate(poli[0], poli[1]);
+        rotate(poli[4]);
+        translate(-poli[0], -poli[1]);
+        noStroke();
+        fill(50, 50, 50);
+        rect(poli[0] - 7.5 * blockSize / 50, poli[1] - 7.5 * blockSize / 50, 5 * blockSize / 50, 5 * blockSize / 50);
+        rect(poli[0] - 7.5 * blockSize / 50, poli[1] - 7.5 * blockSize / 50 + 10 * blockSize / 50, 5 * blockSize / 50, 5 * blockSize / 50);
+        rect(poli[0] - 7.5 * blockSize / 50 + 10 * blockSize / 50, poli[1] - 7.5 * blockSize / 50, 5 * blockSize / 50, 5 * blockSize / 50);
+        rect(poli[0] - 7.5 * blockSize / 50 + 10 * blockSize / 50, poli[1] - 7.5 * blockSize / 50 + 10 * blockSize / 50, 5 * blockSize / 50, 5 * blockSize / 50);
+        fill(0, 0, 0);
+        rect(poli[0] - 10 * blockSize / 50, poli[1] - 5 * blockSize / 50, 20 * blockSize / 50, 10 * blockSize / 50);
+        if (((frameCount + i) / 10) % 2 < 1) {
+            fill(255, 0, 0);
+            rect(poli[0], poli[1] - 4 * blockSize / 50, 4 * blockSize / 50, 4 * blockSize / 50);
+            fill(0, 200, 255, 127.5);
+            rect(poli[0], poli[1], 4 * blockSize / 50, 4 * blockSize / 50);
+        }
+        if (((frameCount + i) / 10) % 2 >= 1) {
+            fill(0, 200, 255);
+            rect(poli[0], poli[1], 4 * blockSize / 50, 4 * blockSize / 50);
+            fill(255, 0, 0, 127.5);
+            rect(poli[0], poli[1] - 4 * blockSize / 50, 4 * blockSize / 50, 4 * blockSize / 50);
+        }
+        popMatrix();
+    }
+};
+var moveP = function() {
+    for (var i = 0; i < police.length; i++) {
+        poli = police[i];
+        poli[4] += poli[5];
+        poli[5] *= 0.95;
+        poli[0] += poli[2];
+        poli[1] += poli[3];
+        poli[2] *= 0.8;
+        poli[3] *= 0.8;
+        poli[2] += cos(poli[4]) * 0.3 * blockSize / 25;
+        poli[3] += sin(poli[4]) * 0.3 * blockSize / 25;
+        if (car[0] > poli[0]) {
+            h = 180 + atan((car[1] - poli[1]) / (car[0] - poli[0]));
+        } else {
+            h = atan((car[1] - poli[1]) / (car[0] - poli[0]));
+        }
+        while (h > 360) {
+            h -= 360;
+        }
+        while (h < 0) {
+            h += 360;
+        }
+        g = (h - poli[4]);
+        while (g > 360) {
+            g -= 360;
+        }
+        while (g < 0) {
+            g += 360;
+        }
+        if (g >= 180) {
+            poli[5] += 0.075;
+        } else if (g < 180) {
+            poli[5] -= 0.075;
+        }
+        while (poli[4] < 0) {
+            poli[4] += 360;
+        }
+        while (poli[4] > 360) {
+            poli[4] -= 360;
+        }
+        poli[0] = constrain(poli[0], 0, 400);
+        poli[1] = constrain(poli[1], 0, 400);
+        if (poli[2] * poli[2] + poli[3] * poli[3] >= blockSize * 2) {
+            police.splice(i, 1);
+        }
+    }
+    if (floor(random(0, 20)) === 0) {
+        exc.push([random(0, 400), random(0, 400), 0]);
+    }
+};
+var drawExc = function() {
+    fill(255, 0, 0);
+    noStroke();
+    for (var i = 0; i < exc.length; i++) {
+        exc[i][2] += 0.01;
+        ellipse(exc[i][0], exc[i][1], 25 * (1 - exc[i][2]), 25 * (1 - exc[i][2]));
+        // image(cm, exc[i][0] - 25 * (1 - exc[i][2]) / 2, exc[i][1] - 25 * (1 - exc[i][2]) / 2, 25 * (1 - exc[i][2]), 25 * (1 - exc[i][2]));
+        if (exc[i][2] >= 1) {
+            police.push([exc[i][0], exc[i][1], 0, 0, atan2(exc[i][1] - car[1], exc[i][0] - car[0]), 0]);
+            exc.splice(i, 1);
+        }
+    }
+};
+var bump = function() {
+    for (var i = 0; i < police.length; i++) {
+        for (var j = 0; j < police.length; j++) {
+            if (i !== j) {
+                poli = police[i];
+                var polj = police[j];
+                if (dist(poli[0], poli[1], polj[0], polj[1]) <= blockSize / 3) {
+                    while (dist(poli[0], poli[1], polj[0], polj[1]) <= blockSize / 3) {
+                        ppA = atan2(poli[1] - polj[1], poli[0] - polj[0]);
+                        poli[0] += cos(ppA);
+                        poli[1] += sin(ppA);
+                        polj[0] -= cos(ppA);
+                        polj[1] -= sin(ppA);
+                    }
+                }
+            }
+        }
+    }
+    touched = 0;
+    for (var i = 0; i < police.length; i++) {
+        poli = police[i];
+        if (dist(poli[0], poli[1], car[0], car[1]) <= blockSize / 3) {
+            while (dist(poli[0], poli[1], car[0], car[1]) <= blockSize / 3) {
+                ppA = atan2(poli[1] - car[1], poli[0] - car[0]);
+                car[0] -= cos(ppA);
+                car[1] -= sin(ppA);
+                poli[0] += cos(ppA);
+                poli[1] += sin(ppA);
+            }
+            car[4] = ppA;
+            touched++;
+        }
+    }
+    if (touched >= 4) {
+        dead = true;
+    }
+};
+var drawM = function() {
+    mamt = constrain(mamt, 0, 10);
+    for (var i = 0; i < mamt; i++) {
+        fill(0, 255, 0);
+        rect(5 + i * 30, 5, 25, 25);
+        if (((frameCount) / 10) % 2 >= 1) {
+            fill(255, 0, 0);
+        } else if (((frameCount) / 10) % 2 <= 1) {
+            fill(255, 0, 0, 100);
+        }
+        rect(5 + i * 30 + 12.5 / 2, 5 + 12.5 / 2, 25 / 2, 25 / 2);
+    }
+    textFont(createFont("monospace"));
+    fill(0, 0, 0);
+    textAlign(LEFT, TOP);
+    textSize(20);
+    text("Space to use", 5, 35);
+};
+var deathScreen = function() {
+    if ((frameCount / 20) % 2 < 1) {
+        fill(255, 0, 0, d / txt.length / 4 * 255);
+    }
+    if ((frameCount / 20) % 2 >= 1) {
+        fill(0, 200, 255, d / txt.length / 4 * 255);
+    }
+    rect(0, 0, 400, 400);
+    if (frameCount % 10 === 0 & d < txt.length) {
+        d++;
+    }
+    var r = "";
+    for (var i = 0; i < d; i++) {
+        r += txt[i];
+    }
+    textAlign(CENTER, CENTER);
+    textSize(50);
+    fill(0, 0, 0);
+    textFont(createFont("monospace"));
+    text(r, 200, 200);
+};
+var displayScore = function() {
+    fill(0, 0, 0, 200);
+    textSize(50);
+    textFont(createFont("sans-serif"));
+    textAlign(CENTER, CENTER);
+    text(floor(score / 60), 200, 375);
+};
+frameRate(60);
+smooth();
+draw = function() {
+    if (frameCount === 0) {
+        // exm();
+    }
+    drawBack();
+    drawTracks();
+    drawMines();
+    drawCar();
+    drawP();
+    drawSmoke();
+    explodeMines();
+    if (dead === false) {
+        drawExc();
+        moveP();
+        move();
+        bump();
+        score = frameCount;
+        awardMines();
+    } else {
+        deathScreen();
+    }
+    displayScore();
+    drawM();
+};
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

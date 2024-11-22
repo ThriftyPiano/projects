@@ -1,0 +1,119 @@
+<html>
+    <head>
+        <title>DLA</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//
+var l = 20;
+var ps = 10;
+var points = [];
+var tree = [[200, 200, 100, 25]];
+smooth();
+noStroke();
+frameRate(0);
+background(0, 0, 0);
+draw = function() {
+    for(var k = 0; k < 10; k++) {
+        var r = random(0, 360);
+        var d = 200;
+        points.push([cos(r)*d+200, sin(r)*d+200, d/50]);
+    }
+    var farthestdistance = 0;
+    for(var i = 0; i < tree.length; i++) {
+        if(dist(tree[i][0], tree[i][1], 200, 200)+tree[i][3]/2 >= farthestdistance) {
+            farthestdistance = dist(tree[i][0], tree[i][1], 200, 200)+tree[i][3]/2;
+        }
+    }
+    for(var q = 0; q < 20; q++) {
+        for(var i = 0; i < points.length; i++) {
+            points[i][2] = dist(points[i][0], points[i][1], 200, 200)/80+2;
+            points[i][0] = constrain(points[i][0], points[i][2]/2, 400-points[i][2]/2);
+            points[i][1] = constrain(points[i][1], points[i][2]/2, 400-points[i][2]/2);
+            points[i][0] += cos(random(0, 360))*ps/128;
+            points[i][1] += sin(random(0, 360))*ps/128;
+            points[i][0] += cos(atan2(200-points[i][1], 200-points[i][0]))*ps/64;
+            points[i][1] += sin(atan2(200-points[i][1], 200-points[i][0]))*ps/64;
+            if(dist(points[i][0], points[i][1], 200, 200) <= farthestdistance) {
+                for(var j = 0; j < tree.length; j++) {
+                    if(dist(points[i][0], points[i][1], tree[j][0], tree[j][1]) <= points[i][2]/2+tree[j][3]/2) {
+                        tree.push([points[i][0], points[i][1], l, points[i][2]]);
+                        colorMode(HSB);
+                        fill((frameCount-50)%255, 255, 255);
+                        colorMode(RGB);
+                        ellipse(points[i][0], points[i][1], points[i][2], points[i][2]);
+                        points.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    for(var i = 0; i < tree.length; i++) {
+        tree[i][2]--;
+        if(tree[i][2] <= 0) {
+            tree.splice(i, 1);
+        }
+    }
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

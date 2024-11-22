@@ -1,0 +1,138 @@
+<html>
+    <head>
+        <title>Satisfying Switches</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+smooth();
+frameRate(58);
+
+function q(x, y, s, t) {
+    strokeWeight(30);
+    strokeCap(ROUND);
+    stroke(50, 50, 75);
+    line(x-12.5, y, x+12.5, y);
+    strokeWeight(25);
+    if (s) {
+        stroke(0, 255, 0);
+        point(x+12.5 - 25 * t, y);
+    }
+    else {
+        stroke(255, 0, 0);
+        point(x-12.5 + 25 * t, y);
+    }
+}
+
+var w = [];
+var k = false;
+
+for (var i = 0; i < 6; i++) {
+    for (var j = 0; j < 5; j++) {
+        w.push({
+            x: 50 + j * 75,
+            y: 125 + i * 50,
+            o: false,
+            t: 0,
+        });
+    }
+}
+
+var g;
+
+draw = function() {
+    background(255, 255, 255);
+    for (var i = 0; i < w.length; i++) {
+        q(w[i].x, w[i].y, w[i].o, w[i].t);
+        w[i].t *= 0.8;
+    }
+    textSize(25);
+    textAlign(CENTER, CENTER);
+    fill(50, 50, 75);
+    text(!k ? 'Most Satisfying Switches!\nExtremely Soothing!\nI know you want to flip all of them!' : g, 200, 50);
+};
+
+mouseClicked = function() {
+    var c = 0;
+    for (var i = 0; i < w.length; i++) {
+        if (mouseX > w[i].x - 25 & mouseX < w[i].x + 25 & mouseY > w[i].y - 12.5 & mouseY < w[i].y + 12.5) {
+            w[i].o = !w[i].o;
+            c = i;
+            w[i].t = 1;
+        }
+    }
+    var l = 0;
+    for (var i = 0; i < w.length; i++) {
+        l += w[i].o ? 1 : 0;
+    }
+    if (l >= w.length) {
+        k = true;
+        g = 'Most Agitating Switches!\nAlways one Off! :D\nYou can never flip all of them!';
+        var r = floor(random(w.length));
+        while (r === c) {
+            r = floor(random(w.length));
+        }
+        w[r].o = false;
+        w[r].t = 1;
+    }
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

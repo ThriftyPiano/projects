@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title></title>
+        <title>Interactive Julia Set</title>
     </head>
     <style>
 html, body {
@@ -58,7 +58,39 @@ new Processing("canvas", proc => {
         size(400, 400);
         angleMode = "degrees";
 /////////////////        
-
+//Click somewhere on the screen.
+enableContextMenu();
+loadPixels();
+var maxiter = 300;
+var R = 5;
+var n = 2;
+var inc = 1;
+var c = [-0.7269, 0.1889];
+var grid = [];
+colorMode(HSB);
+frameRate(0);
+noStroke();
+draw = function() {
+    for(var kk = 0; kk < 5; kk++) {
+    var x = (frameCount*5+kk) % 400;
+    for (var y = 0; y < 400; y += inc) {
+        var zx = (x - 200) / 100;
+        var zy = (y - 200) / 100;
+        var iter = 0;
+        while (zx * zx + zy * zy < R * R & iter < maxiter) {
+            var xtemp = pow((zx * zx + zy * zy), n / 2) * cos(n * atan2(zy, zx)) + c[0];
+            zy = pow((zx * zx + zy * zy), n / 2) * sin(n * atan2(zy, zx)) + c[1];
+            zx = xtemp;
+            iter += 1;
+        }
+        set(x, y, iter === maxiter ? color(0, 0, 0) : color((150 + iter) % 255, 200, 255));
+    }
+    updatePixels();
+    }
+};
+mouseClicked = function() {
+    c = [0.7785*cos(mouseX/400*360), 0.7785*sin(mouseX/400*360)];
+};
 /////////////////
     }
 });

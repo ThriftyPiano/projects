@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title></title>
+        <title>Vector Field</title>
     </head>
     <style>
 html, body {
@@ -58,7 +58,42 @@ new Processing("canvas", proc => {
         size(400, 400);
         angleMode = "degrees";
 /////////////////        
-
+var drawArrow = function(a, b, c, d) {
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    line(a, b, c, d);
+    var m = sqrt((c-a)*(c-a)+(b-d)*(b-d));
+    var r = atan2(d-b, c-a);
+    line(c, d, c+cos(r+150)*m/3, d+sin(r+150)*m/3);
+    line(c, d, c+cos(r-150)*m/3, d+sin(r-150)*m/3);
+};
+var g = random(0, 1);
+var field = function(x, y) {
+    return [cos((noise(x/400, y/400, g*2)*4-3.5)*360), sin((noise(x/400, y/400, g*2)*4-3.5)*360)];
+};
+frameRate(0);
+smooth();
+var ball = [200, 200, 0];
+background(255, 255, 255);
+for(var i = 0; i < 400; i += 10) {
+    for(var j = 0; j < 400; j += 10) {
+        drawArrow(i+field(i, j)[0]*5, j+field(i, j)[1]*5, i, j);
+    }
+}
+draw = function() {
+    for(var i = 0; i < 1000; i++) {
+        var speed = [field(ball[0], ball[1])[0], field(ball[0], ball[1])[1]];
+        ball[0] += speed[0];
+        ball[1] += speed[1];
+        strokeWeight(1);
+        stroke(lerpColor(color(0, 255, 0), color(0, 0, 255), constrain(ball[2]/100, 0, 1)), 255/5);
+        ball[2]++;
+        point(ball[0], ball[1]);
+        if(ball[0] !== constrain(ball[0], 0, 400) || ball[1] !== constrain(ball[1], 0, 400)) {
+            ball = [random(0, 400), random(0, 400), 0];
+        }
+    }
+};
 /////////////////
     }
 });
