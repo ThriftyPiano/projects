@@ -62,3 +62,86 @@
   </nav>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects</title>
+  <style>
+    body {
+      font-family: monospace; /* Monospace font */
+      margin: 0;
+      padding: 0;
+      background-color: #121212; /* Dark background */
+      color: #00ff00; /* Bright green text */
+    }
+    h1 {
+      text-align: center;
+      color: #00ff00;
+      margin: 20px 0;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .grid-item {
+      border: 1px solid #00ff00;
+      border-radius: 10px;
+      background-color: #1a1a1a;
+      padding: 15px;
+    }
+    .program-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    a {
+      text-decoration: none;
+      color: #121212;
+      background-color: #00ff00;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      margin-top: 10px;
+      display: inline-block;
+    }
+    a:hover {
+      background-color: #66ff66;
+    }
+    p {
+      margin: 5px 0 0;
+      font-size: 14px;
+      color: #00ff00;
+    }
+    /* Ensures page scrolls if content overflows */
+    body {
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>ThriftyPiano's Projects</h1>
+  <div class="grid-container">
+    <!-- Program 1 -->
+    <div class="grid-item">
+      <div class="program-content">
+        <a href="datadefense.html">Data Defense</a>
+        <p>A cyber-themed shooter game where you fend off waves of enemies with over 30 types of guns and drones, power ups, and more. My largest project ever, offering 50+ hours of riveting gameplay.</p>
+      </div>
+    </div>
+    <!-- Program 2 -->
+    <div class="grid-item">
+      <div class="program-content">
+        <a href="clashroyale.html">Clash Royale v1.1</a>
+        <p>The final version of my replica of Clash Royale, a 2-week long project that turned into a 2-year one. Features terrible graphics, champions with no abilities, spells that glitch half the time, and more!</p>
+    </div>
+  </div>
+</body>
+</html>
