@@ -65,9 +65,14 @@
       color: #00ff00;
       text-align: left; /* Left-align the text for better readability */
     }
+    /* Links within paragraphs */
     p a {
-      text-decoration: underline;  /* Add an underline for links inside paragraphs */
-      color: #00ff00; /* Use the same green as text */
+      text-decoration: underline;  /* Underline the links */
+      color: #00ff00; /* Green text color */
+      background-color: transparent; /* Remove the green background */
+      padding: 0; /* Remove padding */
+      border-radius: 0; /* Remove rounded corners */
+      font-weight: normal; /* Reset font weight */
     }
     /* Ensures page scrolls if content overflows */
     body {
