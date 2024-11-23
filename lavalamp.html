@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <title>Lava Lamp</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//Added negative balls.
+var pixelSize = 2;
+var circles = [];
+for(var i = 0; i < 10; i++) {
+    circles.push([200, 25, 0, 0, [random(0, 255), random(0, 255), random(0, 255)]]);
+}
+var t = 0;
+frameRate(0);
+smooth();
+var a = 1;
+var e = 375;
+draw = function() {
+    noStroke();
+    colorMode(HSB);
+    background(0, 0, 0);
+    for(var i = 0; i < 400; i += pixelSize) {
+        for(var j = 0; j < 400; j += pixelSize) {
+            var s = 0;
+            var c = [0, 0, 0, Infinity];
+            for(var k = 0; k < circles.length; k++) {
+                s += 25*25/dist(i, j, circles[k][0], circles[k][1])/10;
+            }
+            if(s*255/2 >= 0) {
+                fill(s*255/5, 255, s*255/5);
+                rect(i, j, pixelSize, pixelSize);
+            }
+        }
+    }
+    circles[t][1] += circles[t][3];
+    circles[t][0] += circles[t][2];
+    circles[t][3] += a;
+    if(abs(circles[t][1]-e) <= 12.5) {
+        circles[t][3] = 0;
+        t++;
+    }
+    if(t >= 10) {
+        t = 0;
+        a = -a;
+        e = 400-e;
+    }
+};
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

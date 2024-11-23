@@ -1,0 +1,156 @@
+<html>
+    <head>
+        <title>Forest Creator</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+with (proc) {
+processingJS = proc;
+var canvas = document.getElementById('div');
+    size(canvas.clientWidth, canvas.clientHeight);
+    angleMode = "degrees";
+/////////////////        
+smooth();
+var createtree = function(x, y, s, iters, angle, spread, branch) {
+    var tree = [
+        [
+            [
+                [x, y],
+                [x, y - s]
+            ]
+        ]
+    ];
+    for (var i = 0; i < iters; i++) {
+        tree.push([]);
+        for (var j = 0; j < tree[i].length; j++) {
+            for(var t = 0; t < branch; t++) {
+                var k = random(-spread, spread);
+                tree[i+1].push([
+                    [tree[i][j][1][0], tree[i][j][1][1]],
+                    [tree[i][j][1][0] + s * cos(angle + atan2(tree[i][j][1][1] - tree[i][j][0][1], tree[i][j][1][0] - tree[i][j][0][0])+k), tree[i][j][1][1] + s * sin(angle + atan2(tree[i][j][1][1] - tree[i][j][0][1], tree[i][j][1][0] - tree[i][j][0][0])+k)],
+                ]);
+            }
+        }
+    }
+    return tree;
+};
+var drawleaf = function(x, y, s, r) {
+    pushMatrix();
+    translate(x, y);
+    rotate(r);
+    translate(-x, -y);
+    noStroke();
+    fill(99, 126, 29);
+    ellipse(x, y, s, s/2);
+    stroke(99/2, 126/2, 29/2);
+    strokeWeight(s/16);
+    line(x-s/2, y, x+s/2, y);
+    popMatrix();
+};
+
+var drawtree = function(tree) {
+    stroke(165, 124, 101);
+    for(var i = 0; i < tree.length; i++) {
+        for(var j = 0; j < tree[i].length; j++) {
+            strokeWeight(dist(tree[i][j][0][0], tree[i][j][0][1], tree[i][j][1][0], tree[i][j][1][1])/(i+1)/8);
+            line(tree[i][j][0][0], tree[i][j][0][1], tree[i][j][1][0], tree[i][j][1][1]);
+        }
+    }
+};
+var drawshadow = function(tree) {
+    pushMatrix();
+    translate(tree[0][0][0][0], tree[0][0][0][1]);
+    rotate(-45);
+    translate(-tree[0][0][0][0], -tree[0][0][0][1]);
+    stroke(0, 0, 0, 30);
+    for(var i = 0; i < tree.length; i++) {
+        for(var j = 0; j < tree[i].length; j++) {
+            strokeWeight(dist(tree[i][j][0][0], tree[i][j][0][1], tree[i][j][1][0], tree[i][j][1][1])/(i+1)/6);
+            line(tree[i][j][0][0], tree[i][j][0][1], tree[i][j][1][0], tree[i][j][1][1]);
+        }
+    }
+    popMatrix();
+};
+var twees = [];
+var river = [];
+draw = function() {
+    strokeCap(ROUND);
+    background(195, 213, 147);
+    for(var i = 0; i < river.length; i++) {
+        stroke(0, 200, 255);
+        strokeWeight(river[i][4]);
+        line(river[i][0], river[i][1], river[i][2], river[i][3]);
+    }
+    for(var i = 0; i < twees.length; i++) {
+        drawshadow(twees[i]);
+    }
+    for(var i = 0; i < twees.length; i++) {
+        drawtree(twees[i]);
+    }
+};
+mouseClicked = function() {
+    if(mouseButton === LEFT) {
+        twees.push(createtree(mouseX, mouseY, sqrt(mouseY), 4, 0, 30, 2));
+    }
+};
+mouseDragged = function() {
+    if(mouseButton === RIGHT) {
+        river.push([pmouseX, pmouseY, mouseX, mouseY, sqrt(mouseY)]);
+    }
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

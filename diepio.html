@@ -1,0 +1,806 @@
+<html>
+    <head>
+        <title>Diep.io</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+//This is IN PROGRESS.
+//{
+
+smooth();
+strokeJoin(ROUND);
+//DO NOT TINKER WITH THESE VARIABLES. THESE ARE READ-ONLY.
+//{
+var angle = 0;
+var x_offset = 1;
+var y_offset = 2;
+var turret_width = 3;
+var turret_height = 4;
+var reload = 5;
+var full_reload = 6;
+var bullet_speed = 7;
+var drag = 8;
+var type = 9;
+var fade = 10;
+var recoil = 11;
+var turret_damage = 12;
+var pene = 13;
+//}
+//{
+var x = 0;
+var y = 1;
+var x_velocity = 2;
+var y_velocity = 3;
+var bullet_size = 4;
+var bullet_drag = 5;
+var bullet_type = 6;
+var bullet_angle = 7;
+var time_alive = 8;
+var max_time = 9;
+var damage = 10;
+var penet = 11;
+//}
+//{
+var bullet = 0;
+var trap = 1;
+var drone = 2;
+//}
+//{
+var health = 3;
+var max_health = 4;
+var shape_type = 5;
+var shape_size = 6;
+var shape_xp = 7;
+var hit = 8;
+//}
+//{
+var square = 0;
+var tringle = 1;
+var circle = 2;
+//}
+var auto_spinning = false;
+var facing_angle = 0;
+var shooting = false;
+var bullets = [];
+//Insert a new element in this array in the form of
+//[Angle, x offset, y offset, width, height, reload offset, full reload, bullet speed, drag, type, fade time, recoil, damage]
+var tanks = [
+    [
+        "Basic",
+        [
+            [0, 0, 0, 20, 45, 0, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+        ],
+        [1, 2, 3, 4, 5, 13, 16, 17]
+    ],
+    [
+        "Twins",
+        [
+            [0, -12.5, 0, 20, 40, 20, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+            [0, 12.5, 0, 20, 40, 0, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+        ],
+        [6, 7, 8, 10, 12, 14]
+    ],
+    [
+        "Sniper",
+        [
+            [0, 0, 0, 20, 55, 0, 40, 8, 0, bullet, 100, -0.1, 75, 130],
+        ],
+        [9, 10, 11, 12]
+    ],
+    [
+        "Flank guard",
+        [
+            [0, 0, 0, 20, 45, 0, 40, 6, 0, bullet, 100, 0, 65, 65],
+            [180, 0, 0, 20, 35, 0, 40, 6, 0, bullet, 100, 0, 65, 65],
+        ],
+        [14]
+    ],
+    [
+        "Machine gun",
+        [
+            [0, 0, 0, 20, 40, 0, 50, 6, 0, bullet, 100, -0.5, 40, 60],
+            [10, 0, 0, 20, 40, 10, 50, 6, 0, bullet, 100, -0.5, 40, 60],
+            [-10, 0, 0, 20, 40, 20, 50, 6, 0, bullet, 100, -0.5, 40, 60],
+            [20, 0, 0, 20, 40, 30, 50, 6, 0, bullet, 100, -0.5, 40, 60],
+            [-20, 0, 0, 20, 40, 40, 50, 6, 0, bullet, 100, -0.5, 40, 60],
+        ],
+        [15]
+    ],
+    [
+        "Droner",
+        [
+            [0, 0, 0, 10, 40, 0, 20, 6, 0, drone, 100, -0.1, 85, 1000],
+        ],
+        []
+    ],
+    [
+        "Twin flank",
+        [
+            [0, -12.5, 0, 20, 40, 20, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+            [0, 12.5, 0, 20, 40, 0, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+            [180, -12.5, 0, 20, 40, 20, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+            [180, 12.5, 0, 20, 40, 0, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+        ],
+        []
+    ],
+    [
+        "Triple shot",
+        [
+            [0, 0, 0, 20, 40, 0, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+            [-45, 0, 0, 20, 40, 0, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+            [45, 0, 0, 20, 40, 0, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+        ],
+        []
+    ],
+    [
+        "Quad tank",
+        [
+            [0, 0, 0, 20, 40, 0, 40, 6, 0, bullet, 100, 0, 65, 65],
+            [90, 0, 0, 20, 40, 0, 40, 6, 0, bullet, 100, 0, 65, 65],
+            [180, 0, 0, 20, 40, 0, 40, 6, 0, bullet, 100, 0, 65, 65],
+            [270, 0, 0, 20, 40, 0, 40, 6, 0, bullet, 100, 0, 65, 65],
+        ],
+        []
+    ],
+    [
+        "Assassin",
+        [
+            [0, 0, 0, 20, 60, 0, 40, 10, 0, bullet, 100, 0, 85, 320],
+        ],
+        []
+    ],
+    [
+        "Twin sniper",
+        [
+            [0, 12.5, 0, 20, 55, 0, 40, 8, 0, bullet, 100, -0.1, 75, 130],
+            [0, -12.5, 0, 20, 55, 0, 40, 8, 0, bullet, 100, -0.1, 75, 130],
+        ],
+        []
+    ],
+    [
+        "Triple strike",
+        [
+            [0, 0, 0, 20, 50, 0, 80, 8, 0, bullet, 100, -0.1, 75, 50],
+            [0, 0, 0, 20, 40, 5, 80, 8, 0, bullet, 100, -0.1, 75, 50],
+            [0, 0, 0, 20, 30, 10, 80, 8, 0, bullet, 100, -0.1, 75, 50],
+        ],
+        []
+    ],
+    [
+        "Blockade",
+        [
+            [0, -12.5, 0, 10, 30, 0, 20, 8, 0.05, trap, 500, -0.1, 75, 1000],
+            [0, 12.5, 0, 10, 30, 10, 20, 8, 0.05, trap, 500, -0.1, 75, 1000],
+        ],
+        []
+    ],
+    [
+        "Trapper",
+        [
+            [0, 0, 0, 20, 30, 0, 20, 4, 0.05, trap, 100, -0.1, 100, 1000],
+        ],
+        [12]
+    ],
+    [
+        "Back watcher",
+        [
+            [180, 0, 0, 20, 30, 0, 20, 10, 0.05, trap, 300, -0.5, 100, 1000],
+            [0, 12.5, 0, 20, 45, 10, 20, 6, 0, bullet, 100, -0.1, 65, 65],
+            [0, -12.5, 0, 20, 45, 0, 20, 6, 0, bullet, 100, -0.1, 65, 65],
+        ],
+        []
+    ],
+    [
+        "Cannon",
+        [
+            [0, 0, 0, 35, 45, 0, 60, 6, 0, bullet, 100, -5, 1000, 10000],
+        ],
+        []
+    ],
+    [
+        "Epico",
+        [
+            [0, 0, 0, 5, 30, 0, 0, 4, 0, bullet, 25, 0, 10, 50],
+            [45, 0, 0, 5, 30, 0, 0, 4, 0, bullet, 25, 0, 10, 50],
+            [90, 0, 0, 5, 30, 0, 0, 4, 0, bullet, 25, 0, 10, 50],
+            [135, 0, 0, 5, 30, 0, 0, 4, 0, bullet, 25, 0, 10, 50],
+            [180, 0, 0, 5, 30, 0, 0, 4, 0, bullet, 25, 0, 10, 50],
+            [225, 0, 0, 5, 30, 0, 0, 4, 0, bullet, 25, 0, 10, 50],
+            [270, 0, 0, 5, 30, 0, 0, 4, 0, bullet, 25, 0, 10, 50],
+            [315, 0, 0, 5, 30, 0, 0, 4, 0, bullet, 25, 0, 10, 50],
+            [360, 0, 0, 5, 30, 0, 0, 4, 0, bullet, 25, 0, 10, 50],
+        ],
+        []
+    ],
+    [
+        "Mrs. Monopoly",
+        [
+            [0, 0, 0, 10, 40, 0, 40, 4, 0, bullet, 25, 0, 10, 50],
+        ],
+        []
+    ],
+];
+var turrets = [
+    [0, 0, 0, 20, 45, 0, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+];
+var player = [0, 0];
+var speed = [0, 0];
+var max_drones = 100;
+var shapes = [];
+var blab;
+var xp = 0;
+var act_xp = 0;
+var next_xp = 50;
+var healthy = 1000;
+var level = 30;
+var tier = 0;
+var acttier = 0;
+var current = 0;
+var full = 0;
+var build = [0, 0, 0, 0, 0, 0, 0, 0];
+var stuff = [1, 1.25, 1.5, 2, 3, 5, 10];
+var stiff = ["Regen", "Health", "Body damage", "Bullet speed", "Penetration", "Damage", "Reload", "Speed"];
+var upgrades = 0;
+var act_upgrades = 0;
+var max_shapes = 1000;
+var f = createFont("cursive");
+textFont(f);
+var g;
+frameRate(60);
+var collide = function(x1, y1, x2, y2, vx, vy, s1, s2) {
+    //_clearLogs();
+    var a = (x1 - x2) / (y1 - y2);
+    var v1x = (a * vy + a * a * vx) / (a * a + 1);
+    var v1y = (vy + a * vx) / (a * a + 1);
+    var v2x = (vx - a * vy) / (a * a + 1);
+    var v2y = (a * a * vy - a * vx) / (a * a + 1);
+    //println(vx + "\n" + vy);
+    //return [vx, vy];
+    return [(-v1x + v2x), (-v1y + v2y)];
+};
+var draw_bullet = function(x, y, s, t, a) {
+    if (t === 0) {
+        stroke(100, 100, 100, 255 - a);
+        strokeWeight(2.5);
+        fill(0, 150, 255, 255 - a);
+        ellipse(x, y, s, s);
+    } else if (t === 1) {
+        stroke(0, 138, 200, 255 - a);
+        strokeWeight(5);
+        fill(0, 150, 255, 255 - a);
+        triangle(x - s / 2, y - s / 2, x, y + s * sqrt(3) / 2 - s / 2, x + s / 2, y - s / 2);
+    } else if (t === 2) {
+        stroke(0, 136, 255, 255 - a);
+        strokeWeight(5);
+        fill(0, 150, 255, 255 - a);
+        triangle(x - s / 2, y - s / 2, x, y + s * sqrt(3) / 2 - s / 2, x + s / 2, y - s / 2);
+    }
+};
+var update_turning = function() {
+    if (auto_spinning === false) {
+        facing_angle = atan2(mouseY - 200, mouseX - 200);
+    } else {
+        facing_angle = frameCount;
+    }
+};
+var update = function() {
+    update_turning();
+};
+var draw_turret = function(x, y, w, h, t) {
+    if (t === bullet) {
+        rect(x, y, w, h);
+    } else if (t === trap) {
+        rect(x, y, w, h);
+        quad(x, y + h, x - w / 2, y + h * 4 / 3, x + w * 6 / 4, y + h * 4 / 3, x + w, y + h);
+    } else if (t === drone) {
+        quad(x + w / 2, y, x - w / 2, y + h, x + w * 3 / 2, y + h, x + w / 2, y);
+    }
+};
+var draw_turrets = function() {
+    for (var i = 0; i < turrets.length; i++) {
+        stroke(114, 114, 114);
+        fill(153, 153, 153);
+        strokeWeight(3);
+        pushMatrix();
+        translate(200, 200);
+        rotate(turrets[i][angle] - 90);
+        translate(-200, -200);
+        draw_turret(200 + turrets[i][x_offset] - turrets[i][turret_width] / 2, 200 + turrets[i][y_offset], turrets[i][turret_width], turrets[i][turret_height], turrets[i][type]);
+        popMatrix();
+    }
+};
+var draw_player = function() {
+    draw_turrets();
+    fill(0, 176, 255);
+    strokeWeight(3);
+    stroke(0, 131, 168);
+    ellipse(200, 200, 50, 50);
+};
+var reload_turrets = function() {
+    for (var i = 0; i < turrets.length; i++) {
+        turrets[i][reload] += 1 * sqrt(stuff[build[6]]);
+    }
+};
+var shoot_turrets = function() {
+    for (var i = 0; i < turrets.length; i++) {
+        if (turrets[i][reload] >= turrets[i][full_reload]) {
+            var theta = -atan2(mouseY - 200, mouseX - 200) + turrets[i][angle];
+            var offset = turrets[i][x_offset];
+            bullets.push([200 - sin(theta) * offset + player[0], 200 - cos(theta) * offset + player[1], cos(atan2(mouseY - 200, mouseX - 200) + turrets[i][angle]) * turrets[i][bullet_speed] * sqrt(sqrt(stuff[build[3]])), sin(atan2(mouseY - 200, mouseX - 200) + turrets[i][angle]) * turrets[i][bullet_speed] * sqrt(sqrt(stuff[build[3]])), turrets[i][turret_width], turrets[i][drag], turrets[i][type], theta, 0, turrets[i][fade], turrets[i][turret_damage] * stuff[build[5]], turrets[i][pene] * stuff[build[4]]]);
+            turrets[i][reload] = 0;
+            speed[0] += cos(atan2(mouseY - 200, mouseX - 200) + turrets[i][angle]) * turrets[i][recoil];
+            speed[1] += sin(atan2(mouseY - 200, mouseX - 200) + turrets[i][angle]) * turrets[i][recoil];
+        }
+    }
+};
+var draw_bullets = function() {
+    for (var i = 0; i < bullets.length; i++) {
+        pushMatrix();
+        translate(bullets[i][0] - player[0], bullets[i][1] - player[1]);
+        rotate(bullets[i][bullet_angle]);
+        translate(-bullets[i][0] + player[0], -bullets[i][1] + player[1]);
+        draw_bullet(bullets[i][0] - player[0], bullets[i][1] - player[1], bullets[i][bullet_size], bullets[i][bullet_type], bullets[i][time_alive] / bullets[i][max_time] * 2000 - 1745);
+        popMatrix();
+        if (bullets[i][bullet_type] === drone) {
+            bullets[i][bullet_angle] = atan2(mouseY - (bullets[i][1] - player[1]), mouseX - (bullets[i][0] - player[0]));
+        }
+    }
+};
+var move_bullets = function() {
+    for (var i = 0; i < bullets.length; i++) {
+        if (bullets[i][bullet_type] !== drone) {
+            bullets[i][x] += bullets[i][x_velocity];
+            bullets[i][y] += bullets[i][y_velocity];
+            bullets[i][x_velocity] *= (1 - bullets[i][bullet_drag]);
+            bullets[i][y_velocity] *= (1 - bullets[i][bullet_drag]);
+            if (bullets[i][x] <= -300) {
+                bullets[i][x] = -300;
+                bullets[i][x_velocity] = abs(bullets[i][x_velocity]);
+            }
+            if (bullets[i][y] <= -300) {
+                bullets[i][y] = -300;
+                bullets[i][y_velocity] = abs(bullets[i][y_velocity]);
+            }
+            if (bullets[i][x] >= 300) {
+                bullets[i][x] = 300;
+                bullets[i][x_velocity] = -abs(bullets[i][x_velocity]);
+            }
+            if (bullets[i][y] >= 300) {
+                bullets[i][y] = 300;
+                bullets[i][y_velocity] = -abs(bullets[i][y_velocity]);
+            }
+        }
+    }
+    for (var i = 0; i < bullets.length; i++) {
+        if (bullets[i][bullet_type] === drone) {
+            if (mouseButton === LEFT & mouseIsPressed) {
+                bullets[i][x] += (mouseX - (bullets[i][x] - player[0])) / dist(mouseX, mouseY, bullets[i][x] - player[0], bullets[i][y] - player[1]) * 5;
+                bullets[i][y] += (mouseY - (bullets[i][y] - player[1])) / dist(mouseX, mouseY, bullets[i][x] - player[0], bullets[i][y] - player[1]) * 5;
+            }
+            if (mouseButton === RIGHT & mouseIsPressed) {
+                bullets[i][x] -= (mouseX - (bullets[i][x] - player[0])) / dist(mouseX, mouseY, bullets[i][x] - player[0], bullets[i][y] - player[1]) * 5;
+                bullets[i][y] -= (mouseY - (bullets[i][y] - player[1])) / dist(mouseX, mouseY, bullets[i][x] - player[0], bullets[i][y] - player[1]) * 5;
+            }
+            bullets[i][x] += random(-2, 2);
+            bullets[i][y] += random(-2, 2);
+        }
+    }
+};
+var fade_bullets = function() {
+    for (var i = 0; i < bullets.length; i++) {
+        bullets[i][time_alive]++;
+        if (bullets[i][time_alive] >= bullets[i][max_time]) {
+            bullets.splice(i, 1);
+        }
+    }
+    var drones = 0;
+    for (var i = 0; i < bullets.length; i++) {
+        if (bullets[i][bullet_type] === drone) {
+            drones++;
+        }
+    }
+    if (drones >= max_drones) {
+        for (var i = 0; i < bullets.length; i++) {
+            if (bullets[i][bullet_type] === drone) {
+                bullets.splice(i, 1);
+                break;
+            }
+        }
+    }
+};
+var move = function() {
+    if (keyIsPressed) {
+        if (String(key) === "w" & speed[1] >= -3 * sqrt(stuff[build[7]])) {
+            speed[1] -= 0.2 * sqrt(stuff[build[7]]);
+        }
+        if (String(key) === "a" & speed[0] >= -3 * sqrt(stuff[build[7]])) {
+            speed[0] -= 0.2 * sqrt(stuff[build[7]]);
+        }
+        if (String(key) === "s" & speed[1] <= 3 * sqrt(stuff[build[7]])) {
+            speed[1] += 0.2 * sqrt(stuff[build[7]]);
+        }
+        if (String(key) === "d" & speed[0] <= 3 * sqrt(stuff[build[7]])) {
+            speed[0] += 0.2 * sqrt(stuff[build[7]]);
+        }
+    }
+    player[0] += speed[0];
+    player[1] += speed[1];
+    speed[0] *= 0.9;
+    speed[1] *= 0.9;
+};
+var draw_grid = function() {
+    background(250, 250, 250);
+    strokeWeight(5);
+    stroke(200, 200, 200);
+    for (var i = -300; i < 301; i += 50) {
+        line(-300 - player[0], i - player[1], 300 - player[0], i - player[1]);
+    }
+    for (var i = -300; i < 301; i += 50) {
+        line(i - player[0], -300 - player[1], i - player[0], 300 - player[1]);
+    }
+    fill(0, 0, 0, 0);
+    stroke(100, 100, 100);
+    strokeWeight(10);
+    rect(-300 - player[0], -300 - player[1], 600, 600);
+    strokeWeight(5);
+};
+var spawn_shapes = function() {
+    if (frameCount % 10 === 0) {
+        shapes.push([random(-300, 300), random(-300, 300), random(0, 360), 100, 100, square, 25, 10, 0]);
+    }
+    if (frameCount % 50 === 0) {
+        shapes.push([random(-300, 300), random(-300, 300), random(0, 360), 300, 300, triangle, 25, 25, 0]);
+    }
+    if (frameCount % 250 === 0) {
+        shapes.push([random(-300, 300), random(-300, 300), random(0, 360), 1300, 1300, circle, 50, 130, 0]);
+    }
+};
+var draw_shape = function(x, y, s, t, h, g, r) {
+    if (t === square) {
+        fill(255, 228, 107);
+        stroke(191, 174, 78);
+        rect(x, y, s, s, s / 8);
+        fill(255, 0, 0, r * 255 / 10);
+        stroke(255, 0, 0, r * 255 / 10);
+        rect(x, y, s, s, s / 8);
+    }
+    if (t === triangle) {
+        fill(252, 118, 118);
+        strokeWeight(5);
+        stroke(189, 88, 90);
+        triangle(x + s, y + s * sqrt(3) / 6 + s / 2, x, y + s * sqrt(3) / 6 + s / 2, x + s / 2, y - s * sqrt(3) / 3 + s / 2);
+        fill(255, 0, 0, r * 255 / 10);
+        strokeWeight(5);
+        stroke(255, 0, 0, r * 255 / 10);
+        triangle(x + s, y + s * sqrt(3) / 6 + s / 2, x, y + s * sqrt(3) / 6 + s / 2, x + s / 2, y - s * sqrt(3) / 3 + s / 2);
+    }
+    if (t === circle) {
+        strokeWeight(5);
+        stroke(88, 105, 189);
+        fill(118, 140, 252);
+        ellipse(x + s / 2, y + s / 2, s, s);
+        fill(255, 0, 0, r * 255 / 10);
+        strokeWeight(5);
+        stroke(255, 0, 0, r * 255 / 10);
+        ellipse(x + s / 2, y + s / 2, s, s);
+    }
+};
+var draw_health = function(x, y, s, t, h) {
+    if (t === square) {
+        noStroke();
+        fill(84, 84, 84);
+        rect(x, y + 5 * s / 4, s, 7.5, 100);
+        fill(134, 194, 128);
+        rect(x, y + 5 * s / 4, s * h / 100, 7.5, 100);
+    }
+    if (t === triangle) {
+        noStroke();
+        fill(84, 84, 84);
+        rect(x, y + 5 * s / 4, s, 7.5, 100);
+        fill(134, 194, 128);
+        rect(x, y + 5 * s / 4, s * h / 300, 7.5, 100);
+    }
+    if (t === circle) {
+        noStroke();
+        fill(84, 84, 84);
+        rect(x, y + 5 * s / 4, s, 7.5, 100);
+        fill(134, 194, 128);
+        rect(x, y + 5 * s / 4, s * h / 1300, 7.5, 100);
+    }
+};
+var draw_shapes = function() {
+    for (var i = 0; i < shapes.length; i++) {
+        pushMatrix();
+        translate((shapes[i][0] - player[0]), (shapes[i][1] - player[1]));
+        rotate(shapes[i][2]);
+        translate(-(shapes[i][0] - player[0]), -(shapes[i][1] - player[1]));
+        fill(255, 228, 107);
+        stroke(191, 174, 78);
+        draw_shape(shapes[i][0] - player[0] - shapes[i][shape_size] / 2, shapes[i][1] - player[1] - shapes[i][shape_size] / 2, shapes[i][shape_size], shapes[i][shape_type], shapes[i][health], shapes[i][max_health], shapes[i][hit]);
+        popMatrix();
+        if (shapes[i][health] < shapes[i][max_health]) {
+            draw_health(shapes[i][0] - player[0] - shapes[i][shape_size] / 2, shapes[i][1] - player[1] - shapes[i][shape_size] / 2, shapes[i][shape_size], shapes[i][shape_type], shapes[i][health], shapes[i][max_health]);
+        }
+        shapes[i][2]++;
+        if (shapes[i][hit] > 0) {
+            shapes[i][hit]--;
+        }
+    }
+};
+var splice_shapes = function() {
+    outerloop: for (var i = 0; i < shapes.length; i++) {
+        innerloop: for (var j = 0; j < bullets.length; j++) {
+            if (dist(bullets[j][x], bullets[j][y], shapes[i][x], shapes[i][y]) <= bullets[j][bullet_size] / 2 + shapes[i][shape_size] / 2 & bullets[j][time_alive] < bullets[j][max_time] - 10 & shapes[i][hit] <= 0) {
+                g = shapes[i][health];
+                shapes[i][health] -= bullets[j][damage];
+                bullets[j][penet] -= abs(g - shapes[i][health]);
+                shapes[i][hit] = 10;
+                break innerloop;
+            }
+        }
+    }
+    for (var i = 0; i < shapes.length; i++) {
+        if (dist(shapes[i][x] - player[0], shapes[i][y] - player[1], 200, 200) <= shapes[i][shape_size] / 2 + 25) {
+            shapes[i][health] -= 35 * stuff[build[2]];
+            healthy -= 35;
+            shapes[i][x] += ((shapes[i][x] - player[0]) - 200) / 50;
+            shapes[i][y] += ((shapes[i][y] - player[0]) - 200) / 50;
+            shapes[i][hit] = 10;
+        }
+    }
+    for (var i = 0; i < shapes.length; i++) {
+        if (shapes[i][health] <= 0) {
+            act_xp += shapes[i][shape_xp];
+            full += shapes[i][shape_xp];
+            shapes.splice(i, 1);
+        }
+    }
+    while (shapes.length > max_shapes) {
+        shapes.splice(0, 1);
+    }
+};
+var draw_xp = function() {
+    noStroke();
+    fill(84, 84, 84);
+    rect(50, 375, 300, 12.5, 50);
+    fill(255, 228, 107);
+    rect(50, 375, 300 * xp / next_xp, 12.5, 50);
+    textAlign(CENTER, BOTTOM);
+    fill(255, 255, 255);
+    textSize(10);
+    text("Level " + (level + 1) + " " + tanks[current][0], 200, 389);
+    fill(84, 84, 84);
+    rect(50, 350, 300, 12.5, 50);
+    fill(134, 194, 128);
+    rect(50, 350, 300, 12.5, 50);
+    fill(255, 255, 255);
+    textSize(10);
+    if (full < 1000) {
+        text("XP: " + full, 200, 364);
+    } else {
+        text("XP: " + round(full / 100) / 10 + "k", 200, 364);
+    }
+    if (xp / next_xp >= 1) {
+        xp = 0;
+        act_xp -= next_xp;
+        next_xp *= 1.5;
+        level++;
+    }
+    if (xp <= act_xp) {
+        xp += next_xp / 200;
+    }
+    tier = floor(level / 15);
+    upgrades = floor(level);
+};
+var draw_phealth = function(x, y, s) {
+    noStroke();
+    fill(84, 84, 84);
+    rect(x - s / 2, y + 3 * s / 4, s, 7.5, 100);
+    fill(134, 194, 128);
+    rect(x - s / 2, y + 3 * s / 4, s * healthy / (1000 * sqrt(stuff[build[1]])), 7.5, 100);
+    if (healthy < 1000 * sqrt(stuff[build[1]])) {
+        healthy += stuff[build[0]] / 10;
+    }
+    if (healthy <= 0) {
+        turrets = [
+            [0, 0, 0, 20, 45, 0, 40, 6, 0, bullet, 100, -0.5, 65, 65],
+        ];
+        player = [0, 0];
+        speed = [0, 0];
+        healthy = 1000;
+        xp = 0;
+        act_xp = 0;
+        tier = 0;
+        acttier = 0;
+        level = 0;
+        current = 0;
+        full = 0;
+        build = [0, 0, 0, 0, 0, 0, 0, 0];
+        upgrades = 0;
+        act_upgrades = 0;
+    }
+};
+var draw_upgrades = function() {
+    fill(100, 100, 100);
+    textSize(20);
+    for (var i = 0; i < tanks[current][2].length; i++) {
+        textAlign(LEFT, TOP);
+        text(tanks[tanks[current][2][i]][0], 5, i * 25 + 2.5);
+        stroke(100, 100, 100);
+        strokeWeight(2.5);
+        line(0, i * 25 + 27.5, 200, i * 25 + 27.5);
+        line(200, 0, 200, tanks[current][2].length * 25 + 2.5);
+    }
+};
+var delete_bullets = function() {
+    for (var j = 0; j < bullets.length; j++) {
+        if (bullets[j][penet] <= 0) {
+            bullets[j][time_alive] = bullets[j][max_time];
+            bullets[j][x_velocity] = 0;
+            bullets[j][y_velocity] = 0;
+        }
+    }
+};
+var draw_build = function() {
+    for (var i = 0; i < build.length; i++) {
+        strokeWeight(2.5);
+        stroke(127.5, 127.5, 127.5);
+        line(250, 150 + i * 25, 400, 150 + i * 25);
+        line(250, 350, 400, 350);
+        line(250, 150, 250, 350);
+        textAlign(LEFT, TOP);
+        fill(255, 228, 107);
+        noStroke();
+        rect(250, 150 + i * 25, 150 * build[i] / 6, 25);
+        fill(0, 0, 0);
+        textSize(15);
+        text(stiff[i] + ": " + build[i], 255, 150 + i * 25);
+        textSize(20);
+        text("X "+(upgrades-act_upgrades), 250, 125);
+    }
+};
+draw = function() {
+    update();
+    draw_grid();
+    draw_bullets();
+    pushMatrix();
+    translate(200, 200);
+    rotate(facing_angle);
+    translate(-200, -200);
+    draw_player();
+    popMatrix();
+    if (mouseIsPressed || shooting) {
+        reload_turrets();
+        shoot_turrets();
+    }
+    move_bullets();
+    move();
+    for (var i = 0; i < player.length; i++) {
+        player[i] = constrain(player[i], -500, 100);
+    }
+    spawn_shapes();
+    draw_shapes();
+    splice_shapes();
+    fade_bullets();
+    draw_xp();
+    if (healthy < 1000 * sqrt(stuff[build[1]])) {
+        draw_phealth(200, 200, 50);
+    }
+    if (tier > acttier) {
+        draw_upgrades();
+    }
+    delete_bullets();
+    if (act_upgrades < upgrades & act_upgrades < 48) {
+        draw_build();
+    }
+    else if(mouseX > 375 & mouseY > 150 & mouseY < 350) {
+        draw_build();
+    }
+};
+keyReleased = function() {
+    if (String(key) === "c") {
+        //auto_spinning = !auto_spinning;
+    }
+    if (String(key) === "e") {
+        shooting = !shooting;
+    }
+    if(String(key) === "b") {
+        turrets = [
+                [0, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+                [36*1, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+                [36*2, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+                [36*3, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+                [36*4, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+                [36*5, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+                [36*6, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+                [36*7, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+                [36*8, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+                [36*9, 0, 0, 20, 40, 0, 0, 6, 0, bullet, 100, -0.5, 65, 65],
+            ];
+        acttier = tier;
+    }
+};
+mouseClicked = function() {
+    if (tier > acttier) {
+        for (var i = 0; i < tanks[current][2].length; i++) {
+            if (mouseX <= 200 & mouseY > i * 25 + 2.5 & mouseY < i * 25 + 27.5) {
+                turrets = tanks[tanks[current][2][i]][1];
+                current = tanks[current][2][i];
+                acttier++;
+                break;
+            }
+        }
+    }
+    if (act_upgrades < upgrades) {
+        for (var i = 0; i < build.length; i++) {
+            if (mouseX > 250 & mouseY > 150 + i * 25 & mouseY < 175 + i * 25 & build[i] < 6) {
+                build[i]++;
+                act_upgrades++;
+            }
+        }
+    }
+};
+//}
+//Hi.
+
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

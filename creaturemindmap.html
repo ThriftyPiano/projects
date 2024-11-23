@@ -1,0 +1,541 @@
+<html>
+    <head>
+        <title>Creature Mind Map</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(600, 600);
+        angleMode = "degrees";
+/////////////////        
+smooth();
+frameRate(58);
+textFont(createFont('Times New Roman'));
+
+var scene = 'title';
+
+var stageNum = 0;
+
+// Creature data {
+var creatureShape = [[216, 189],[216.66668701171875, 193.00003051757812],[207.33331298828125, 175.00003051757812],[206, 144.33334350585938],[201.33331298828125, 143.6666717529297],[200, 162.33334350585938],[192.66668701171875, 161.00003051757812],[194.66668701171875, 125.0000228881836],[201.33331298828125, 126.33333587646484],[201.33331298828125, 136.33334350585938],[208, 135.6666717529297],[212.66668701171875, 111.66667175292969],[222, 104.33333587646484],[271.33331298828125, 103],[278.66668701171875, 110.33333587646484],[280, 123.66667175292969],[280, 133.00003051757812],[288.66668701171875, 133.6666717529297],[290, 123.66667175292969],[296, 123.0000228881836],[295.33331298828125, 148.33334350585938],[288.66668701171875, 149.00003051757812],[288, 142.33334350585938],[278.66668701171875, 143.6666717529297],[280.66668701171875, 167.6666717529297],[270.66668701171875, 189.00003051757812],[264, 207.00003051757812],[299.33331298828125, 203.6666717529297],[322, 205.6666717529297],[338, 215.00003051757812],[345.3333435058594, 229.6666717529297],[349.3333435058594, 246.33334350585938],[352.66668701171875, 265.00006103515625],[358, 283.00006103515625],[365.3333435058594, 301.66668701171875],[372, 316.3333435058594],[377.3333435058594, 329.00006103515625],[383.3333435058594, 341.00006103515625],[374.66668701171875, 345.00006103515625],[377.3333435058594, 355.00006103515625],[385.3333435058594, 351.66668701171875],[392.66668701171875, 350.3333435058594],[411.3333435058594, 354.3333435058594],[418.0000915527344, 357.66668701171875],[418.0000915527344, 365.00006103515625],[415.3333435058594, 367.00006103515625],[398.0000915527344, 364.3333435058594],[398.66668701171875, 364.3333435058594],[409.3333435058594, 373.00006103515625],[414.66668701171875, 376.3333435058594],[412.0000915527344, 382.3333435058594],[408.0000915527344, 385.6667175292969],[392.66668701171875, 373.6667175292969],[400.66668701171875, 392.3333435058594],[401.3333435058594, 396.3333435058594],[396, 401.00006103515625],[392, 400.3333435058594],[384.66668701171875, 384.3333435058594],[380.66668701171875, 400.3333435058594],[378, 404.3333435058594],[371.3333435058594, 405.00006103515625],[367.3333435058594, 403.00006103515625],[368.66668701171875, 397.6667175292969],[364, 379.6667175292969],[350.66668701171875, 355.66668701171875],[340, 357.66668701171875],[324.66668701171875, 309.66668701171875],[318, 285.66668701171875],[312, 253.6666717529297],[306.66668701171875, 250.33334350585938],[304, 268.3333435058594],[308, 309.00006103515625],[310.66668701171875, 336.3333435058594],[313.33331298828125, 365.66668701171875],[318.66668701171875, 387.6667175292969],[312, 390.3333435058594],[318.66668701171875, 431.00006103515625],[320, 452.3333435058594],[322, 474.3333435058594],[321.33331298828125, 481.00006103515625],[319.33331298828125, 485.6667175292969],[312.66668701171875, 500.3333435058594],[306, 517.6666870117188],[299.33331298828125, 539.6666870117188],[296.66668701171875, 555],[307.33331298828125, 554.3333740234375],[317.33331298828125, 555.6666870117188],[316, 555.6666870117188],[324, 556.3333740234375],[330, 560.3333740234375],[334.66668701171875, 567.6666870117188],[340, 573],[335.33331298828125, 579],[332, 582.3333740234375],[316.66668701171875, 583],[296.66668701171875, 581],[276.66668701171875, 576.3333740234375],[266.66668701171875, 569],[266.66668701171875, 556.3333740234375],[264.66668701171875, 551],[263.33331298828125, 542.3333740234375],[264.66668701171875, 549.6666870117188],[261.33331298828125, 549.6666870117188],[263.33331298828125, 533.6666870117188],[266.66668701171875, 522.3333740234375],[270, 506.3333435058594],[272, 486.3333435058594],[280.66668701171875, 470.3333435058594],[265.33331298828125, 422.3333435058594],[254.66668701171875, 420.3333435058594],[243.33331298828125, 449.6667175292969],[234, 473.00006103515625],[232, 481.6667175292969],[230, 493.00006103515625],[234.66668701171875, 504.3333435058594],[237.33331298828125, 522.3333740234375],[238, 535],[239.33331298828125, 554.3333740234375],[241.33331298828125, 548.3333740234375],[238.66668701171875, 565],[236, 575],[221.33331298828125, 581.6666870117188],[203.33331298828125, 581.6666870117188],[183.33331298828125, 577.6666870117188],[168.66668701171875, 572.3333740234375],[163.33331298828125, 561],[164, 550.3333740234375],[173.33331298828125, 546.3333740234375],[179.33331298828125, 545.6666870117188],[192.66668701171875, 547.6666870117188],[202.66668701171875, 554.3333740234375],[199.33331298828125, 518.3333740234375],[188.66668701171875, 491.6667175292969],[189.33331298828125, 470.3333435058594],[195.33331298828125, 451.00006103515625],[203.33331298828125, 424.3333435058594],[212.66668701171875, 417.00006103515625],[210.66668701171875, 400.3333435058594],[210.66668701171875, 400.3333435058594],[210.66668701171875, 387.6667175292969],[195.33331298828125, 390.3333435058594],[190, 361.00006103515625],[197.33331298828125, 268.3333435058594],[193.33331298828125, 250.33334350585938],[184.66668701171875, 251.00003051757812],[172.66668701171875, 296.3333435058594],[169.33331298828125, 323.00006103515625],[166, 355.66668701171875],[161.33331298828125, 381.00006103515625],[154.66668701171875, 377.6667175292969],[152, 385.00006103515625],[158.66668701171875, 389.6667175292969],[162.66668701171875, 394.3333435058594],[164.66668701171875, 405.00006103515625],[162.66668701171875, 430.3333435058594],[156.66668701171875, 432.3333435058594],[154, 405.6667175292969],[146.66668701171875, 424.3333435058594],[141.33331298828125, 425.6667175292969],[137.33331298828125, 423.00006103515625],[141.33331298828125, 400.3333435058594],[129.33331298828125, 423.6667175292969],[125.33331298828125, 423.6667175292969],[118.66668701171875, 419.6667175292969],[130, 397.00006103515625],[113.33331298828125, 401.00006103515625],[112.66668701171875, 392.3333435058594],[116, 384.3333435058594],[130, 383.6667175292969],[134, 372.3333435058594],[126, 366.3333435058594],[136, 299.00006103515625],[146.66668701171875, 266.3333435058594],[164.66668701171875, 233.6666717529297],[181.33331298828125, 216.33334350585938],[201.33331298828125, 213.00003051757812],[222, 210.33334350585938],[218.66668701171875, 191.6666717529297],[218.66668701171875, 191.00003051757812],[223.33331298828125, 209.00003051757812],];
+// }
+
+function sText(t, x, y, w, h, s) {
+    textSize(s);
+    textAlign(LEFT, TOP);
+    w = (w === 0 ? 100000 : w);
+    h = (h === 0 ? 100000 : h);
+    fill(255, 0, 0, 100);
+    text(t, x-s/20, y-s/20, w, h);
+    fill(255, 255, 255);
+    text(t, x, y, w, h);
+}
+
+var timeline = [
+    {
+        name: 'Creation',
+        quote: '"So God created humankind in his image, in the image of God he created them; male and female he created them" (Genesis 1.27).',
+        color1: color(243, 168, 188),
+        color2: color(180, 240, 165),
+        disp: 'The Creature is confused. It is overwhelmed by its environment, before learning "to distinguish between the operations of [its] senses" (87). The Creature soon comprehends its situation, realizing that it "was a poor, helpless, miserable wretch" (87). It displays signs of self-loathing and pity, acknowledging its suffering.',
+        react: 'Surrounded by a multitude of sensations, the Creature limits its exposure: it "was obliged to shut [its] eyes" upon sensing light; it "covered [itself] with some clothes" upon sensing the cold air. After distinguishing between them, it attempts—but fails—to "imitate the pleasant songs" and reflect its environment (88).',
+        psych: 'Learning to interact with one\'s environment plays a major role in human development, requiring subtle but crucial guidance. However, the Creature lacks this guidance, causing an unorthodox response to its surroundings: whereas most humans are driven by curiosity to explore, it shields itself from its environment.',
+        frank: 'As the Creature commences its life, Victor\'s life reaches a watershed: both characters attempt to isolate themselves from their surroundings before gradually absorbing it. Frankenstein is shocked by the sheer complexity and implications of his studies and their culmination, voluntarily distancing himself from them.',
+    },
+    {
+        name: 'Exploration',
+        quote: '"Revisiting places where one has previously dwelled invites merely a hint of nostalgia; no, to venture into the unknown is sublime!" -Anonymous',
+        color1: color(255, 215, 0),
+        color2: color(21, 178, 211),
+        disp: 'After acquiring sufficient knowledge regarding its environment, it displays curiosity and takes delight in establishing connections between events, objects, and sensations. Thrusting its hand into a fire after experiencing its warmth, it was surprised that "the same cause should produce such opposite effects" (89).',
+        react: 'Understanding the causes of its sensations—pleasant or painful, the Creature aims to sustain or terminate them, respectively. It "collected some branches" after feeling the warmth of a fire (89), and tried to "dress [its] food" after experiencing the pleasurable taste of cooked offals.',
+        psych: 'The Creature develops rapidly compared to a human, demonstrating relatively advanced intellectual capabilities. This disrepancy may be attributed to its possession of a fully formed brain, which is linked to intellect in psychology. Its responses to incentives and disincentives match the related psychological trends.',
+        frank: 'Like the Creature, Frankenstein also opens up to the world. He interacts with his family and Clerval, similarly exploring new areas of life, albeit after concluding a lengthy immersion in his studies. They both learn to enjoy their lives. However, Frankenstein experiences psychological—not intellectual—development.',
+    },
+    {
+        name: 'Exposure',
+        quote: '"Only once you take the risk of opening yourself up to the world do you realize what it will do to you, good or evil." -Anonymous',
+        color1: color(247, 172, 42),
+        color2: color(124, 252, 0),
+        disp: 'The Creature finally interacts with humans, but remains confused about their responses to its presence: it met an old man, who "ran across the fields", which "somewhat surprised" it (90). It begins to detest humanity, remarking on "the barbarity of man" (91). Watching people introduces it to new emotions.',
+        react: 'It desires food and shelter—which humans possess—incentivizing it to satiate its needs by taking them from humans. However, retaliation led to isolation from, and discreet observation of, humans. Upon understanding the cottagers\' love and kindness, it feels guilt, leading it to "assist their labours" (96).',
+        psych: 'Whereas the Creature initially experiences emotions psychologically characterized as "need-based" (hunger, pain, pity, sadness, etc.), meeting humans provides it with a plethora of new feelings. These feelings require human interaction, and are conveniently termed "interaction-based" emotions in psychology.',
+        frank: 'As the Creature is exposed to humanity, Victor\'s exposure experiences matching shifts: he realizes the effects of his creation through numerous deaths, responding by limiting his connection to society. He takes trips through nature, hoping that the sublime, inspiring scenes will serve as a distraction.',
+    },
+    {
+        name: 'Anagnorisis',
+        quote: '"Oh! What a miserable night I passed! The cold stars shone in mockery, and the bare trees waved their branches above me..." (121).',
+        color1: color(94, 137, 158),
+        color2: color(46, 100, 100),
+        disp: 'Comparing himself to the cottagers, the Creature remarks how "[i]ncrease of knowledge only discovered...what a wretched outcast [it] was" (115). After revealing himself to the cottagers, he was struck "violently with a stick" (120). This incident leads the Creature to cement its isolated personality.',
+        react: 'Rejected by society, the Creature seeks refuge in nature. It undergoes a preliminary, minor stage of catharsis, "destroying the objects that obstructed [it] and ranging through the wood with a staglike swiftness" (121). Organizing its thoughts, it "declared everlasting war against" humanity and its creator, Frankenstein (121).',
+        psych: 'People\'s lives are driven by their role in society. However, isolation, whether voluntary or not, removes their connection to society. This removal creates emotional fragility; the Creature\'s journey reflects this process. Additionally, forced isolation may lead to violence, which is foreshadowed by its declaration of revenge.',
+        frank: 'Both Frankenstein and the Creature experience their anagnorisis—the realization of one\'s inevitable fate—in multiple stages. The Creature gradually realizes that it does not belong in human society through each of its numerous interactions. Similarly, Victor understands his fate through multiple deaths related to the Creature.',
+    },
+    {
+        name: 'Vengeance',
+        quote: '"I too can create desolation; my enemy is not invulnerable; this death will carry despair to him, and a thousand other miseries..." (127).',
+        color1: color(116, 7, 7),
+        color2: color(200, 0, 0),
+        disp: 'The Creature considers retaliation, but suppresses these ideas: it "could have torn [his attacker] limb to limb...but [it] refrained" (120). Instead, it channels its hatred toward its creator. Before its revenge, however, the Creature experiences a few more anagnorisis stages; unrewarded acts of benevolence cement its resolve.',
+        react: 'Upon discovering a child\'s relation with Victor, its motives shift from relieving its isolation to revenge. The Creature murders him, framing another for self-preservation to gain more revenge opportunities. It forcefully convinces Victor to satiate its interaction-based needs, leading him to die after he reneges on the agreement.',
+        psych: 'The Creature\'s acts of revenge on Victor for its abandonment reflects the psychological trend of violence leading from solitude and rejection from society. The Creature\'s initial moderation and conservative stance also matches psychological patterns: revenge is commonly directed only toward the responsible individual.',
+        frank: 'After the death of Elizabeth, Frankenstein "began to reflect on the best means of securing him" (182). Like the Creature, Frankenstein spends time preparing for revenge. However, Victor\'s determination for revenge is futile: the Creature leverages his hatred, pulling him on an eventually fatal pursuit.',
+    },
+    {
+        name: 'Catharsis',
+        quote: '"I should have wept to die; now it is my only consolation. Polluted by crimes and torn by the bitterest remorse, where can I find rest but in death?" (205).',
+        color1: color(179, 218, 241),
+        color2: color(66, 104, 124),
+        disp: 'Semi-content with Victor\'s death, the Creature purges its emotions, explaining its motives to Walton before committing suicide. However, even after Frankenstein is dead, its revenge isn\'t complete. Even in its last words, the Creature aims to undermine Frankenstein\'s credibility and dignity, blaming him for its actions.',
+        react: 'In response to Walton\'s accusations, the Creature admits its crimes, which appears as a concession. However, it reveals the purpose of these concessions: it remarks how its actions were driven by its unfulfilled interaction-based needs, and how its "agony was still superior to [Victor\'s]" (205), incriminating him.',
+        psych: 'The Creature\'s suicide reflects the absence of purpose in psychology. Lengthened solitude reduces one\'s desire to live, and after the sole motive for revenge is satiated, little purpose remains. Rejected by society and pressured by the pains of its life, the Creature\'s catharsis represents a conclusion to its journey.',
+        frank: 'Its stage of catharsis occurs shortly after Victor\'s (in which he describes his life before dying). At this point, the Creature has undergone significant intellectual development, understanding the concept of emotional manipulation. It convinces Walton to sympathize with itself through a feigned catharsis that mocks Victor\'s.',
+    },
+];
+
+var buttons = [
+    {
+        name: 'Timeline',
+        scene: 'title',
+        x: 25,
+        y: 325,
+        w: 250,
+        h: 60,
+        s: 50,
+        does: function() {
+            scene = 'timeline';
+        }
+    },
+    {
+        name: 'About',
+        scene: 'title',
+        x: 25,
+        y: 400,
+        w: 250,
+        h: 60,
+        s: 50,
+        does: function() {
+            scene = 'about';
+        }
+    },
+    {
+        name: 'Back',
+        scene: 'timeline',
+        x: 25,
+        y: 12.5,
+        w: 225,
+        h: 60,
+        s: 50,
+        does: function() {
+            scene = 'title';
+        }
+    },
+    {
+        name: 'Back',
+        scene: 'stage',
+        x: 350,
+        y: 12.5,
+        w: 225,
+        h: 60,
+        s: 50,
+        does: function() {
+            scene = 'timeline';
+        }
+    },
+    {
+        name: 'Prev',
+        scene: 'stage',
+        x: 25,
+        y: 515,
+        w: 250,
+        h: 60,
+        s: 50,
+        does: function() {
+            stageNum = (stageNum - 1  + timeline.length) % timeline.length;
+        }
+    },
+    {
+        name: 'Next',
+        scene: 'stage',
+        x: 325,
+        y: 515,
+        w: 250,
+        h: 60,
+        s: 50,
+        does: function() {
+            stageNum = (stageNum + 1) % timeline.length;
+        }
+    },
+    {
+        name: 'Back',
+        scene: 'about',
+        x: 25,
+        y: 515,
+        w: 225,
+        h: 60,
+        s: 50,
+        does: function() {
+            scene = 'title';
+        }
+    },
+];
+
+function collideButton(button) {
+    return mouseX > button.x & mouseY > button.y & mouseX < button.x + button.w & mouseY < button.y + button.h;
+}
+
+function executeButtons() {
+    for (var i = 0; i < buttons.length; i++) {
+        var button = buttons[i];
+        if (button.scene !== scene) {
+            continue;
+        }
+        if (collideButton(button)) {
+            button.does();
+            return;
+        }
+    }
+}
+
+function drawButtons() {
+    for (var i = 0; i < buttons.length; i++) {
+        var button = buttons[i];
+        if (button.scene !== scene) {
+            continue;
+        }
+        noFill();
+        strokeWeight(2);
+        stroke(255, 255, 255);
+        rect(button.x, button.y, button.w, button.h);
+        sText((collideButton(button) ? '> ' : '')+button.name, button.x+10, button.y, 0, 0, button.s);
+    }
+}
+
+function giveFunction(num) {
+    return function() {
+        scene = 'stage';
+        stageNum = num;
+    };
+}
+
+function initiateTimelineButtons() {
+    for (var i = 0; i < timeline.length; i++) {
+        var stage = timeline[i];
+        buttons.push({
+            name: stage.name,
+            scene: 'timeline',
+            x: 275,
+            y: 100 + i * 75,
+            w: 300,
+            h: 60,
+            s: 50,
+            does: giveFunction(i),
+        });
+    }
+}
+
+initiateTimelineButtons();
+
+var bloods = [];
+var trails = [];
+
+function showTrails() {
+    // Display
+    for (var i = 0; i < trails.length; i++) {
+        var trail = trails[i];
+        fill(136, 8, 8, trail.sat);
+        ellipse(trail.x, trail.y, trail.s, trail.s);
+    }
+    
+    // Fade
+    for (var i = 0; i < trails.length; i++) {
+        var trail = trails[i];
+        trail.sat -= 1;
+    }
+    
+    // Remove
+    for (var i = 0; i < trails.length; i++) {
+        var trail = trails[i];
+        if (trail.sat <= 0) {
+            trails.splice(i, 1);
+        }
+    }
+}
+
+function showBlood() {
+    // Display
+    fill(136, 8, 8, 100);
+    noStroke();
+    for (var i = 0; i < bloods.length; i++) {
+        var blood = bloods[i];
+        ellipse(blood.x, blood.y, blood.s, blood.s);
+    }
+    
+    // Move
+    for (var i = 0; i < bloods.length; i++) {
+        var blood = bloods[i];
+        blood.y += blood.vy;
+        blood.vy += 0.1 * blood.s * blood.s / 2000;
+    }
+    
+    // Trail
+    for (var i = 0; i < bloods.length; i++) {
+        var blood = bloods[i];
+        blood.s -= 0.15;
+        trails.push({
+            x: blood.x,
+            y: blood.y,
+            s: blood.s,
+            sat: 100,
+        });
+    }
+    
+    // Remove
+    for (var i = 0; i < bloods.length; i++) {
+        var blood = bloods[i];
+        if (blood.y > height + blood.s/2 || blood.s <= 15) {
+            bloods.splice(i, 1);
+        }
+    }
+    
+    // Add
+    if (frameCount % 4 === 0) {
+        // Top
+        var s = random(15, 30);
+        bloods.push({
+            x: random(-s/2, width+s/2),
+            y: -s/2,
+            s: s,
+            vy: 0,
+        });
+    }
+}
+
+function drawTitle() {
+    sText('The Creature\'s\nMind', 25, 100, 0, 0, 75);
+    
+    // Lines
+    stroke(255, 255, 255);
+    strokeWeight(2);
+    // Top
+    line(25, 100, 575, 100);
+    // Middle
+    line(25, 300, 575, 300);
+    // Vertical
+    line(300, 300, 300, 487.5);
+    // Bottom
+    line(25, 487.5, 575, 487.5);
+}
+
+function titleTexts() {
+    sText('"A flash of lightning illuminated the object and discovered its shape plainly to me; its gigantic stature, and the deformity of its aspect, more hideous than belongs to humanity, instantly informed me that it was the wretch, the filthy demon to whom I had given life."\n-Victor Frankenstein', 25, 500, 550, 600, 15);
+    sText('Creators: REDACTED', 325, 325, 250, 187.5, 25);
+}
+
+function titlePage() {
+    showBlood();
+    showTrails();
+    drawTitle();
+    titleTexts();
+}
+
+function drawBackground() {
+    background(20, 20, 20);
+    if (frameCount % 500 < 10 || frameCount % 500 > 15 & frameCount % 500 < 30) {
+        if (scene === 'title') {
+            background(255, 255, 255);
+            fill(0, 0, 0);
+            noStroke();
+            beginShape();
+            for (var i = 0; i < creatureShape.length; i++) {
+                var node = creatureShape[i];
+                vertex(node[0], node[1]);
+            }
+            endShape();
+        }
+    }
+}
+
+function displayTimeline() {
+    // Title
+    sText('Timeline', 275, -5, 0, 0, 75);
+    
+    // Border lines
+    // Left
+    line(250, 100, 250, 535);
+    // Top
+    line(275, 75, 575, 75);
+    // Bottom
+    line(25, 560, 575, 560);
+    
+    // Main timeline
+    line(145, 100, 145, 535);
+    line(150, 100, 150, 535);
+    
+    // Individual stages
+    for (var i = 0; i < timeline.length; i++) {
+        var stage = timeline[i];
+        
+        var xDiff = sin(frameCount + i/timeline.length * 360) * 12.5;
+        var y = 130 + i * 75;
+        
+        // Protruding line
+        stroke(255, 255, 255);
+        strokeWeight(2);
+        line(150, y, 175 + xDiff, y);
+        
+        // Sublime circles
+        noStroke();
+        fill(stage.color2, 200);
+        ellipse(200 + xDiff, y, 50, 50);
+        fill(stage.color1, 255);
+        ellipse(200 + xDiff, y, 35, 35);
+    }
+    
+    // Other texts
+    sText('"Creators are forgotten, for they are mortal. Creations are remembered, for they are immortal. And yet, as the idea—the essence of the latter outlives the former, it carries a portion of their soul with it." -Anonymous', 25, 562.5, 550, 0, 12.5);
+    sText('Discover the intricacies of the Creature:\n> How can we describe the Creature? Is it even possible?\n> What are its thoughts, both concealed and exposed?\n> How does the Creature react to impactful events?\n> How does its isolated life reflect the psychological effects of loneliness?\n> How does its journey of solitude parallel Frankenstein\'s?', 25, 100, 100, 0, 12.5);
+}
+
+function aboutPage() {
+    // Lines
+    // Top
+    line(25, 25, 575, 25);
+    // Bottom
+    line(25, 490, 575, 490);
+    // Side of button
+    line(275, 515, 575, 515);
+    line(275, 575, 575, 575);
+    
+    // Main
+    sText('Our goal for this project was to encapsulate the Creature’s development in various quotes from Frankenstein and analyze them to reveal themes concerning his development. Given that the creature’s development was different from that of a normal child, notably due to repetitive rejection and the resulting solitude, the themes we found pertained to those concepts. As such, we aimed to explore the questions "How does repetitive rejection affect internal outlook on life?" and "What are the broader consequences, positive and negative, of isolation?". To supplement our knowledge on these topics, we consulted various research papers.', 25, 37.5, 550, 500, 17.5);
+    sText('Concerning the user interface of this project, we chose to invoke gothic imagery with our title screen. This was done with contrasting colors of black and white flashing to reveal the Creature\'s silhouette. Furthermore, our timeline color choice was meant to align with the seasons—starting with the creation represented by spring, continuing with increasingly vibrant (summer) colors throughout exploration and exposure, followed by the somber blues and reds of autumn, and finally catharsis represented by winter. Additionally, these seasons represent nature, which reflect romanticist themes.', 25, 275, 550, 500, 17.5);
+    // Bottom
+    sText('About our Creation', 275, 525, 300, 40, 35);
+    
+}
+
+function displayStage(stage) {
+    // Triangle background
+    noStroke();
+    fill(stage.color1, 100);
+    triangle(0, 0, 0, 600, 600, 0);
+    fill(stage.color2, 100);
+    triangle(600, 600, 0, 600, 600, 0);
+    
+    // Title
+    sText(stage.name, 25, 25, 550, 0, 50);
+    
+    // Lines
+    
+    stroke(255, 255, 255);
+    strokeWeight(2);
+    
+    // Top
+    line(25, 87.5, 575, 87.5);
+    // Quote section
+    line(25, 125, 575, 125);
+    // Bottom
+    line(25, 490, 575, 490);
+    // Button divider
+    line(300, 490, 300, 575);
+    
+    // Section dividers
+    for (var i = 0; i < 4; i++) {
+        line(25, 137.5 + i * 88.125, 575, 137.5 + i * 88.125);
+    }
+    
+    // Quote
+    sText(stage.quote, 25, 90, 550, 45, 12.5);
+    
+    // Sections
+    
+    var sections = ['The Creature\'s disposition', 'The Creature\'s reactions', 'Connections to psychology', 'Parallels with Frankenstein\'s journey'];
+    var stageChars = ['disp', 'react', 'psych', 'frank'];
+    for (var i = 0; i < 4; i++) {
+        sText(sections[i], 25, 137.5 + i * 88.125, 550, 0, 20);
+        line(25, 162.5 + i * 88.125, 575, 162.5 + i * 88.125);
+        sText(stage[stageChars[i]], 25, 167.5 + i * 88.125, 550, 63.25, 12.5);
+    }
+}
+
+draw = function() {
+    drawBackground();
+    switch(scene) {
+        case 'title':
+            titlePage();
+            break;
+        case 'timeline':
+            displayTimeline();
+            break;
+        case 'about':
+            aboutPage();
+            break;
+        case 'stage':
+            displayStage(timeline[stageNum]);
+            break;
+    }
+    drawButtons();
+};
+
+mouseClicked = function() {
+    executeButtons();
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

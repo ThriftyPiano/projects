@@ -1,0 +1,582 @@
+<html>
+    <head>
+        <title>Escape</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+/*
+This is a WIP. The real game will be out soon.
+
+Updates:
+Checkpoints, invisible blocks, plasma blocks, health, timer.
+
+*/
+//{
+    smooth();
+var p = 8.83883476483;
+var time = millis();
+var respawn = [-162.5, 162.5];
+var object = [
+    [-25, 225, 474, 25, 0],
+    [0, 0, 25, 225, 0],
+    [0, 0, 400, 25, 0],
+    [375, 0, 25, 100, 0],
+    [400, 75, 125, 25, 0],
+    [525, 75, 25, 300, 0],
+    [500, 225, 25, 125, 2],
+    [475, 225, 24, 75, 0],
+    [0, 350, 525, 25, 0],
+    [25, 25, 350, 200, 3],
+    [375, 100, 150, 125, 3],
+    [0, 250, 475, 100, 4],
+    [450, 225, 25, 25, 4],
+    [475, 300, 24, 50, 4],
+    [475, 300, 24, 50, 1],
+    [0, 250, 25, 100, "a greedy guy", "a banana", ""],
+    [425, 50, 25, 25, "a screwdriver", true],
+    [300, 200, 25, 25, "a metal box", "a screwdriver", "a banana"],
+    [-125, 225, 125, 25, 0],
+    [-125, 225, 25, 250, 0],
+    [-125, 475, 975, 25, 0],
+    [-74, 351, 25, 74, 0],
+    [-100, 350, 25, 125, 2],
+    [-74, 425, 25, 50, 4],
+    [-74, 425, 25, 50, 1],
+    [-100, 250, 100, 100, 4],
+    [-50, 350, 50, 25, 4],
+    [-50, 375, 875, 100, 3],
+    [-100, 212.5, 25, 12.5, "a key", true],
+    [525, 375, 25, 100, "a locked door", "a key", ""],
+    [525, 350, 300, 25, 0],
+    [500, 100, 25, 25, 7],
+    [225, 25, 25, 25, "a guard"],
+    [200, 25, 25, 25, "a guard"],
+    [250, 25, 25, 25, "a guard"],
+    [100, 300, 75, 50, 8],
+    [225, 325, 25, 25, 9],
+    [0, 450, 25, 25, 10],
+    [825, 350, 25, 125, 3],
+    [425, 200, 25, 25, 12, false],
+    [600, 375, 25, 25, "a guard"],
+    [625, 375, 25, 25, "a guard"],
+    [650, 375, 25, 25, "a guard"],
+    // [450, 280, ]
+]; //Every block in the game. The game itself.
+{
+    var x = 0;
+    var y = 1;
+    var w = 2;
+    var h = 3;
+    var type = 4;
+} //Things that make it easier to code
+var inventory = []; //Your inventory is just a "[];".
+var player = [-162.5, 162.5, 0, 0, 100]; //Player variables. Don't change or things could get... Nevermind.
+var types = [
+    ["a wall", 60, 60, 60, 255, true],
+    ["a closed door", 63.75, 0, 0, 255, true],
+    ["an elevator", 200, 200, 200, 255, true],
+    ["a window", 0, 200, 255, 100, false],
+    ["nothing", 100, 100, 100, 255, false],
+    ["an open door", 63.75, 0, 0, 63.75, false],
+    ["a shining light", 255, 255, 0, 255, true],
+    ["a closed light", 255, 255, 255, 255, true],
+    ["a plant", 63.75, 0, 0, 255, false],
+    ["a plasma block", 0, 255, 255, 200, true],
+    ["a heal station", 255, 255, 255, 255, false],
+    ["an invisible block", 255, 255, 255, 0, true],
+    ["a checkpoint", 127.5, 0, 255, 255, false]
+]; //Different types of blocks
+var bullets = []; //Bullets array
+{
+    var f = createFont("monospace");
+    var b = 0;
+    var s = 1;
+    var diss = false;
+    var t = 0;
+    var select = 0;
+    var l = -510;
+    noStroke();
+    textFont(f);
+    var current = "Press E to access your inventory. Green things are objects you can collect. WASD or Arrow keys to move. Click things to get their description. For now, RUN FROM THAT GUARD!!!";
+} //Misc. variables.
+{
+    var collide = function(x1, y1, w1, h1, x2, y2, w2, h2) {
+        if (x1 + w1 >= x2 & y1 + h1 >= y2 & x1 <= x2 + w2 & y1 <= y2 + h2) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+    var check = function() {
+        for (var i = 0; i < object.length; i++) {
+            if (collide(187, 187, 26, 26, object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h]) === true & typeof object[i][type] !== "string") {
+                if (types[object[i][type]][5] === true) {
+                    if ((object[i][y] + player[y]) <= 225 & abs(player[3]) <= 1) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    };
+    var message = function(m) {
+        if (current !== "") {
+            fill(0, 0, 0, 127.5);
+            rect(0, 0, 400, 400, 25);
+            fill(0, 255, 0);
+            textAlign(CENTER, TOP);
+            textSize(25);
+            text("Analysis (Click to dismiss):", 200, 25);
+            textAlign(LEFT, TOP);
+            text(m, 25, 75, 350, 300);
+        }
+    };
+    var hover = function() {
+        strokeWeight(1);
+        for (var i = 0; i < 9; i++) {
+            if (i >= inventory.length) {
+                if (mouseX > i * 40 + 27.5 & mouseY > 350 & mouseX < i * 40 + 52.5 & mouseY < 375) {
+                    stroke(0, 0, 0);
+                    fill(100, 100, 100, 62.5);
+                    rect(mouseX, mouseY - 100, 90, 90, 5);
+                    textAlign(LEFT, TOP);
+                    textSize(12.5);
+                    fill(0, 255, 0);
+                    text("This space is vacant.", mouseX + 5, mouseY - 95, 90, 90);
+                    textSize(25);
+                    strokeWeight(1);
+                }
+                fill(0, 0, 0, 127.5);
+            } else {
+                if (mouseX > i * 40 + 27.5 & mouseY > 350 & mouseX < i * 40 + 52.5 & mouseY < 375) {
+                    stroke(0, 0, 0);
+                    strokeWeight(1);
+                    fill(100, 100, 100, 62.5);
+                    rect(mouseX, mouseY - 100, 90, 90, 5);
+                    textAlign(LEFT, TOP);
+                    textSize(12.5);
+                    fill(0, 255, 0);
+                    text("This is " + inventory[i] + ". Sorry for the bad graphics.", mouseX + 5, mouseY - 95, 90, 90);
+                    textSize(25);
+                }
+                fill(0, 255, 0);
+            }
+            rect(i * 40 + 27.5, 350, 25, 25, 5);
+            stroke(255, 255, 255);
+            strokeWeight(2.5);
+            fill(0, 0, 0, 0);
+            rect(select * 40 + 27.5, 350, 25, 25, 5);
+            strokeWeight(1);
+        }
+    };
+    var disinv = function() {
+        if (diss === true) {
+            fill(127.5, 127.5, 127.5, 127.5);
+            rect(12.5, 337.5, 375, 50, 5);
+            hover();
+        }
+    };
+    var objects = function() {
+        for (var i = 0; i < object.length; i++) {
+            noStroke();
+            if (typeof object[i][type] === "string") {
+                if (object[i][5] === true) {
+                    fill(0, 255, 0);
+                } else {
+                    fill(255, 0, 0);
+                }
+                if (object[i][type] === "a guard") {
+                    fill(255, 0, 127.5, 255);
+                    if (frameCount === round(frameCount / 25) * 25 & dist(object[i][x] - player[x], object[i][y] + player[y], 200, 200) <= 225) {
+                        bullets.push([object[i][x] + object[i][w] / 2, object[i][y] + object[i][h] / 2, (200 - (object[i][x] - player[x] + object[i][w] / 2)) / dist(200, 200, object[i][x] - player[x] + object[i][w] / 2, object[i][y] + player[y] + object[i][h] / 2) * 2, (200 - (object[i][y] + player[y] + object[i][h] / 2)) / dist(200, 200, object[i][x] - player[x] + object[i][w] / 2, object[i][y] + player[y] + object[i][h] / 2) * 2]);
+                    }
+                }
+                rect(object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h]);
+            } else {
+                fill(types[object[i][type]][1], types[object[i][type]][2], types[object[i][type]][3], types[object[i][type]][4]);
+                if (object[i][type] === 9) {
+                    fill(0, 255, 255, random(0, 255));
+                }
+                if (object[i][type] === 12 & object[i][5] === true) {
+                    fill(200, 0, 255, 255);
+                }
+                if(types[object[i][type]][5] !== false) {
+                    rect(object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h]);
+                }
+            }
+            if (object[i][type] === 10) {
+                fill(255, 0, 0);
+                rect(object[i][x] - player[x], object[i][y] + player[y] + 25 / 3, object[i][w], object[i][h] / 3);
+                rect(object[i][x] - player[x] + 25 / 3, object[i][y] + player[y], object[i][w] / 3, object[i][h]);
+            }
+            if (object[i][type] === 8) {
+                fill(0, 150, 0);
+                rect(object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h] / 2);
+            }
+            if (object[i][type] === 6 || object[i][type] === 7) {
+                fill(50, 50, 50);
+                rect(object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h] / 2);
+            }
+            if (collide(187.5, 187.5, 25, 25, object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h]) === true) {
+                if (object[i][type] === 10) {
+                    player[4] += 1;
+                }
+                if (object[i][type] === 12) {
+                    object[i][5] = true;
+                    respawn = [player[0], player[1]];
+                }
+                if (object[i][type] === 0 || object[i][type] === 1 || typeof object[i][type] === "string" || object[i][type] === 9 || object[i][type] === 11) {
+                    if (object[i][type] === 9) {
+                        player[4] -= 20;
+                    }
+                    if ((object[i][x] - player[x] + object[i][w] / 2) >= 200) {
+                        if (object[i][x] - player[x] >= 200 || object[i][x] - player[x] + object[i][w] <= 200) {
+                            player[2] = -abs(player[2]) * 0.5;
+                            player[x] = object[i][x] - 212.5;
+                        }
+                    }
+                    if ((object[i][x] - player[x] + object[i][w] / 2) < 200) {
+                        if (object[i][x] - player[x] >= 200 || object[i][x] - player[x] + object[i][w] <= 200) {
+                            player[2] = abs(player[2]) * 0.5;
+                            player[x] = object[i][x] + object[i][w] - 187.5;
+                        }
+                    }
+                    if ((object[i][y] + player[y] + object[i][h] / 2) >= 200) {
+                        if (object[i][y] + player[y] >= 200 || object[i][y] + player[y] + object[i][h] <= 200) {
+                            player[3] = abs(player[3]) * 0.5;
+                            player[y] = 212.5 - object[i][y] - 0.1;
+                        }
+                    }
+                    if ((object[i][y] + player[y] + object[i][h] / 2) < 200) {
+                        if (object[i][y] + player[y] >= 200 || object[i][y] + player[y] + object[i][h] <= 200) {
+                            player[3] = -abs(player[3]) * 0.5;
+                            player[y] = 187.5 - object[i][y] - object[i][h];
+                        }
+                    }
+                }
+            }
+            if (collide(187.5, 187.5, 25, 25, object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h]) === true & typeof object[i][type] !== "string" & object[i][type] === 2) {
+                player[3] = abs(player[3]) * 0.5;
+                player[y] += 0.5;
+            }
+            if (object[i][type] === "a guard") {
+                fill(127.5, 127.5, 127.5, 62.5);
+                stroke(0, 0, 0);
+                strokeWeight(2.5);
+                ellipse(object[i][x] - player[x] + object[i][w] / 2, object[i][y] + player[y] + object[i][h] / 2, 400, 400);
+            }
+            if (object[i][type] === 6) {
+                fill(255, 255, 0, 150);
+                noStroke();
+                ellipse(object[i][x] - player[x] + object[i][w] / 2, object[i][y] + player[y] + object[i][h] / 2, 250, 250);
+            }
+        }
+    };
+    var bullet = function() {
+        strokeWeight(5);
+        for (var i = 0; i < bullets.length; i++) {
+            for (var j = 0; j < object.length; j++) {
+                if (typeof object[j][type] === "string") {
+                    if (object[j][type] !== "a guard") {
+                        if (collide(bullets[i][x], bullets[i][y], 5, 5, object[j][x], object[j][y], object[j][w], object[j][h]) === true) {
+                            bullets.splice(i, 1);
+                            break;
+                        }
+                    }
+                } else if (types[object[j][type]][5] === true) {
+                    if (collide(bullets[i][x], bullets[i][y], 5, 5, object[j][x], object[j][y], object[j][w], object[j][h]) === true) {
+                        bullets.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        }
+        for (var i = 0; i < bullets.length; i++) {
+            if (collide(187.5, 187.5, 25, 25, bullets[i][x] - player[x], bullets[i][y] + player[y], 5, 5) === true) {
+                player[4] -= 10;
+                bullets.splice(i, 1);
+                break;
+            }
+        }
+        for (var i = 0; i < bullets.length; i++) {
+            stroke(0, 255, 255, random(0, 255));
+            point(bullets[i][0] - player[x], bullets[i][1] + player[y]);
+            bullets[i][0] += bullets[i][2];
+            bullets[i][1] += bullets[i][3];
+        }
+        noStroke();
+    };
+    var TD = function() {
+        strokeWeight(0.5);
+        stroke(0, 0, 0);
+        for(var i = 0; i < object.length; i++) {
+            if (typeof object[i][type] === "string") {
+            } else {
+                fill(types[object[i][type]][1], types[object[i][type]][2], types[object[i][type]][3], types[object[i][type]][4]);
+                if (object[i][type] === 9) {
+                    fill(0, 255, 255, random(0, 255));
+                }
+                if (object[i][type] === 12 & object[i][5] === true) {
+                    fill(200, 0, 255, 255);
+                }
+                if(types[object[i][type]][5] === false) {
+                    rect(object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h]);
+                }
+            }
+        }
+        for(var i = 0; i < object.length; i++) {
+            if (typeof object[i][type] === "string") {
+                if (object[i][5] === true) {
+                    fill(0, 255, 0);
+                } else {
+                    fill(255, 0, 0);
+                }
+                if (object[i][type] === "a guard") {
+                    fill(255, 0, 127.5, 255);
+                    if (frameCount === round(frameCount / 25) * 25 & dist(object[i][x] - player[x], object[i][y] + player[y], 200, 200) <= 225) {
+                        bullets.push([object[i][x] + object[i][w] / 2, object[i][y] + object[i][h] / 2, (200 - (object[i][x] - player[x] + object[i][w] / 2)) / dist(200, 200, object[i][x] - player[x] + object[i][w] / 2, object[i][y] + player[y] + object[i][h] / 2) * 2, (200 - (object[i][y] + player[y] + object[i][h] / 2)) / dist(200, 200, object[i][x] - player[x] + object[i][w] / 2, object[i][y] + player[y] + object[i][h] / 2) * 2]);
+                    }
+                }
+            } else {
+                fill(types[object[i][type]][1], types[object[i][type]][2], types[object[i][type]][3], types[object[i][type]][4]);
+                if (object[i][type] === 9) {
+                    fill(0, 255, 255, random(0, 255));
+                }
+                if (object[i][type] === 12 & object[i][5] === true) {
+                    fill(200, 0, 255, 255);
+                }
+
+            }
+            
+        }
+    };
+    var setup = function() {
+        l += s;
+        if (l >= 765) {
+            s = -1;
+        }
+        if (l <= -510) {
+            s = 1;
+        }
+        background(0, l, 510 + l);
+        pushMatrix();
+        translate(200, 200);
+        rotate(player[2]);
+        translate(-200, -200);
+        TD();
+        objects();
+        bullet();
+        popMatrix();
+        fill(255, 255, 255, 200);
+        textSize(20);
+        textAlign(LEFT, TOP);
+        text("Time: " + (millis() - time) / 1000, 2.5, 2.5);
+    };
+    var drawPlayer = function() {
+        stroke(0, 0, 0);
+        strokeWeight(0.5);
+        pushMatrix();
+        translate(200, 200);
+        rotate(player[2] * 1.5);
+        translate(-200, -200);
+        fill(255, 255, 255);
+        rect(187.5, 187.5, 25, 25, 2.5);
+        fill(0, 0, 0, 60);
+        rect(175, 175, 50, 7.5, 5);
+        fill(255 - player[4] * 255 / 100, player[4] * 255 / 100, 0);
+        rect(175, 175, player[4] / 2, 7.5, 2.5);
+        popMatrix();
+        if (player[4] <= 0) {
+            bullets = [];
+            player = [respawn[0], respawn[1], 0, 0, 100];
+            current = "You died. We respawned you at the last checkpoint (or the beginning), and you get to keep everything you had.";
+        }
+        if (player[4] >= 100) {
+            player[4] = 100;
+        }
+    };
+    var move = function() {
+        player[3] -= 0.1;
+        player[x] += player[2];
+        player[y] += player[3];
+        player[2] *= 0.99;
+        player[3] *= 0.99;
+    };
+    var mouse = function() {
+        stroke(255, 0, 255);
+        fill(0, 0, 0, 0);
+        strokeWeight(1);
+        ellipse(mouseX, mouseY, 10, 10);
+        strokeWeight(5);
+        line(mouseX, mouseY, pmouseX, pmouseY);
+        noStroke();
+    };
+    var clicks = function() {
+        if (current === "") {
+            for (var i = 0; i < object.length; i++) {
+                if (typeof object[i][type] !== "string") {
+                    if (collide(mouseX, mouseY, 0, 0, object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h]) === true) {
+                        current = "Oh, it is just " + types[object[i][type]][0] + ". Nothing cool." + "\nCoordinates: " + round(object[i][x]) + ", " + round(object[i][y]);
+                        if (object[i][type] === 1) {
+                            object[i][type] = 5;
+                        } else if (object[i][type] === 5) {
+                            object[i][type] = 1;
+                        }
+                        if (object[i][type] === 6 || object[i][type] === 7) {
+                            object[i][type] = 13 - object[i][type];
+                        }
+                    }
+                } else if (typeof object[i][type] === "string") {
+                    if (collide(mouseX, mouseY, 0, 0, object[i][x] - player[x], object[i][y] + player[y], object[i][w], object[i][h]) === true) {
+                        if (object[i][5] === true) {
+                            current = "You found " + object[i][type] + "!\nObject added to inventory. Press E to access your inventory.";
+                        } else {
+                            if (object[i][5] === inventory[select] & diss === true) {
+                                if (object[i][6] !== "") {
+                                    current = "You found " + object[i][6] + " by using " + inventory[select] + "! Good job!";
+                                    inventory.push(object[i][6]);
+                                } else {
+                                    current = "You got past " + object[i][type] + " by using " + inventory[select] + "! Good job!";
+                                }
+                                inventory.splice(select, 1);
+                                object.splice(i, 1);
+                            } else if (object[i][6] !== "") {
+                                current = "It is " + object[i][type] + ". I can't get to it. I wonder what might help me...";
+                            } else {
+                                current = "It is " + object[i][type] + ". I can't get through it. I wonder what might help me...";
+                            }
+                            if (object[i][type] === "a guard") {
+                                current = "A guard! RUN!!! (They shoot people. You get hit, you go back to the start.)";
+                            }
+                        }
+                        if (inventory.length <= 10 & object[i][5] === true) {
+                            inventory.push(object[i][type]);
+                            object.splice(i, 1);
+                        }
+                    }
+                }
+            }
+        } else {
+            current = "";
+        }
+        if (diss === true) {
+            for (var i = 0; i < 9; i++) {
+                if (mouseX > i * 40 + 27.5 & mouseX < i * 40 + 52.5 & mouseY > 350 & mouseY < 375) {
+                    select = i;
+                }
+            }
+        }
+    };
+} //All the functions.
+draw = function() {
+    setup();
+    drawPlayer();
+    move();
+    message(current);
+    disinv();
+    mouse();
+}; //Runs the program
+keyReleased = function() {
+    if (keyCode === DOWN || String(key) === "s") {
+        player[3] = -5;
+    }
+    if (String(key) === "e") {
+        if (diss === false) {
+            diss = true;
+            if (t === 0) {
+                current = "Inventory was opened up. This message is here because this is your first time using the inventory. Your inventory can hold up to 10 things. Hover over a thing in your inventory to get its description.";
+            }
+            t++;
+        } else {
+            diss = false;
+        }
+    }
+    if (String(key) === "`") {
+        cursor(ARROW);
+    }
+}; //KeyReleased events
+keyPressed = function() {
+    if (check() === true) {
+        if (abs(player[3]) <= 1) {
+            if (keyCode === UP || String(key) === "w") {
+                player[3] = 10;
+            }
+        }
+    }
+    if (player[2] >= -2) {
+        if (keyCode === LEFT || String(key) === "a") {
+            player[2] -= 0.5;
+        }
+    }
+    if (player[2] <= 2) {
+        if (keyCode === RIGHT || String(key) === "d") {
+            player[2] += 0.5;
+        }
+    }
+}; //KeyPressed events
+mouseClicked = function() {
+    cursor("none");
+    clicks();
+}; //Clicks events.
+//} < All of the code for this game.
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>

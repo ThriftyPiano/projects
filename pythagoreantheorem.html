@@ -1,0 +1,317 @@
+<html>
+    <head>
+        <title>Pythagorean Theorem</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(400, 400);
+        angleMode = "degrees";
+/////////////////        
+var t = 0;
+var scene0 = function() {
+    
+    fill(0, 0, 0);
+    textSize(40);
+    textAlign(CENTER, CENTER);
+    text("Proofs of the\nPythagorean Theorem", 200, 200);
+    textSize(20);
+    text("An animation", 200, 250);
+};
+var scene1 = function() {
+    
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    fill(255, 255, 255);
+    triangle(125, 250, 200, 250, 200, 150);
+    pushMatrix();
+    translate(200, 150);
+    rotate(atan2(3, 4));
+    translate(-200, -150);
+    fill(0, 0, 0);
+    rect(200 - 125, 150, 125, 125);
+    popMatrix();
+    fill(255, 255, 255);
+    rect(200, 150, 100, 100);
+    rect(125, 250, 75, 75);
+    fill(0, 0, 0);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text("c", 50, 112.5);
+    text("a", 162.5, 337.5);
+    text("b", 312.5, 200);
+    text("The area of this square is equal to c^2\n because the area of a square is\nit's side length squared.", 200, 37.5);
+};
+var scene2 = function() {
+    
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    fill(255, 255, 255);
+    triangle(125, 250, 200, 250, 200, 150);
+    stroke(0, 0, 0);
+    pushMatrix();
+    translate(200, 150);
+    rotate(atan2(3, 4));
+    translate(-200, -150);
+    fill(0, 0, 0);
+    rect(200 - 125, 150, 125, 125);
+    popMatrix();
+    fill(255, 255, 255);
+    rect(200, 150, 100, 100);
+    rect(125, 250, 75, 75);
+    fill(255, 255, 255, t * 255 / 50);
+    triangle(125 - 100, 250 - 75, 200 - 100, 250 - 75, 200 - 100, 150 - 75);
+    stroke(255, 255, 255);
+    fill(0, 0, 0, t * 255 / 50);
+    triangle(125, 250, 200, 250, 200, 150);
+    fill(0, 0, 0);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text("c", 50, 112.5);
+    text("a", 162.5, 337.5);
+    text("b", 312.5, 200);
+    text("The triangle of darkness in the\ntop left of the square is relocated.", 200, 37.5);
+};
+var scene3 = function() {
+    t = constrain(t, 0, 25);
+    
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    fill(255, 255, 255);
+    triangle(125, 250, 200, 250, 200, 150);
+    fill(255, 255, 255);
+    rect(200, 150, 100, 100);
+    rect(125, 250, 75, 75);
+    pushMatrix();
+    translate(200, 150);
+    rotate(atan2(3, 4));
+    translate(-200, -150);
+    fill(255, 255, 255);
+    rect(200 - 125, 150, 125, 125);
+    popMatrix();
+    pushMatrix();
+    translate(200+4*t, 150+3*t);
+    rotate(atan2(3, 4));
+    translate(-200-4*t, -150-3*t);
+    fill(0, 0, 0);
+    rect(200 - 125+4*t, 150+3*t, 125, 125);
+    popMatrix();
+    fill(255, 255, 255);
+    triangle(125 - 100+4*t, 250 - 75+3*t, 200 - 100+4*t, 250 - 75+3*t, 200 - 100+4*t, 150 - 75+3*t);
+    stroke(255, 255, 255);
+    fill(0, 0, 0);
+    triangle(125+4*t, 250+3*t, 200+4*t, 250+3*t, 200+4*t, 150+3*t);
+    fill(0, 0, 0);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text("c", 50, 112.5);
+    text("a", 162.5, 337.5);
+    text("b", 312.5, 200);
+    text("We slide the dark reigon.", 200, 37.5);
+};
+var scene4 = function() {
+    
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    fill(255, 255, 255);
+    triangle(125, 250, 200, 250, 200, 150);
+    fill(255, 255, 255);
+    rect(200, 150, 100, 100);
+    rect(125, 250, 75, 75);
+    pushMatrix();
+    translate(200, 150);
+    rotate(atan2(3, 4));
+    translate(-200, -150);
+    fill(255, 255, 255);
+    rect(200 - 125, 150, 125, 125);
+    popMatrix();
+    fill(255, 0, 0);
+    quad(125, 250, 200, 250, 300, 325, 225, 325);
+    fill(0, 0, 255);
+    quad(200, 250, 300, 325, 300, 225, 200, 250-100);
+    fill(0, 0, 0);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text("c", 50, 112.5);
+    text("a", 162.5, 337.5);
+    text("b", 312.5, 200);
+    text("Breaking it up into two parallelograms...", 200, 37.5);
+};
+var scene5 = function() {
+    t = constrain(t, 0, 25);
+    
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    fill(255, 255, 255);
+    triangle(125, 250, 200, 250, 200, 150);
+    fill(255, 255, 255);
+    rect(200, 150, 100, 100);
+    rect(125, 250, 75, 75);
+    pushMatrix();
+    translate(200, 150);
+    rotate(atan2(3, 4));
+    translate(-200, -150);
+    fill(255, 255, 255);
+    rect(200 - 125, 150, 125, 125);
+    popMatrix();
+    fill(255, 0, 0);
+    quad(125, 250, 200, 250, 300-4*t, 325, 225-4*t, 325);
+    fill(0, 0, 255);
+    quad(200, 250, 300, 325-3*t, 300, 225-3*t, 200, 250-100);
+    fill(0, 0, 0);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text("c", 50, 112.5);
+    text("a", 162.5, 337.5);
+    text("b", 312.5, 200);
+    text("Sliding the parallelograms into squares.\nArea is conserved because the base\nand the altitude are the same.", 200, 37.5);
+};
+var scene6 = function() {
+    
+    fill(0, 0, 0);
+    textSize(40);
+    textAlign(CENTER, CENTER);
+    text("Proof 2", 200, 200);
+    textSize(20);
+    text("Also Animated.", 200, 250);
+};
+var scene7 = function() {
+    fill(255, 255, 255);
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    rect(100, 100, 200, 200);
+    stroke(255, 255, 255);
+    fill(0, 0, 0);
+    triangle(100, 100, 100+50, 100, 100, 100+150);
+    triangle(100+200, 100, 100+200-150, 100, 100+200, 100+50);
+    triangle(100, 100+200, 100, 100+200-50, 100+150, 100+200);
+    triangle(100+200, 100+200-150, 100+200, 100+200, 100+150, 100+200);
+    fill(255, 255, 255);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text("c", 120, 162.5);
+    fill(0, 0, 0);
+    text("a", 125, 87.5);
+    text("b", 87.5, 162.5);
+    text("The area of the tilted square in the middle\nis c^2.", 200, 37.5);
+};
+var scene8 = function() {
+    t = constrain(t, 0, 25);
+    fill(255, 255, 255);
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    rect(100, 100, 200, 200);
+    fill(0, 0, 0);
+    stroke(255, 255, 255);
+    triangle(100, 100+2*t, 100+50, 100+2*t, 100, 100+150+2*t);
+    triangle(100+200, 100, 100+200-150, 100, 100+200, 100+50);
+    triangle(100+2*t, 100+200-6*t, 100+2*t, 100+200-50-6*t, 100+150+2*t, 100+200-6*t);
+    triangle(100+200-6*t, 100+200-150, 100+200-6*t, 100+200, 100+150-6*t, 100+200);
+    fill(255, 255, 255);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    fill(0, 0, 0);
+    text("a", 125-1.5*t, 87.5+1.5*t);
+    text("b", 87.5+9*t, 162.5+2.25*t);
+    text("The area of the white space is equal to c^2\nbecause the area in the square is conserved.", 200, 37.5);
+};
+var scene9 = function() {
+    fill(0, 0, 0);
+    textSize(30);
+    textAlign(CENTER, CENTER);
+    text("Therefore, a^2+b^2=c^2.", 200, 200);
+};
+var scenes = [scene0, scene1, scene2, scene3, scene4, scene5, scene6, scene7, scene8, scene9];
+var scene = 0;
+draw = function() {
+    background(255, 255, 255);
+    stroke(255, 0, 0, 50);
+    for(var i = 0; i < 400; i += sin(frameCount%100*180/100)*15+10) {
+        line(i, 0, 400, i);
+    }
+    stroke(0, 0, 255, 50);
+    for(var i = 0; i < 400; i += sin(frameCount%100*180/100)*15+10) {
+        line(0, i, i, 400);
+    }
+    stroke(0, 255, 0, 50);
+    for(var i = 0; i < 400; i += sin(frameCount%100*180/100)*15+10) {
+        line(400, i, 400-i, 400);
+    }
+    stroke(255, 255, 0, 50);
+    for(var i = 0; i < 400; i += sin(frameCount%100*180/100)*15+10) {
+        line(0, 400-i, i, 0);
+    }
+    t++;
+    scenes[scene % scenes.length]();
+    fill(0, 0, 0);
+    textSize(20);
+    textAlign(RIGHT, BOTTOM);
+    text(scene % scenes.length+1, 390, 390);
+    /*
+    if(frameCount%200 === 199) {
+        t = 0;
+        scene++;
+    }
+    */
+};
+mouseClicked = function() {
+    t = 0;
+    scene++;
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>
