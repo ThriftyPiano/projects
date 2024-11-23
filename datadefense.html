@@ -56,8 +56,8 @@ new Processing("canvas", proc => {
     with (proc) {
     processingJS = proc;
 	var canvas = document.getElementById('div');
-	var sz = Math.min(canvas.clientWidth, canvas.clientHeight);
-        size(sz, sz);
+	var sz = Math.min(canvas.clientWidth-4, canvas.clientHeight-4);
+        size(sz-4, sz-4);
         angleMode = "degrees";
 
 ////////////

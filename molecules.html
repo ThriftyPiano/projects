@@ -56,7 +56,7 @@ new Processing("canvas", proc => {
     with (proc) {
     processingJS = proc;
     var canvas = document.getElementById('div');
-        size(canvas.clientWidth, canvas.clientHeight);
+        size(canvas.clientWidth-4, canvas.clientHeight-4);
         angleMode = "degrees";
 /////////////////        
 frameRate(60);
