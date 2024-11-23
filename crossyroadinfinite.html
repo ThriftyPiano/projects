@@ -1,0 +1,544 @@
+<html>
+    <head>
+        <title>Crossy Road Infinite</title>
+    </head>
+    <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-button {
+    text-decoration: none;
+    color: #00ff00;
+    background-color: transparent;
+    border: 1px solid #00ff00;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button {
+  position: absolute;
+  top: 20px;     /* Adjust the distance from the top */
+  left: 20px;    /* Adjust the distance from the left */
+}
+.back-button:hover {
+    background-color: #66ff66;
+}
+div {
+  width: 100vw;
+  height: 100vh;
+  background-color: black; /* You can change the background color */
+}
+/* Add the canvas border styling */
+canvas {
+border: 2px solid #00ff00; /* Bright green border */
+border-radius: 5px; /* Optional rounded corners */
+}
+    </style>
+    <body>
+        <div id="div" align="center" style="margin: auto;"><canvas id="canvas"></canvas></div>
+    <script src="https://www.tinkerdoodle.cc/static/jquery-3.5.1.min.js"></script>
+        <script src="https://www.tinkerdoodle.cc/ka/processing-ka.js"></script>
+        <script>
+
+var processingJS;            
+            
+new Processing("canvas", proc => {
+
+    with (proc) {
+    processingJS = proc;
+        size(600, 600);
+        angleMode = "degrees";
+/////////////////        
+//NOTE: AUORA ALLOWS YOU TO TURN NIGHT/DAY OFF!!!
+//I CANNOT SEE YOUR SPIN OFF UNLESS YOU EDIT IT SOMEHOW!
+//SPIN OFF TO GET ON THE HIGHSCORE TABLE:
+//2. Alvin 294
+//1. R13k 275
+//
+var score = 0;
+var highscore = 0;
+var money = 0;
+var yv = 0;
+var ry = [];
+var rr = [];
+var rd = [];
+var lrd = "right";
+var ox = [];
+var oy = [];
+var os = [];
+var or = [];
+var og = [];
+var ob = [];
+var cy = [];
+var objects = ["Eyes", "Hat", "Nose", "Auora", "Shoes"];
+var cost = [10, 15, 5, 25, 10];
+var xvalue = [0, 120, 240, 360, 480];
+var own = [false, false, false, false, false];
+var on = [false, false, false, false, false];
+var font = createFont("monospace");
+var t = 0;
+var bob = 255;
+var bobch = -0.1;
+var level = 0;
+var levelp = 25;
+var tim = 255;
+var achv = ["Get to level 1", "Get to level 5", "Get to level 10", "Get to level 25", "Die", "Die 10 times", "Die 100 times", "Click 100 times", "Click 250 times", "Click 1000 times", "Click 5000 times", "Buy everything in the shop", "Mystery..."];
+var com = [false, false, false, false, false, false, false, false, false, false, false, false, false];
+var fil = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var yva = [0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300];
+var die = 0;
+var clicks = 0;
+var mode = "logo";
+var tm = 0;
+var logo = function() {
+    tm = tm+1;
+    stroke(0, 255, 0);
+    fill(255, 255, 255);
+    ellipse(300, 300, tm, tm);
+    fill(0, 255, 255);
+    textAlign(CENTER, CENTER);
+    textSize(tm/5);
+    text("R13k\n-----\nGAMES", 300, 300);
+    stroke(255, 0, 0);
+    line(0, tm*3, 600, tm*3);
+    stroke(0, 0, 255);
+    line(tm*3, 0, tm*3, 600);
+    if(tm >= 200){
+        mode = "main";
+    }
+};
+var main = function() {
+    levelp = level*25;
+    noStroke();
+    background(0, 255, 0);
+    textAlign(CENTER, CENTER);
+    textFont(font, 50);
+    fill(255, 255, 255);
+    text("Crossy Road\nINFINITE", 300, 50);
+    textSize(25);
+    text("Highscore: "+highscore+"\nLevel: "+level+"\nGoal: "+levelp, 300, 150);
+    fill(0, 0, 0);
+    if(dist(mouseX, mouseY, 300, 300) <= 100){
+        fill(127.5, 127.5, 127.5);
+    }
+    ellipse(300, 300, 200, 200);
+    fill(255, 255, 255);
+    textSize(50);
+    text("Play", 300, 300);
+    textSize(25);
+    fill(0, 0, 0);
+    if(dist(mouseX, mouseY, 150, 500) <= 50){
+        fill(127.5, 127.5, 127.5);
+    }
+    ellipse(150, 500, 100, 100);
+    fill(255, 255, 255);
+    text("Shop", 150, 500);
+    fill(0, 0, 0);
+    if(dist(mouseX, mouseY, 300, 500) <= 50){
+        fill(127.5, 127.5, 127.5);
+    }
+    ellipse(300, 500, 100, 100);
+    fill(255, 255, 255);
+    text("How", 300, 500);
+    fill(0, 0, 0);
+    if(dist(mouseX, mouseY, 450, 500) <= 50){
+        fill(127.5, 127.5, 127.5);
+    }
+    ellipse(450, 500, 100, 100);
+    fill(255, 255, 255);
+    text("Ach.", 450, 500);
+};
+var play = function() {
+    if(score >= highscore){
+        highscore = score;
+    }
+    t++;
+    background(0, bob, 0);
+    if(on[3] === false){
+    bob = bob+bobch;
+    if(bob > 400 || bob < -145){
+        bobch = -bobch;
+    }
+    }
+    
+    for(var i = 0; i < ry.length; i++){
+        stroke(0, 0, 0);
+        strokeWeight(1);
+        fill(127.5, 127.5, 127.5, bob);
+        rect(0, ry[i], 600, 25);
+        strokeWeight(5);
+        stroke(255, 255, 0, bob);
+        line(0, ry[i]+12.5, 600, ry[i]+12.5);
+        strokeWeight(1);
+        if(t === round(t/rr[i])*rr[i]){
+            ox.push(rd[i]);
+            oy.push(ry[i]);
+            os.push(((rd[i]-300)/300)*-1);
+            or.push(random(0, 255));
+            og.push(random(0, 255));
+            ob.push(random(0, 255));
+        }
+        if(ry[i] > 600){
+            ry.splice(i, 1);
+            rd.splice(i, 1);
+            rr.splice(i, 1);
+        }
+    }
+    for(var i = 0; i < ox.length; i++){
+        noStroke();
+        fill(or[i], og[i], ob[i], bob);
+        rect(ox[i], oy[i], 25, 25);
+        ox[i] = ox[i]+os[i];
+        if(ox[i] > 600 || ox[i] < 0){
+            ox.splice(i, 1);
+            oy.splice(i, 1);
+            os.splice(i, 1);
+            or.splice(i, 1);
+            og.splice(i, 1);
+            ob.splice(i, 1);
+        }
+        if(oy[i] === 487.5 & abs(ox[i]-300) < 12.5){
+            score = 0;
+            mode = "main";
+            for(var i = 0; i < ox.length; i++){
+                ox.splice(i);
+                oy.splice(i);
+                os.splice(i);
+                or.splice(i);
+                og.splice(i);
+                ob.splice(i);
+            }
+            for(var i = 0; i < ry.length; i++){
+                ry.splice(i);
+                rd.splice(i);
+                rr.splice(i);
+            }
+            for(var i = 0; i < cy.length; i++){
+                cy.splice(i);
+            }
+            die++;
+            yv = 0;
+            bob = 255;
+            return;
+        }
+    }
+    for(var i = 0; i < cy.length; i++){
+        fill(random(0, 255), random(0, 255), random(0, 255));
+        ellipse(300, cy[i], 20, 20);
+        if(cy[i] > 600){
+            cy.splice(i, 1);
+        }
+        if(cy[i] === 500){
+            cy.splice(i, 1);
+            money = money+1;
+        }
+    }
+    fill(0,0,0);
+    textAlign(LEFT, TOP);
+    text("Score: "+score, 0, 0, 600, 600);
+    stroke(0, 0, 0);
+    if(on[3] === true){
+        strokeWeight(5);
+        stroke(255, 255, 0);
+    }
+    if(on[4] === true){
+        fill(0, 0, 0);
+        ellipse(287.5, 512.5, 10, 10);
+        ellipse(312.5, 512.5, 10, 10);
+    }
+    fill(255, 255, 255);
+    ellipse(300, 500, 25, 25);
+    fill(0, 0, 0);
+    strokeWeight(1);
+    stroke(0, 0, 0);
+    if(on[1] === true){
+        rect(280, 480, 40, 10);
+        rect(285, 470, 30, 10);
+    }
+    if(on[0] === true){
+        ellipse(295, 500, 2.5, 2.5);
+        ellipse(305, 500, 2.5, 2.5);
+    }
+    if(on[2] === true){
+        ellipse(300, 505, 2.5, 2.5);
+    }
+    if(score >= levelp){
+        for(var i = 0; i < ox.length; i++){
+            ox.splice(i);
+            oy.splice(i);
+            os.splice(i);
+            or.splice(i);
+            og.splice(i);
+            ob.splice(i);
+        }
+        for(var i = 0; i < ry.length; i++){
+            ry.splice(i);
+            rd.splice(i);
+            rr.splice(i);
+        }
+        for(var i = 0; i < cy.length; i++){
+            cy.splice(i);
+        }
+        yv = 0;
+        bob = 255;
+        background(tim, tim, 0);
+        fill(0, 0, 0);
+        textAlign(CENTER, CENTER);
+        text("LEVEL "+level+" PASSED!", 300, 300);
+        tim--;
+        t--;
+        if(tim <= 0){
+            level++;
+            score = 0;
+            mode = "main";
+            tim = 255;
+            return;
+        }
+    }
+};
+var shop = function() {
+    background(0, 255, 0);
+    stroke(255, 255, 255);
+    for(var i = 0; i < objects.length; i++){
+        fill(0, 0, 0);
+        if(mouseX > xvalue[i] & mouseX < xvalue[i]+100 & mouseY<100){
+            fill(127.5, 127.5, 127.5);
+        }
+        rect(xvalue[i], 0, 120, 120);
+        fill(255, 255, 255);
+        text(objects[i]+"\nCost: "+cost[i], xvalue[i]+60, 60);
+    }
+    fill(0, 0, 0);
+    if(dist(mouseX, mouseY, 75, 525) <= 50){
+        fill(127.5, 127.5, 127.5);
+    }
+    ellipse(75, 525, 100, 100);
+    fill(255, 255, 255);
+    text("Back", 75, 525);
+    text("Money: "+money, 300, 150);
+    stroke(0, 0, 0);
+    if(on[3] === true){
+        strokeWeight(5);
+        stroke(255, 255, 0);
+    }
+    if(on[4] === true){
+        fill(0,0,0);
+        ellipse(287.5, 512.5, 10, 10);
+        ellipse(312.5, 512.5, 10, 10);
+    }
+    fill(255, 255, 255);
+    ellipse(300, 500, 25, 25);
+    fill(0, 0, 0);
+    strokeWeight(1);
+    stroke(0, 0, 0);
+    if(on[1] === true){
+        rect(280, 480, 40, 10);
+        rect(285, 470, 30, 10);
+    }
+    if(on[0] === true){
+        ellipse(295, 500, 2.5, 2.5);
+        ellipse(305, 500, 2.5, 2.5);
+    }
+    if(on[2] === true){
+        ellipse(300, 505, 2.5, 2.5);
+    }
+    fill(255, 255, 255, 127.5);
+    rect(250, 400, 100, 200);
+    fill(0, 0, 0);
+    text("I'm changing, okay?\nMind your own buisness!", 300, 300);
+};
+var how = function() {
+    background(0, 255, 0);
+    fill(0, 0, 0);
+    text("If you've played Crossy Road, \nthen you probably know how to play.\nClick to go forwards, and avoid the cars.\nCollect the coins (flashing balls).\nUse coins to buy things in the shop!\nSet a new record, or do whatever you want!\nAnd why should you cross all those roads?\nA question left unanswered will lead to\nDISTASTER!\nWell, I'll tell you...\nLater.", 300, 300);
+    fill(0, 0, 0);
+    if(dist(mouseX, mouseY, 75, 525) <= 50){
+        fill(127.5, 127.5, 127.5);
+    }
+    ellipse(75, 525, 100, 100);
+    fill(255, 255, 255);
+    text("Back", 75, 525);
+};
+var ach = function() {
+    stroke(255, 255, 255);
+    strokeWeight(1);
+    background(255, 255, 0);
+    for(var i = 0; i < com.length; i++){
+        fill(0, fil[i], 0);
+        rect(0, yva[i], 600, 25);
+        fill(255, 255, 255);
+        text(achv[i], 300, yva[i]+12.5);
+    }
+    fill(0, 0, 0);
+    if(dist(mouseX, mouseY, 75, 525) <= 50){
+        fill(127.5, 127.5, 127.5);
+    }
+    ellipse(75, 525, 100, 100);
+    fill(255, 255, 255);
+    text("Back", 75, 525);
+};
+draw = function() {
+    if(mode === "main"){
+        main();
+    }
+    if(mode === "play"){
+        play();
+    }
+    if(mode === "shop"){
+        shop();
+    }
+    if(mode === "how"){
+        how();
+    }
+    if(mode === "ach"){
+        ach();
+    }
+    if(mode === "logo"){
+        logo();
+    }
+    if(level >= 1){
+        ach[0] = true;
+        fil[0] = 255;
+    }
+    if(level >= 5){
+        ach[1] = true;
+        fil[1] = 255;
+    }
+    if(level >= 10){
+        ach[2] = true;
+        fil[2] = 255;
+    }
+    if(level >= 25){
+        ach[3] = true;
+        fil[3] = 255;
+    }
+    if(die >= 1){
+        ach[4] = true;
+        fil[4] = 255;
+    }
+    if(die >= 10){
+        ach[5] = true;
+        fil[5] = 255;
+    }
+    if(die >= 100){
+        ach[6] = true;
+        fil[6] = 255;
+    }
+    if(clicks >= 100){
+        ach[7] = true;
+        fil[7] = 255;
+    }
+    if(clicks >= 250){
+        ach[8] = true;
+        fil[8] = 255;
+    }
+    if(clicks >= 1000){
+        ach[9] = true;
+        fil[9] = 255;
+    }
+    if(clicks >= 5000){
+        ach[10] = true;
+        fil[10] = 255;
+    }
+    if(own[0] === true & own[1] === true & own[2] === true & own[3] === true & own[4] === true){
+        ach[11] = true;
+    }
+};
+mouseClicked = function() {
+    if(mode === "main"){
+        if(dist(mouseX, mouseY, 300, 300) <= 100){
+            mode = "play";
+        }
+        if(dist(mouseX, mouseY, 150, 500) <= 50){
+            mode = "shop";
+        }
+        if(dist(mouseX, mouseY, 300, 500) <= 50){
+            mode = "how";
+        }
+        if(dist(mouseX, mouseY, 450, 500) <= 50){
+            mode = "ach";
+        }    
+    }
+    if(mode === "play"){
+        clicks++;
+        var p = round(random(1, 5));
+        yv = yv+25;
+        score = score+1;
+        for(var i = 0; i < ry.length; i++){
+            ry[i] = ry[i]+25;
+        }
+        if(p > 1){
+            ry.push(-37.5);
+            rr.push(round(random(150, 200)));
+            if(lrd === "right"){
+                rd.push(0);
+                lrd = "left";
+            }
+            else{
+                rd.push(575);
+                lrd = "right";
+            }
+            ox.push(rd[rd.length]);
+            oy.push(ry[ry.length]);
+            os.push(((rd[rd.length]-300)/300)*-1);
+            or.push(random(0, 255));
+            og.push(random(0, 255));
+            ob.push(random(0, 255));
+        }
+        if(p > 4){
+            cy.push(-25);
+        }
+        for(var i = 0; i < cy.length; i++){
+            cy[i] = cy[i]+25;
+        }
+        for(var i = 0; i < ox.length; i++){
+            oy[i] = oy[i]+25;
+        }
+    }
+    if(mode === "shop"){
+        for(var i = 0; i < objects.length; i++){
+            if(mouseX > xvalue[i] & mouseX < xvalue[i]+100 & mouseY < 100 & money >= cost[i] & own[i] === false){
+                own[i] = true;
+                on[i] = true;
+                money = money-cost[i];
+            }
+            if(own[i] === true & mouseX > xvalue[i] & mouseX < xvalue[i]+100 & mouseY < 100){
+                if(on[i] === false){
+                    on[i] = true;
+                }
+                else{
+                    on[i] = false;
+                }
+            }
+        }
+        if(dist(mouseX, mouseY, 75, 525) <= 50){
+            mode = "main";
+        }
+    }
+    if(mode === "how"){
+        if(dist(mouseX, mouseY, 75, 525) <= 50){
+            mode = "main";
+        }
+    }
+    if(mode === "ach"){
+        if(dist(mouseX, mouseY, 75, 525) <= 50){
+            mode = "main";
+        }
+    }
+};
+/////////////////
+    }
+});
+        </script>
+        <button onclick="window.location.href='index.html';" class="back-button">Back to Main Page</button>
+    </body>
+</html>
