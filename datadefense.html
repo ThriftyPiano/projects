@@ -5228,7 +5228,7 @@ var winnersButtons = [{
         switchScene('Info');
     }
 }, ];
-var won = ['Animator101: "Subscribe to Animator101! https://www.khanacademy.org/computer-programming/-/6305847543906304"', 'Electric Dolphin: "Remember: Eat breakfast, lunch, and dinner"', 'Gilded: "I love procrastinating :D - Oct 24 2024 (Took 13 Hours)"'];
+var won = ['Animator101: "Subscribe to Animator101! https://www.khanacademy.org/computer-programming/-/6305847543906304"', 'Electric Dolphin: "Remember: Eat breakfast, lunch, and dinner"', 'macraerandall: "I won! FINALLY. it took me upwards of 38 hours."', 'Gilded: "I love procrastinating :D - Oct 24 2024 (Took 13 Hours)"', 'SnowyMountain: "IS THAT HYPERPIGMENTATION"', 'Nathl Macmc: "that\'s a problem for future me to deal with"'];
 var showWinners = function() {
     var winnersText = '';
     for (var i = 0; i < won.length; i++) {
@@ -6065,10 +6065,10 @@ var secretMarketButtons = [{
         y: fakeHeight / 2,
         radius: 75,
         requiredLevel: 0,
-        description: 'A mysterious file of size 60 kB.',
+        description: 'A mysterious file of size 128 kB.',
         decoded: false,
         onClick: function() {
-            if (kiloBytes < 60 & !this.decoded) {
+            if (kiloBytes < 128 & !this.decoded) {
                 addNotif('Not enough kB.');
             } else {
                 addNotif('The file has been decoded. Good job.');
