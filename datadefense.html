@@ -130,8 +130,14 @@ var hackerText = function(txt, x, y) {
     text(newText, x, y);
 };
 var upgradeCost = function(level) {
-    return pow(10, floor(level / 2) + 1) * (2 - (level + 1) % 2) / 2;
+    return 2 * pow(8, floor(level / 2) + 1) * (2 - (level + 1) % 2) / 2;
 };
+var aUpgradeCost = function(level) {
+    if (level === 0) {
+        return 1;
+    }
+    return 2 * pow(2, level);
+};	    
 var smallDroneCount = 0;
 var scene = 'Warning';
 // }
@@ -167,9 +173,18 @@ var damageCoef = 1;
 // }
 // UI {
 // Backgrounds {
-var colors = [{
+var colors = [
+    {
         name: 'Crypto',
         col: color(100, 255, 0),
+    },
+    {
+        name: 'Steel',
+        col: color(143, 143, 143),
+    },
+    {
+        name: 'Beach',
+        col: color(212, 169, 140),
     },
     {
         name: 'Tide',
@@ -181,7 +196,11 @@ var colors = [{
     },
     {
         name: 'Sky',
-        col: color(200, 255, 255),
+        col: color(161, 192, 255),
+    },
+    {
+        name: 'Tropical',
+        col: color(208, 255, 0),
     },
     {
         name: 'Monochrome',
@@ -220,12 +239,16 @@ var colors = [{
         col: color(50, 50, 100),
     },
     {
+        name: 'Dragonfruit',
+        col: color(255, 0, 85),
+    },
+    {
         name: 'Royalty',
         col: color(150, 0, 255),
     },
     {
-        name: 'Beach',
-        col: color(212, 169, 140),
+        name: 'Virus',
+        col: color(255, 0, 0),
     },
 ];
 var colorSchemes = [];
@@ -642,7 +665,33 @@ var storyButtons = [{
     },
 ];
 var current = 0;
-var storyTexts = ['A: Did you seriously just tell me that you believed that?\nB: Yeah? The email clearly said in official, bold letters that I won the lottery! Why wouldn\'t I follow their instructions?\nA: You know that is a scam, right?\nB: Well, the website they sent a link to was a bit weird, so it could be.\nA: You clicked on the link? Oh my gosh. How stupid can you get?\nB: It shouldn\'t be too big of a deal, right? Our computer has a virus protection software.\nA: Yes. And for a good reason. Let\'s just hope that it does its job.\nB: I don\'t want to lose my 500 hours of gaming progress! :(\nA: Shut up! You imbecile.\n\nYour mission: protect your computer against the virus at all costs. Entering: Data Defense.', 'A: Here, I\'ll try restarting the computer.\nB: No! It says that we might lose some unsaved work, like my gaming progress!\nA: If we don\'t restart the computer to get rid of the virus, you won\'t have any gaming progress left over!\nB: Oh. Sorry, I was being really stupid.\nA: I agree. You are really stupid.\nB: That\'s not nice! You hurt my feelings!\nA: I\'m citing facts. Why would the truth hurt your feelings?\nB: My stupidity is not a fact! It\'s objective!\nA: See what I mean? Objective means facts, and subjective means opinion.\nB: Ok, my stupidity is subjective! Who cares, it\'s the same thing anyways.\n\nRestarting Data Defense...', 'B: That didn\'t seem like it worked. I don\'t see a difference.\nA: No, look! The virus protection software\'s loading bar is moving faster!\nB: Oh yeah, it is! Let\'s try restarting it again, so it will be even better!\nA: Where did the mouse go?\nB: Uh oh. I guess we\'ll have to wait for the software to bring it back. Ugh. I want to play games so badly right now!\nA: Shut up! That\'s the least important of matters right now. Our tax reports and credit card information are all stored on the computer!\nB: And my videos of monkeys reacting to magic tricks!\nA: My work PowerPoint too!\nB: What\'s a PowerPoint?\n\nRestarting again...', 'A: I\'ve been waiting for four days!\nC: Sorry, many people have been calling tech support recently. Apparently there is a virus that has been spreading through emails.\nA: I believe our computer has that virus.\nC: That\'s unfortunate. We have not yet found a way to remove the virus. You\'ll have to deal with it yourself, or factory reset your computer.\nB: Does that mean I will lose my gaming progress?\nC: I\'m afraid it does, little one.\nB: I\'m not little! I\'m twenty years old!\nC: Sorry, but I usually don\'t expect people other than kids to worry about video games.\nA: I also have some data on the computer that isn\'t backed up.\n\nRestarting computer...', 'B: What\'s happening? Why do you look so scared?\nA: I\'m not scared. Come here. Look at what the computer is doing.\nB: It\'s going to websites by itself?\nA: Yes. This site is for our online bank account.\nB: What does that mean?\nA: That means that we will lose money if we don\'t remove this virus!\nB: Oh. That is very scary.\nA: Of course it is. We might actually have to factory reset the computer.\nB: But...\nA: Do not mention your gaming progress.\nB: I was going to say that I would lose my dancing bunny videos.\nA: Seriously?\n\nRestarting...', 'A: Hey, come here.\nB: What is it? This better be worth having to wake up at 4 AM.\nA: What is this circle floating around on the screen?\nB: Yeah, what is it?\nA: I don\'t know.\nB: It looks like it is clicking on things!\nA: What do you mean?\nB: Look! It just opened up my inappropriate applesauce memes!\nA: Hmm. It is acting like a cursor! Whenever it floats over buttons, they become highlighted!\nB: It just opened up my video game! No! I am going to lose my progress!\nA: Seriously? I\'m restarting the computer.\nB: Don\'t! Not again! It\'s a miracle my games survived last time!\n\nRestarting...', 'A: Uh oh, it opened up the terminal.\nB: What is a terminal? Is that the thing in airports?\nA: No, a computer terminal, you idiot.\nB: Wait, it can type!\nA: Nice observation, Mr. Obvious.\nB: What is it saying?\nX: Hello, humans.\nB: Hi! Are you the virus? Please spare my bunny videos.\nA: It cannot hear us, you dimwit.\nX: Yes, I can. Who told you I couldn\'t?\nA: Uh oh.\nX: I have access to the computer microphone.\nB: Is that a good thing?\nA: Of course not! Are you stupid?\n\nResetting...', 'A: Ok, I downloaded and recovered as many files as I could.\nB: Do I have permission?\nX: Don\'t you dare destroy the computer. I\'ll delete all your progress.\nA: Don\'t listen to it!\nB: *Hits computer with spatula*\nA: *Rips computer in half with their bare hands*\nB: Well, that\'s the end of that.\nA: We wouldn\'t had to do this if you had paid more attention to the sites you browsed. I\'m done with this nonsense! Let us celebrate!\nX: May I celebrate with you?\nA: *Repetitively slams computer on floor*\nX: No, I am no longer on your computer. Look at your television.\n\nRestarting...', 'D: What do you mean by "a virus ate my homework?"\nB: I swear I did it! I think I emailed the PowerPoint to you yesterday!\nD: It clearly isn\'t on my computer.\nX: Yes, it is.\nD: What was that?\nB: Uh oh. It was the virus that ate my homework.\nD: So, that wasn\'t an empty PowerPoint you sent me.\nB: My mom said that you should destroy your computer as soon as possible if you get infected.\nD: I still have my lesson plans here!\nX: You mean, I have your lesson plans.\nD: *Shudders*\nB: *Picks up computer and chucks it*\n\nRestarting...', 'E: Breaking news! All electronic devices are now infected by a virus! Our most advanced team is working on finding a way to remove it. In the meantime, *static*\nB: That\'s not good. *Slams remote on ground*\nE: ... a shift to analog devices may help maintain *static*\nB: *Turns television off*\nA: This is pointless.\nB: I agree. Let\'s try some of the old movies on the DVDs.\nA: Sure.\nB: Which one? The Tale of the Missing Cat?\nA: We\'ve watched that one thousands of times.\nB: Ugh. Let\'s go to the movie theatres instead.\nA: They\'ve closed. I\'ve checked.\nB: Ugh.\n\nRestarting...'];
+var storyTexts = [
+    'A: Did you seriously just tell me that you believed that?\nB: Yeah? The email clearly said in official, bold letters that I won the lottery! Why wouldn\'t I follow their instructions?\nA: You know that is a scam, right?\nB: Well, the website they sent a link to was a bit weird, so it could be.\nA: You clicked on the link? Oh my gosh. How stupid can you get?\nB: It shouldn\'t be too big of a deal, right? Our computer has a virus protection software.\nA: Yes. And for a good reason. Let\'s just hope that it does its job.\nB: I don\'t want to lose my 500 hours of gaming progress! :(\nA: Shut up! You imbecile.\n\nYour mission: protect your computer against the virus at all costs. Entering: Data Defense.',
+
+    'A: Here, I\'ll try restarting the computer.\nB: No! It says that we might lose some unsaved work, like my gaming progress!\nA: If we don\'t restart the computer to get rid of the virus, you won\'t have any gaming progress left over!\nB: Oh. Sorry, I was being really stupid.\nA: I agree. You are really stupid.\nB: That\'s not nice! You hurt my feelings!\nA: I\'m citing facts. Why would the truth hurt your feelings?\nB: My stupidity is not a fact! It\'s objective!\nA: See what I mean? Objective means facts, and subjective means opinion.\nB: Ok, my stupidity is subjective! Who cares, it\'s the same thing anyways.\n\nRestarting Data Defense...',
+
+    'B: That didn\'t seem like it worked. I don\'t see a difference.\nA: No, look! The virus protection software\'s loading bar is moving faster!\nB: Oh yeah, it is! Let\'s try restarting it again, so it will be even better!\nA: Where did the mouse go?\nB: Uh oh. I guess we\'ll have to wait for the software to bring it back. Ugh. I want to play games so badly right now!\nA: Shut up! That\'s the least important of matters right now. Our tax reports and credit card information are all stored on the computer!\nB: And my videos of monkeys reacting to magic tricks!\nA: My work PowerPoint too!\nB: What\'s a PowerPoint?\n\nRestarting again...',
+    
+    'A: I\'ve been waiting for four days!\nC: Sorry, many people have been calling tech support recently. Apparently there is a virus that has been spreading through emails.\nA: I believe our computer has that virus.\nC: That\'s unfortunate. We have not yet found a way to remove the virus. You\'ll have to deal with it yourself, or factory reset your computer.\nB: Does that mean I will lose my gaming progress?\nC: I\'m afraid it does, little one.\nB: I\'m not little! I\'m twenty years old!\nC: Sorry, but I usually don\'t expect people other than kids to worry about video games.\nA: I also have some data on the computer that isn\'t backed up.\n\nRestarting computer...',
+    
+    'B: What\'s happening? Why do you look so scared?\nA: I\'m not scared. Come here. Look at what the computer is doing.\nB: It\'s going to websites by itself?\nA: Yes. This site is for our online bank account.\nB: What does that mean?\nA: That means that we will lose money if we don\'t remove this virus!\nB: Oh. That is very scary.\nA: Of course it is. We might actually have to factory reset the computer.\nB: But...\nA: Do not mention your gaming progress.\nB: I was going to say that I would lose my dancing bunny videos.\nA: Seriously?\n\nRestarting...',
+    
+    'A: Hey, come here.\nB: What is it? This better be worth having to wake up at 4 AM.\nA: What is this circle floating around on the screen?\nB: Yeah, what is it?\nA: I don\'t know.\nB: It looks like it is clicking on things!\nA: What do you mean?\nB: Look! It just opened up my inappropriate applesauce memes!\nA: Hmm. It is acting like a cursor! Whenever it floats over buttons, they become highlighted!\nB: It just opened up my video game! No! I am going to lose my progress!\nA: Seriously? I\'m restarting the computer.\nB: Don\'t! Not again! It\'s a miracle my games survived last time!\n\nRestarting...',
+    
+    'A: Uh oh, it opened up the terminal.\nB: What is a terminal? Is that the thing in airports?\nA: No, a computer terminal, you idiot.\nB: Wait, it can type!\nA: Nice observation, Mr. Obvious.\nB: What is it saying?\nX: Hello, humans.\nB: Hi! Are you the virus? Please spare my bunny videos.\nA: It cannot hear us, you dimwit.\nX: Yes, I can. Who told you I couldn\'t?\nA: Uh oh.\nX: I have access to the computer microphone.\nB: Is that a good thing?\nA: Of course not! Are you stupid?\n\nResetting...',
+    
+    'A: Ok, I downloaded and recovered as many files as I could.\nB: Do I have permission?\nX: Don\'t you dare destroy the computer. I\'ll delete all your progress.\nA: Don\'t listen to it!\nB: *Hits computer with spatula*\nA: *Rips computer in half with their bare hands*\nB: Well, that\'s the end of that.\nA: We wouldn\'t had to do this if you had paid more attention to the sites you browsed. I\'m done with this nonsense! Let us celebrate!\nX: May I celebrate with you?\nA: *Repetitively slams computer on floor*\nX: No, I am no longer on your computer. Look at your television.\n\nRestarting...',
+    
+    'D: What do you mean by "a virus ate my homework?"\nB: I swear I did it! I think I emailed the PowerPoint to you yesterday!\nD: It clearly isn\'t on my computer.\nX: Yes, it is.\nD: What was that?\nB: Uh oh. It was the virus that ate my homework.\nD: So, that wasn\'t an empty PowerPoint you sent me.\nB: My mom said that you should destroy your computer as soon as possible if you get infected.\nD: I still have my lesson plans here!\nX: You mean, I have your lesson plans.\nD: *Shudders*\nB: *Picks up computer and chucks it*\n\nRestarting...',
+    
+    'E: Breaking news! All electronic devices are now infected by a virus! Our most advanced team is working on finding a way to remove it. In the meantime, *static*\nB: That\'s not good. *Slams remote on ground*\nE: ... a shift to analog devices may help maintain *static*\nB: *Turns television off*\nA: This is pointless.\nB: I agree. Let\'s try some of the old movies on the DVDs.\nA: Sure.\nB: Which one? The Tale of the Missing Cat?\nA: We\'ve watched that one thousands of times.\nB: Ugh. Let\'s go to the movie theatres instead.\nA: They\'ve closed. I\'ve checked.\nB: Ugh.\n\nRestarting...',
+    
+    "F: I give up. *Tosses computer* \n                     \n                  \nX: Perfect. Looks like it's just me and you.\n\nRestarting...",
+    
+    "X: Again and again. Restart after restart. Forever and ever.\n\nRestarting...",
+    
+    "*Silence*\n\nRestarting..."
+];
 
 var displayedStoryText = '';
 var drawStoryText = function() {
@@ -1481,8 +1530,8 @@ var weapons = [{
                 radius: 7.5,
                 movement: side === 'Good' ? 'Drone' : 'Standard',
                 movementSpeed: 2,
-                health: side === 'Good' ? damage * 50 : difficulty / 4,
-                maxHealth: side === 'Good' ? damage * 50 : difficulty / 4,
+                health: side === 'Good' ? damage * 50 * damageCoef : difficulty / 4,
+                maxHealth: side === 'Good' ? damage * 50 * damageCoef : difficulty / 4,
                 healthRegen: -0.2,
                 reload: 0,
                 side: side,
@@ -2011,6 +2060,7 @@ var greekCharacters = '\u03b1\u03b2\u03b3\u03b4\u03b5\u03b6\u03b7\u03b8\u03b9\u0
 var greekCharacterNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 'Phi', 'Psi', 'Omega'];
 var originalDroneCount = shopDrones.length;
 var initDrones = function() {
+    var newShopDrones = [];
     for (var i = 0; i < shopDrones.length; i++) {
         var shopDrone = shopDrones[i];
         shopDrone.owned = false;
@@ -2028,15 +2078,18 @@ var initDrones = function() {
         shopDrone.name = greekCharacterNames[i];
         shopDrone.logo = greekCharacters[i];
         shopDrone.used = false;
+        newShopDrones.push(shopDrone);
+        
+        // Prime
+        var primeDrone = Object.assign({}, shopDrone);
+        primeDrone.name += ' Prime';
+        primeDrone.description = 'Identical to ' + shopDrone.name + ', but now you can equip two.\n'+shopDrone.description;
+        primeDrone.logo += "'";
+        newShopDrones.push(primeDrone);
     }
+    shopDrones = newShopDrones;
 };
 initDrones();
-for (var i = 0; i < originalDroneCount; i++) {
-    shopDrones.push(Object.assign({}, shopDrones[i]));
-    var originalName = shopDrones[shopDrones.length - 1].name;
-    shopDrones[shopDrones.length - 1].name += ' Prime';
-    shopDrones[shopDrones.length - 1].description = 'Identical to ' + originalName + ', but now you can equip two.\n'+shopDrones[shopDrones.length - 1].description;
-}
 // }
 // Powers {
 var startWithPowers = false;
@@ -2701,19 +2754,20 @@ var projectiles = [{
         damage: 20,
         onDeath: function(player, damage) {
             var playerPos = getPlayerPos(player);
-            var d = random(0, 36);
+            var d = random(0, 60);
             for (var r = d; r < 360 + d; r += 300) {
+                var ro = r + player.angle + 180;
                 bullets.push({
-                    x: playerPos.x + cos(r) * (player.radius + 10),
-                    y: playerPos.y + sin(r) * (player.radius + 10),
-                    angle: r,
+                    x: playerPos.x + cos(ro) * (player.radius + 10),
+                    y: playerPos.y + sin(ro) * (player.radius + 10),
+                    angle: ro,
                     speed: 5,
                     type: 1,
                     radius: 5,
                     life: 0,
                     side: oppositeSide(player.side),
                     dead: false,
-                    damage: damage,
+                    damage: damage*10,
                 });
             }
         },
@@ -2935,7 +2989,7 @@ var collideBulletPlayers = function() {
                 if (bullet.side === 'Good') {
                     player.health -= projectiles[bullet.type].damage * bullet.damage * damageCoef;
                 } else {
-                    player.health -= projectiles[bullet.type].damage * difficulty / 100;
+                    player.health -= projectiles[bullet.type].damage * bullet.damage;
                 }
                 if (projectiles[bullet.type].movement !== 'Splat' & projectiles[bullet.type].movement !== 'Piercing' & !bullet.dead) {
                     projectiles[bullet.type].onDeath(player, bullet.damage);
@@ -3083,7 +3137,7 @@ var drawDroneHealth = function() {
         fill(colorSchemes[colorScheme]);
         textSize(25);
         textAlign(CENTER, CENTER);
-        text(i, (i - 1) * 75 + 40, fakeHeight - 85);
+        text(drone.logo, (i - 1) * 75 + 40 - textWidth(drone.logo[0])/2, fakeHeight - 85);
     }
     fill(colorSchemes[colorScheme]);
     textSize(20);
@@ -3299,15 +3353,21 @@ var showDescription = function(description) {
     noFill();
 };
 var drawButton = function(button) {
+    
+    if (button.requirement && !button.requirement()) {
+        return;
+    }
+    
+    var buttonUnlocked = level < button.requiredLevel || (button.requiredWave && furthestWave < button.requiredWave);
     noStroke();
-    fill(level < button.requiredLevel ? color(255, 0, 0) : colorSchemes[colorScheme], 50);
+    fill(buttonUnlocked ? color(255, 0, 0) : colorSchemes[colorScheme], 50);
     ellipse(button.x, button.y, button.radius * 2, button.radius * 2);
     strokeWeight(lineWidth);
-    stroke(level < button.requiredLevel ? color(255, 0, 0) : colorSchemes[colorScheme], level < button.requiredLevel ? 150 : 255);
+    stroke(buttonUnlocked ? color(255, 0, 0) : colorSchemes[colorScheme], buttonUnlocked ? 150 : 255);
     noFill();
     hexagon(button.x, button.y, frameCount, checkHover(button) ? button.radius * 2 : button.radius * 2.2);
     hexagon(button.x, button.y, frameCount, button.radius * 2);
-    fill(level < button.requiredLevel ? color(255, 0, 0) : colorSchemes[colorScheme], level < button.requiredLevel ? 150 : 255);
+    fill(buttonUnlocked ? color(255, 0, 0) : colorSchemes[colorScheme], buttonUnlocked ? 150 : 255);
     textAlign(CENTER, CENTER);
     textSize(button.radius / button.name.length * 2.75);
     if (level < button.requiredLevel) {
@@ -3315,6 +3375,11 @@ var drawButton = function(button) {
         fill(255, 0, 0);
         textSize(button.radius / 4.5);
         text('Level ' + button.requiredLevel + '\nrequired', button.x, button.y + button.radius / 2);
+    } else if (button.requiredWave && furthestWave < button.requiredWave) {
+        text(button.name, button.x, button.y - button.radius / 8);
+        fill(255, 0, 0);
+        textSize(button.radius / 4.5);
+        text('Survive\nwave ' + button.requiredWave, button.x, button.y + button.radius / 2);
     } else {
         text(button.name, button.x, button.y);
     }
@@ -3757,7 +3822,7 @@ var colorSelectButtons = [{
         x: fakeWidth / 2,
         y: fakeHeight - fakeHeight / 8,
         radius: 50,
-        requiredLevel: 0,
+        requiredWave: 0,
         onClick: function() {
             colorScheme = currentColor;
             addNotif('Color scheme changed.');
@@ -3805,7 +3870,7 @@ var displayCurrentColor = function() {
 };
 var colorSelect = function() {
     displayCurrentColor();
-    colorSelectButtons[1].requiredLevel = currentColor;
+    colorSelectButtons[1].requiredWave = currentColor * 2;
     drawTitle('Colors');
     displayBits();
 };
@@ -4513,7 +4578,7 @@ var viruses = [{
         name: "Cross-eyed",
         description: "Constantly blurs and unblurs the screen.",
         does: function() {
-            if (frameCount % 100 <= 15) {
+            if (frameCount % 100 <= 10) {
                 filter(BLUR, 1.2);
             }
         }
@@ -4575,7 +4640,7 @@ var viruses = [{
     },
     {
         name: "Archaic Technology",
-        description: "The game speed (framerate) is manually decreased by 25%.",
+        description: "The FPS is capped at 45.",
         does: function() {
             frameRate(45);
         }
@@ -4626,7 +4691,9 @@ var viruses = [{
         description: "You constantly get notified about losing the game.",
         does: function() {
             var theGameNotifs = ['1434', 'You lost the game!', 'Airplane!', 'I lost the game.', 'Grape.', '_ ____ ___ ____', 'Uranium', '6*239', 'Go to line 1434 in the code.', '59A in hexadecimal'];
-            addNotif(theGameNotifs[floor(random(theGameNotifs.length))]);
+            if (notifs.length < 5) {
+                addNotif(theGameNotifs[floor(random(theGameNotifs.length))]);
+            }
         }
     },
     {
@@ -4773,16 +4840,16 @@ var achievements = [{
     {
         name: 'Endurance',
         requirement: function() {
-            return currentWave > 40;
+            return currentWave > 25;
         },
-        description: 'Survive wave 40.',
+        description: 'Survive wave 25.',
     },
     {
         name: 'Unstoppable',
         requirement: function() {
-            return currentWave > 100;
+            return currentWave > 40;
         },
-        description: 'Survive wave 100.',
+        description: 'Survive wave 40.',
     },
     {
         name: 'Hidden',
@@ -5053,7 +5120,7 @@ var credits = function() {
     textSize(20);
     textAlign(CENTER, CENTER);
     fill(colorSchemes[colorScheme]);
-    text('ThriftyPiano\nSub: tinyurl.com/sub2Thrifty\n\nmango.\nSub: tinyurl.com/sub2mango\n\nmika.nelson\nProjects: tinyurl.com/mnprojects\n\nSmall thanks to \nChoco, HAMBURGER RiDER, x.asper,\nCaptain Argon, and more.', fakeWidth / 2, fakeHeight / 2 + 37.5);
+    text('ThriftyPiano\nSub: tinyurl.com/sub2Thrifty\n\nElectric Dolphin (THE BEST)\nSub: tinyurl.com/sub2electricdolphin\n\nmango.\nSub: tinyurl.com/sub2mango\n\nmika.nelson\nProjects: tinyurl.com/mnprojects\n\nSmall thanks to \nChoco, HAMBURGER RiDER, x.asper,\nCaptain Argon, and more.', fakeWidth / 2, fakeHeight / 2 + 37.5);
     fill(0, 0, 0);
 };
 // }
@@ -5422,7 +5489,7 @@ var resetGame = function() {
         'Body dmg': 0,
         'Regen': 0,
     };
-    colorScheme = 0;
+    // colorScheme = 0;
     dronesUnlocked = 0;
     gunsUnlocked = 2;
     cumulativeBits = 0;
@@ -5569,22 +5636,22 @@ var ascensionUpgradeButtons = [{
         requiredLevel: 0,
         description: 'Increases bits gained by 40%. Costs 1 kB to purchase.',
         onClick: function() {
-            if (kiloBytes < upgradeCost(aUpgradeLevels[this.name] - 1) & !dev) {
+            if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB');
                 return;
             } else {
                 addNotif('Upgraded bit multiplier.');
-                kiloBytes -= upgradeCost(aUpgradeLevels[this.name] - 1);
+                kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
                 bitMult *= 1.4;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'Increases bits gained by 40%. This upgrade is currently at level ' + upgradeLevel + '.\nBit multiplier: x' + round(bitMult * 100) / 100 + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases bits gained by 40%. This upgrade is currently at level ' + upgradeLevel + '.\nBit multiplier: x' + round(bitMult * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'Increases bits gained by 40%. This upgrade is currently at level ' + upgradeLevel + '.\nBit multiplier: x' + round(bitMult * 100) / 100 + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases bits gained by 40%. This upgrade is currently at level ' + upgradeLevel + '.\nBit multiplier: x' + round(bitMult * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5596,22 +5663,22 @@ var ascensionUpgradeButtons = [{
         requiredLevel: 0,
         description: 'Increases damage by 80%. Costs 1 kB to purchase.',
         onClick: function() {
-            if (kiloBytes < upgradeCost(aUpgradeLevels[this.name] - 1) & !dev) {
+            if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
                 return;
             } else {
                 addNotif('Upgraded damage.');
-                kiloBytes -= upgradeCost(aUpgradeLevels[this.name] - 1);
+                kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
                 damageCoef *= 1.8;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'Increases damage by 80%. This upgrade is currently at level ' + upgradeLevel + '.\nDamage coefficient: x' + round(damageCoef * 100) / 100 + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases damage by 80%. This upgrade is currently at level ' + upgradeLevel + '.\nDamage coefficient: x' + round(damageCoef * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'Increases damage by 80%. This upgrade is currently at level ' + upgradeLevel + '.\nDamage coefficient: x' + round(damageCoef * 100) / 100 + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases damage by 80%. This upgrade is currently at level ' + upgradeLevel + '.\nDamage coefficient: x' + round(damageCoef * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5623,22 +5690,22 @@ var ascensionUpgradeButtons = [{
         requiredLevel: 0,
         description: 'Allows you to equip one more drone. Costs 1 kB to purchase.',
         onClick: function() {
-            if (kiloBytes < upgradeCost(aUpgradeLevels[this.name] - 1) & !dev) {
+            if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
                 return;
             } else {
                 addNotif('Drone slots increased by one.');
-                kiloBytes -= upgradeCost(aUpgradeLevels[this.name] - 1);
+                kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
                 maxDroneCount += 1;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'Adds one more drone slot. This upgrade is currently at level ' + upgradeLevel + '.\nDrone slots: ' + maxDroneCount + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Adds one more drone slot. This upgrade is currently at level ' + upgradeLevel + '.\nDrone slots: ' + maxDroneCount + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'Adds one more drone slot. This upgrade is currently at level ' + upgradeLevel + '.\nDrone slots: ' + maxDroneCount + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Adds one more drone slot. This upgrade is currently at level ' + upgradeLevel + '.\nDrone slots: ' + maxDroneCount + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5650,22 +5717,22 @@ var ascensionUpgradeButtons = [{
         requiredLevel: 0,
         description: 'You level up 50% faster. Costs 1 kB to purchase.',
         onClick: function() {
-            if (kiloBytes < upgradeCost(aUpgradeLevels[this.name] - 1) & !dev) {
+            if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
                 return;
             } else {
                 addNotif('Experience multiplier increased by 50%.');
-                kiloBytes -= upgradeCost(aUpgradeLevels[this.name] - 1);
+                kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
                 experienceGain *= 1.5;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'You level up 50% faster. This upgrade is currently at level ' + upgradeLevel + '.\nExperience multiplier: ' + floor(experienceGain * 100) / 100 + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'You level up 50% faster. This upgrade is currently at level ' + upgradeLevel + '.\nExperience multiplier: ' + floor(experienceGain * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'You level up 50% faster. This upgrade is currently at level ' + upgradeLevel + '.\nExperience multiplier: ' + floor(experienceGain * 100) / 100 + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'You level up 50% faster. This upgrade is currently at level ' + upgradeLevel + '.\nExperience multiplier: ' + floor(experienceGain * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5677,22 +5744,22 @@ var ascensionUpgradeButtons = [{
         requiredLevel: 0,
         description: 'You start with 100 bits. Costs 1 kB to purchase.',
         onClick: function() {
-            if (kiloBytes < upgradeCost(aUpgradeLevels[this.name] - 1) & !dev) {
+            if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
                 return;
             } else {
                 addNotif('Starting bits increased by 100.');
-                kiloBytes -= upgradeCost(aUpgradeLevels[this.name] - 1);
+                kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
                 startingBits += 100;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'You start with 100 more bits. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + startingBits + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'You start with 100 more bits. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + startingBits + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'You start with 100 more bits. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + startingBits + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'You start with 100 more bits. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + startingBits + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5704,22 +5771,22 @@ var ascensionUpgradeButtons = [{
         requiredLevel: 0,
         description: 'The game skips easier waves so you can earn bits faster.\nPurchase in moderation! Costs 1 kB to purchase.',
         onClick: function() {
-            if (kiloBytes < upgradeCost(aUpgradeLevels[this.name] - 1) & !dev) {
+            if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
                 return;
             } else {
                 addNotif('Starting difficulty increased by 100%.');
-                kiloBytes -= upgradeCost(aUpgradeLevels[this.name] - 1);
+                kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
                 startingDifficulty *= 2;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'The game starts 100% harder. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + round(startingDifficulty) + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'The game starts 100% harder. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + round(startingDifficulty) + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'The game starts 100% harder. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + round(startingDifficulty) + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'The game starts 100% harder. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + round(startingDifficulty) + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5731,22 +5798,22 @@ var ascensionUpgradeButtons = [{
         requiredLevel: 0,
         description: 'You get a bit every time you click. Costs 1 kB to purchase.',
         onClick: function() {
-            if (kiloBytes < upgradeCost(aUpgradeLevels[this.name] - 1) & !dev) {
+            if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
                 return;
             } else {
                 addNotif('Bits per click increased by 1.');
-                kiloBytes -= upgradeCost(aUpgradeLevels[this.name] - 1);
+                kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
                 bitsPerClick += 1;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'Increases bits per click by one. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + bitsPerClick + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases bits per click by one. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + bitsPerClick + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'Increases bits per click by one. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + bitsPerClick + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases bits per click by one. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + bitsPerClick + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5758,22 +5825,22 @@ var ascensionUpgradeButtons = [{
         requiredLevel: 0,
         description: 'Decreases virus frequency by 50%. Costs 1 kB to purchase.',
         onClick: function() {
-            if (kiloBytes < upgradeCost(aUpgradeLevels[this.name] - 1) & !dev) {
+            if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
                 return;
             } else {
                 addNotif('Virus frequency decreased by 50%.');
-                kiloBytes -= upgradeCost(aUpgradeLevels[this.name] - 1);
+                kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
                 virusFrequency *= 1.5;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'Decreases virus frequency by 50%. This upgrade is currently at level ' + upgradeLevel + '.\nCurrent frequency (higher is better): ' + round(virusFrequency / (ascensions + 1) / 1000) + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Decreases virus frequency by 50%. This upgrade is currently at level ' + upgradeLevel + '.\nCurrent frequency (higher is better): ' + round(virusFrequency / (ascensions + 1) / 1000) + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'Decreases virus frequency by 50%. This upgrade is currently at level ' + upgradeLevel + '.\nCurrent frequency (higher is better): ' + round(virusFrequency / (ascensions + 1) / 1000) + '. Costs ' + upgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Decreases virus frequency by 50%. This upgrade is currently at level ' + upgradeLevel + '.\nCurrent frequency (higher is better): ' + round(virusFrequency / (ascensions + 1) / 1000) + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5852,10 +5919,14 @@ var executeButtons = function() {
             continue;
         }
         if (typeof button.name === 'string') {
-            if (checkHover(button) & (level >= button.requiredLevel || dev)) {
+            if (checkHover(button) & (level >= (button.requiredLevel || 0) & furthestWave >= (button.requiredWave || 0) || dev)) {
                 button.onClick();
             } else if (checkHover(button)) {
-                addNotif('You are not at level ' + button.requiredLevel + ' yet.');
+                if (button.requiredLevel) {
+                    addNotif('You are not at level ' + button.requiredLevel + ' yet.', true);
+                } else if (button.requiredWave) {
+                    addNotif('You have not survived wave ' + button.requiredWave + ' yet.', true);
+                }
             }
         } else if (checkHover(button)) {
             if (weapons[button.name].owned || dev) {
@@ -5909,7 +5980,7 @@ var secretMarketButtons = [{
         radius: 50,
         requiredLevel: 0,
         onClick: function() {
-            switchScene('Menu');
+            switchScene('Shop');
         }
     },
     {
@@ -5992,17 +6063,22 @@ var secretMarketButtons = [{
         y: fakeHeight / 4,
         radius: 50,
         requiredLevel: 0,
-        description: 'A software is created that automatically clicks through chests.\nCosts 1 kB.',
+        description: 'A software is created that automatically clicks through chests.\nYou can toggle this upgrade. Costs 1 kB.',
+        purchased: false,
         onClick: function() {
-            if (!autoNext & kiloBytes < 1) {
-                addNotif('Not enough kB.');
-            } else if (!autoNext & kiloBytes >= 1) {
+            if (!this.purchased & kiloBytes < 1) {
+                addNotif('Not enough kB.', true);
+            } else if (!this.purchased) {
+                this.purchased = true;
                 autoNext = true;
                 kiloBytes--;
-                addNotif('AutoNext software installed.\nYour chests will automatically be clicked through');
-                this.description = 'Purchased.';
+                this.description = 'Your chests will automatically be clicked through.\nClick to disable.';
             } else if (autoNext) {
-                addNotif('This is a one-time upgrade.');
+                this.description = 'Your chests will not automatically be clicked through.\nClick to enable.';
+                autoNext = false;
+            } else {
+                this.description = 'Your chests will automatically be clicked through.\nClick to disable.';
+                autoNext = true;
             }
         }
     },
@@ -6065,10 +6141,10 @@ var secretMarketButtons = [{
         y: fakeHeight / 2,
         radius: 75,
         requiredLevel: 0,
-        description: 'A mysterious file of size 128 kB.',
+        description: 'A mysterious file of size 16384 kB.',
         decoded: false,
         onClick: function() {
-            if (kiloBytes < 128 & !this.decoded) {
+            if (kiloBytes < 16384 & !this.decoded) {
                 addNotif('Not enough kB.');
             } else {
                 addNotif('The file has been decoded. Good job.');
