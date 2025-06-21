@@ -2198,8 +2198,8 @@ hPlayer = {
     radius: 12.5,
     movement: 'Human',
     movementSpeed: 1,
-    health: 10000,
-    maxHealth: 10000,
+    health: 4000,
+    maxHealth: 4000,
     healthRegen: 0,
     reload: 0,
     side: 'Good',
@@ -3934,8 +3934,8 @@ var playerUpgradeButtons = [{
             if (bits >= upgradeCost(upgradeLevels.Regen)) {
                 bits -= upgradeCost(upgradeLevels.Regen);
                 upgradeLevels.Regen += 1;
-                hPlayer.healthRegen += 0.005;
-                addNotif('Health regeneration increased by 0.005.');
+                hPlayer.healthRegen += 0.004;
+                addNotif('Health regeneration increased by 0.004.');
             }
         }
     },
@@ -5397,8 +5397,8 @@ var resetGame = function() {
         radius: 12.5,
         movement: 'Human',
         movementSpeed: 1,
-        health: 10000,
-        maxHealth: 10000,
+        health: 4000,
+        maxHealth: 4000,
         healthRegen: 0,
         reload: 0,
         side: 'Good',
