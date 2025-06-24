@@ -2060,7 +2060,6 @@ var greekCharacters = '\u03b1\u03b2\u03b3\u03b4\u03b5\u03b6\u03b7\u03b8\u03b9\u0
 var greekCharacterNames = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon', 'Phi', 'Psi', 'Omega'];
 var originalDroneCount = shopDrones.length;
 var initDrones = function() {
-    var newShopDrones = [];
     for (var i = 0; i < shopDrones.length; i++) {
         var shopDrone = shopDrones[i];
         shopDrone.owned = false;
@@ -2078,18 +2077,15 @@ var initDrones = function() {
         shopDrone.name = greekCharacterNames[i];
         shopDrone.logo = greekCharacters[i];
         shopDrone.used = false;
-        newShopDrones.push(shopDrone);
-        
-        // Prime
-        var primeDrone = Object.assign({}, shopDrone);
-        primeDrone.name += ' Prime';
-        primeDrone.description = 'Identical to ' + shopDrone.name + ', but now you can equip two.\n'+shopDrone.description;
-        primeDrone.logo += "'";
-        newShopDrones.push(primeDrone);
     }
-    shopDrones = newShopDrones;
 };
 initDrones();
+for (var i = 0; i < originalDroneCount; i++) {
+    shopDrones.push(Object.assign({}, shopDrones[i]));
+    var originalName = shopDrones[shopDrones.length - 1].name;
+    shopDrones[shopDrones.length - 1].name += ' Prime';
+    shopDrones[shopDrones.length - 1].description = 'Identical to ' + originalName + ', but now you can equip two.\n'+shopDrones[shopDrones.length - 1].description;
+}
 // }
 // Powers {
 var startWithPowers = false;
@@ -3137,7 +3133,7 @@ var drawDroneHealth = function() {
         fill(colorSchemes[colorScheme]);
         textSize(25);
         textAlign(CENTER, CENTER);
-        text(drone.logo, (i - 1) * 75 + 40 - textWidth(drone.logo[0])/2, fakeHeight - 85);
+        text(drone.logo, (i - 1) * 75 + 40, fakeHeight - 85);
     }
     fill(colorSchemes[colorScheme]);
     textSize(20);
