@@ -170,6 +170,8 @@ var ascensions = 0;
 var redification = 0;
 var startRedification = false;
 var damageCoef = 1;
+var maxWaveSelect = 1;
+var waveSelected = 1;
 // }
 // UI {
 // Backgrounds {
@@ -1949,11 +1951,11 @@ var shopDrones = [{
     },
     {
         movementSpeed: 0,
-        maxHealth: 1250,
+        maxHealth: 4000,
         healthRegen: 0.125,
         bodyDamage: 1.5,
         hoverDistance: 100,
-        maxReviveTime: 200,
+        maxReviveTime: 40,
         description: 'An immobile drone that acts as a meat shield.',
     },
     {
@@ -2339,6 +2341,9 @@ var drawPlayer = function(player) {
     if (player.movement === 'Drone') {
         drawDrone(player);
     } else {
+        if (player.movement !== 'Human') {
+            stroke(255, 0, 0);
+        }
         ellipse(0, 0, player.radius * 2, player.radius * 2);
     }
     drawWeapon(weapons[player.weapon], 0, 0, player.radius, player.reload / weapons[player.weapon].reload);
@@ -3199,7 +3204,7 @@ var startGame = function() {
         }
     }
     waveTimer = 1000;
-    currentWave = 0;
+    currentWave = waveSelected - 1;
 };
 var showMessage = function() {
     fill(colorSchemes[colorScheme]);
@@ -3221,7 +3226,9 @@ var advanceWaves = function() {
         message = ['Wave ' + currentWave + '|Next wave ready.'];
     }
     if ((waveTimer <= 0 & !waveLimiter) || (players.length === equippedDrones.length + smallDroneCount + 1)) {
-        furthestWave = max(furthestWave, currentWave);
+        if (currentWave !== waveSelected - 1 || currentWave === 0) {
+            furthestWave = max(furthestWave, currentWave);
+        }
         waves[currentWave % waves.length]();
         waveTimer = maxWaveTimer;
         currentWave += 1;
@@ -3280,6 +3287,16 @@ var bottomBar = function() {
     experienceBar();
     ascensionDisplay();
 };
+var waveSelection = function() {
+    if (maxWaveSelect > 1) {
+        textAlign(CENTER, CENTER);
+        textSize(25);
+        fill(colorSchemes[colorScheme]);
+        text("Wave " + waveSelected + "/" + maxWaveSelect, fakeWidth/2, fakeHeight/4);
+        text("-", fakeWidth/3, fakeHeight/4 - 1);
+        text("+", fakeWidth*2/3, fakeHeight/4 - 1);
+    }
+};
 var secretButtonClicks = 0;
 var maxSecretButtonClicks = 50;
 var menuButtons = [{
@@ -3332,6 +3349,34 @@ var menuButtons = [{
         requiredLevel: 0,
         onClick: function() {
             switchScene('Saving');
+        }
+    },
+    {
+        name: '',
+        x: fakeWidth / 3,
+        y: fakeHeight / 4,
+        radius: 20,
+        requirement: function() {
+            return maxWaveSelect > 1;
+        },
+        onClick: function() {
+            if (waveSelected > 1) {
+                waveSelected --;
+            }
+        }
+    },
+    {
+        name: '',
+        x: fakeWidth * 2 / 3,
+        y: fakeHeight / 4,
+        radius: 20,
+        requirement: function() {
+            return maxWaveSelect > 1;
+        },
+        onClick: function() {
+            if (waveSelected < maxWaveSelect) {
+                waveSelected ++;
+            }
         }
     },
 ];
@@ -3392,6 +3437,7 @@ var drawButtons = function() {
 };
 var menu = function() {
     drawTitle('Data Defense');
+    waveSelection();
     displayBits();
 };
 // }
@@ -5630,7 +5676,7 @@ var ascensionUpgradeButtons = [{
         y: fakeHeight / 2,
         radius: 75,
         requiredLevel: 0,
-        description: 'Increases bits gained by 40%. Costs 1 kB to purchase.',
+        description: 'Increases bits gained by 20%. Costs 1 kB to purchase.',
         onClick: function() {
             if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB');
@@ -5641,13 +5687,13 @@ var ascensionUpgradeButtons = [{
                 aUpgradeLevels[this.name] += 1;
                 bitMult *= 1.4;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'Increases bits gained by 40%. This upgrade is currently at level ' + upgradeLevel + '.\nBit multiplier: x' + round(bitMult * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases bits gained by 20%. This upgrade is currently at level ' + upgradeLevel + '.\nBit multiplier: x' + round(bitMult * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'Increases bits gained by 40%. This upgrade is currently at level ' + upgradeLevel + '.\nBit multiplier: x' + round(bitMult * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases bits gained by 20%. This upgrade is currently at level ' + upgradeLevel + '.\nBit multiplier: x' + round(bitMult * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5657,7 +5703,7 @@ var ascensionUpgradeButtons = [{
         y: fakeHeight / 2 - 75 * sqrt(3) / 2,
         radius: 75,
         requiredLevel: 0,
-        description: 'Increases damage by 80%. Costs 1 kB to purchase.',
+        description: 'Increases damage by 40%. Costs 1 kB to purchase.',
         onClick: function() {
             if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
@@ -5666,15 +5712,15 @@ var ascensionUpgradeButtons = [{
                 addNotif('Upgraded damage.');
                 kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
-                damageCoef *= 1.8;
+                damageCoef *= 1.4;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'Increases damage by 80%. This upgrade is currently at level ' + upgradeLevel + '.\nDamage coefficient: x' + round(damageCoef * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases damage by 40%. This upgrade is currently at level ' + upgradeLevel + '.\nDamage coefficient: x' + round(damageCoef * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'Increases damage by 80%. This upgrade is currently at level ' + upgradeLevel + '.\nDamage coefficient: x' + round(damageCoef * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Increases damage by 40%. This upgrade is currently at level ' + upgradeLevel + '.\nDamage coefficient: x' + round(damageCoef * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5711,24 +5757,24 @@ var ascensionUpgradeButtons = [{
         y: fakeHeight / 2 + 75 * sqrt(3) / 2,
         radius: 75,
         requiredLevel: 0,
-        description: 'You level up 50% faster. Costs 1 kB to purchase.',
+        description: 'You level up 25% faster. Costs 1 kB to purchase.',
         onClick: function() {
             if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
                 return;
             } else {
-                addNotif('Experience multiplier increased by 50%.');
+                addNotif('Experience multiplier increased by 25%.');
                 kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
-                experienceGain *= 1.5;
+                experienceGain *= 1.25;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'You level up 50% faster. This upgrade is currently at level ' + upgradeLevel + '.\nExperience multiplier: ' + floor(experienceGain * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'You level up 25% faster. This upgrade is currently at level ' + upgradeLevel + '.\nExperience multiplier: ' + floor(experienceGain * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'You level up 50% faster. This upgrade is currently at level ' + upgradeLevel + '.\nExperience multiplier: ' + floor(experienceGain * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'You level up 25% faster. This upgrade is currently at level ' + upgradeLevel + '.\nExperience multiplier: ' + floor(experienceGain * 100) / 100 + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5738,24 +5784,24 @@ var ascensionUpgradeButtons = [{
         y: fakeHeight / 2 + 75 * sqrt(3) / 2,
         radius: 75,
         requiredLevel: 0,
-        description: 'You start with 100 bits. Costs 1 kB to purchase.',
+        description: 'You start with 3200 bits. Costs 1 kB to purchase.',
         onClick: function() {
             if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
                 addNotif('Not enough kB!');
                 return;
             } else {
-                addNotif('Starting bits increased by 100.');
+                addNotif('Starting bits increased by 3200.');
                 kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
-                startingBits += 100;
+                startingBits += 3200;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'You start with 100 more bits. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + startingBits + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'You start with 3200 more bits. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + startingBits + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'You start with 100 more bits. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + startingBits + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'You start with 3200 more bits. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + startingBits + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5765,24 +5811,24 @@ var ascensionUpgradeButtons = [{
         y: fakeHeight / 2 - 75 * sqrt(3),
         radius: 75,
         requiredLevel: 0,
-        description: 'The game skips easier waves so you can earn bits faster.\nPurchase in moderation! Costs 1 kB to purchase.',
+        description: 'Adds a wave selector so you can skip easier waves.\nCosts 1 kB to purchase.',
         onClick: function() {
             if (kiloBytes < aUpgradeCost(aUpgradeLevels[this.name]) & !dev) {
-                addNotif('Not enough kB!');
+                addNotif('Not enough kB!', true);
                 return;
             } else {
-                addNotif('Starting difficulty increased by 100%.');
+                addNotif('Wave selector can select 6 more waves.', true);
                 kiloBytes -= aUpgradeCost(aUpgradeLevels[this.name]);
                 aUpgradeLevels[this.name] += 1;
-                startingDifficulty *= 2;
+                maxWaveSelect += 6;
                 var upgradeLevel = aUpgradeLevels[this.name];
-                this.description = 'The game starts 100% harder. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + round(startingDifficulty) + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Skip up to 6 more waves. This upgrade is currently at level ' + upgradeLevel + '.\nMax wave: ' + maxWaveSelect + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         },
         updateDesc: function() {
             var upgradeLevel = aUpgradeLevels[this.name];
             if (upgradeLevel > 0) {
-                this.description = 'The game starts 100% harder. This upgrade is currently at level ' + upgradeLevel + '.\nStarting bits: ' + round(startingDifficulty) + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
+                this.description = 'Skip up to 6 more waves. This upgrade is currently at level ' + upgradeLevel + '.\nMax wave: ' + maxWaveSelect + '. Costs ' + aUpgradeCost(upgradeLevel) + ' kB to level up.';
             }
         }
     },
@@ -5985,14 +6031,14 @@ var secretMarketButtons = [{
         y: fakeHeight * 3 / 4,
         radius: 50,
         requiredLevel: 0,
-        description: 'You give a kB and get 6000 bits.\nDoes not affect cumulative bits.',
+        description: 'You give a kB and get 1600 bits.\nDoes not affect cumulative bits.',
         onClick: function() {
             if (kiloBytes <= 0) {
                 addNotif('Not enough kB. Ascend to get kB.');
             } else {
                 kiloBytes--;
-                bits += 6000;
-                addNotif('1 kB converted into 6000 bits.\nHave fun with your wealth.');
+                bits += 1600;
+                addNotif('1 kB converted into 1600 bits.\nHave fun with your wealth.');
             }
         }
     },
@@ -6002,14 +6048,17 @@ var secretMarketButtons = [{
         y: fakeHeight / 2,
         radius: 50,
         requiredLevel: 0,
-        description: '50% chance to double your bits, 50% to lose it all.\nDoubling your bits increases cumulative bits.',
+        description: '40% chance to double your bits, 60% to lose it all.\nDoubling your bits increases cumulative bits.',
         onClick: function() {
-            if (random(1) > 0.5) {
+            if (random(1) > 0.6) {
                 cumulativeBits += bits;
                 bits *= 2;
+                addNotif('You won! Your bits have been doubled.');
             } else {
                 bits = 0;
+                addNotif('You lost! You lost all your bits.');
             }
+            createSave();
         }
     },
     {
@@ -6018,11 +6067,13 @@ var secretMarketButtons = [{
         y: fakeHeight / 2,
         radius: 50,
         requiredLevel: 0,
-        description: 'Removes all your current viruses for 5000 bits.',
+        description: 'Removes all your current viruses for 16000 bits.',
         onClick: function() {
-            if (bits >= 5000) {
+            if (bits >= 16000) {
+                bits -= 16000;
                 initViruses();
-                addNotif('Viruses removed for 5000 bits.');
+                addNotif('Viruses removed for ' + 16000 + ' bits.');
+                this.description = 'Removes your viruses.\n Cost: ' + 16000 + ' bits.';
             } else {
                 addNotif('Not enough bits!');
             }
@@ -6034,7 +6085,7 @@ var secretMarketButtons = [{
         y: fakeHeight * 3 / 4,
         radius: 50,
         requiredLevel: 0,
-        description: 'Bullets are rendered as circles, reducing lag in high graphics mode.\nYou can toggle this upgrade. Costs 5 kB.',
+        description: 'Render bullets as circles to reduce lag.\nYou can toggle this upgrade. Costs 5 kB.',
         purchased: false,
         onClick: function() {
             if (!this.purchased & kiloBytes < 5) {
@@ -6104,10 +6155,10 @@ var secretMarketButtons = [{
         y: fakeHeight / 4,
         radius: 50,
         requiredLevel: 0,
-        description: 'Converts your current bits into cumulative bits.\nAllows you to earn more kB upon ascension.',
+        description: 'Converts all bits into 50% their value in cumulative bits.\nAllows you to earn more kB upon ascension.',
         onClick: function() {
-            addNotif('Current bits converted into cumulative bits.');
-            cumulativeBits += bits;
+            addNotif('All bits converted into cumulative bits.');
+            cumulativeBits += bits / 2;
             bits = 0;
         }
     },
@@ -6117,12 +6168,12 @@ var secretMarketButtons = [{
         y: fakeHeight * 3 / 4,
         radius: 50,
         requiredLevel: 0,
-        description: 'Holding your mouse starts an autoclicker.\nUseful for buying chests, scrolling through guns, etc. Costs 5 kB.',
+        description: 'Holding your mouse starts an autoclicker.\nUseful for buying chests, scrolling through guns. Costs 8 kB.',
         onClick: function() {
-            if (!holdButtons & kiloBytes < 5) {
+            if (!holdButtons & kiloBytes < 8) {
                 addNotif('Not enough kB.');
-            } else if (!holdButtons & kiloBytes >= 5) {
-                kiloBytes -= 5;
+            } else if (!holdButtons & kiloBytes >= 8) {
+                kiloBytes -= 8;
                 holdButtons = true;
                 addNotif('Mouse upgraded.');
                 this.description = 'Purchased.';
@@ -6222,6 +6273,8 @@ var loadSave = function() {
     achievementsEarned = _JSON.parse(saveCode[49]);
     unlockedAchievements = saveCode[50];
     aUpgradeLevels = _JSON.parse(saveCode[51]);
+    maxWaveSelect = saveCode[52];
+    waveSelected = saveCode[53];
     for (var i in unlockedWeapons) {
         if (i.length < 3) {
             weapons[i].owned = true;
@@ -6365,6 +6418,8 @@ var createSave = function() {
     saveCode[49] = _JSON.stringify(achievementsEarned);
     saveCode[50] = unlockedAchievements;
     saveCode[51] = _JSON.stringify(aUpgradeLevels);
+    saveCode[52] = maxWaveSelect;
+    saveCode[53] = waveSelected;
     var saveStr = "[";
     for (var i = 0; i < saveCode.length; i++) {
         if (typeof saveCode[i] === "string") {
